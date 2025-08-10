@@ -14,16 +14,32 @@ import VideoUploadPage from './components/Videos/VideoUploadPage';
 import AddVideoPage from './components/Videos/AddVideoPage';
 import BookingsDashboard from './components/Bookings/BookingsDashboard';
 import ChatPage from './components/Conversations/ChatPage';
+import { PrivateRoute, PublicRoute } from './utils/Routes';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginScreen />} />
-        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/" element={
+          <PublicRoute>
+            <LoginScreen />
+          </PublicRoute>
+        } />
+        <Route path="/login" element={
+          <PublicRoute>
+            <LoginScreen />
+          </PublicRoute>
+
+        } />
+
         <Route path="*" element={<Navigate to="/" replace />} />
 
-        <Route path="admin" element={<Dashboard />}>
+        <Route path="admin" element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+
+        }>
           <Route path="home" element={<Home />} />
           <Route path="providers" element={<ProvidersDashboard />} />
           <Route path="customers" element={<CustomersDashboard />} />
