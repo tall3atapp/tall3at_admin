@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import ApexChart from 'react-apexcharts';
 import axios from 'axios';
 import './Home.css';
+import { API_CONFIG } from '../constants/config';
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log('Home component rendered', data);
   useEffect(() => {
-    axios.get('http://localhost:5030/api/admin/dashboard')
+    axios.get(`${API_CONFIG.BASE_URL}api/admin/dashboard`)
       .then(res => {
         setData(res.data);
         setLoading(false);
@@ -28,7 +30,7 @@ export default function Home() {
       </div>
     );
   }
-  
+
   if (error) return <div className="dashboard-error">{error}</div>;
   if (!data) return null;
 
@@ -101,7 +103,7 @@ export default function Home() {
     series: [{ name: 'مستخدمون جدد', data: chartData.dailyUsers.map(d => d.value) }]
   };
 
-    return (
+  return (
     <div className="dashboard-home">
       <div className="dashboard-cards">
         {statCards.map((card, i) => (
