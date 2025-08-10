@@ -201,40 +201,38 @@ body {
 
 .input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .input-icon {
   position: absolute;
-  right: 16px;
+  inset-block: 0;                 
+  inset-inline-end: 12px;         
+  display: flex;
+  align-items: center;            
+  font-size: 1.1rem;
   color: gray;
-  font-size: 1rem;
+  pointer-events: none;
   z-index: 2;
-  transition: color 0.3s ease;
 }
 
 .form-input {
   width: 100%;
-  padding: 16px 48px 16px 16px;
+  padding-block: 14px;            
+  padding-inline-start: 14px;     
+  padding-inline-end: 44px;       
   border: 2px solid var(--primary-color);
   border-radius: 12px;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  line-height: 1.4;
   background-color: var(--white);
   color: var(--secondary-color);
   font-weight: 500;
-  outline: #1fc1de;
-  text-align: right;
+  text-align: right;              
 }
 
 .form-input:focus {
   outline: none;
   box-shadow: 0 0 0 4px rgba(0, 16, 98, 0.08);
-}
-
-.form-input:focus + .input-icon {
-  color: var(--primary-color);
 }
 
 .form-input::placeholder {
@@ -249,6 +247,25 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.toggle-visibility {
+  color: white;
+  /* padding-right: 8px; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* align-content: center; */
+text-align: left;
+}
+
+.toggle-visibility:hover {
+  color: var(--primary-color);
+}
+
+.toggle-text {
+  white-space: nowrap;
+  font-size: 0.85rem;
+  padding-right: 8px;
 }
 
 .remember-me {
