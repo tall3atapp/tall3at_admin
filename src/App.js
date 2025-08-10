@@ -29,7 +29,6 @@ function App() {
           <PublicRoute>
             <LoginScreen />
           </PublicRoute>
-
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />
