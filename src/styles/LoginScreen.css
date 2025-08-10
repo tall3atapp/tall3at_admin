@@ -39,7 +39,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(0, 16, 98, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
@@ -68,6 +68,7 @@ body {
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -176,9 +177,19 @@ body {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 .error-message i {
@@ -205,10 +216,10 @@ body {
 
 .input-icon {
   position: absolute;
-  inset-block: 0;                 
-  inset-inline-end: 12px;         
+  inset-block: 0;
+  inset-inline-end: 12px;
   display: flex;
-  align-items: center;            
+  align-items: center;
   font-size: 1.1rem;
   color: gray;
   pointer-events: none;
@@ -217,9 +228,9 @@ body {
 
 .form-input {
   width: 100%;
-  padding-block: 14px;            
-  padding-inline-start: 14px;     
-  padding-inline-end: 44px;       
+  padding-block: 14px;
+  padding-inline-start: 14px;
+  padding-inline-end: 44px;
   border: 2px solid var(--primary-color);
   border-radius: 12px;
   font-size: 1rem;
@@ -227,7 +238,7 @@ body {
   background-color: var(--white);
   color: var(--secondary-color);
   font-weight: 500;
-  text-align: right;              
+  text-align: right;
 }
 
 .form-input:focus {
@@ -251,11 +262,8 @@ body {
 
 .toggle-visibility {
   color: white;
-  /* padding-right: 8px; */
-  /* justify-content: center; */
-  /* align-items: center; */
-  /* align-content: center; */
-text-align: left;
+  text-align: left;
+  line-height: 1.5;
 }
 
 .toggle-visibility:hover {
@@ -377,8 +385,13 @@ text-align: left;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .form-footer {
@@ -416,36 +429,53 @@ text-align: left;
   .login-screen {
     padding: 15px;
   }
+
+  .toggle-visibility {
+    font-size: 0.75rem;
+  }
+
+  .toggle-visibility .toggle-text {
+    font-size: 0.75rem;
+  }
+
   .login-card {
     border-radius: 20px;
   }
- 
+
   .card-body {
     padding: 30px 20px;
   }
+
   .brand-name {
     font-size: 1.8rem;
   }
+
   .logo-avatar {
     width: 50px;
     height: 50px;
   }
+
   .logo-icon {
     width: 50px;
     height: 50px;
   }
+
   .logo-icon i {
     font-size: 1.5rem;
   }
+
   .form-header h2 {
     font-size: 1.5rem;
   }
+
   .form-input {
     padding: 14px 44px 14px 14px;
   }
+
   .login-button {
     padding: 14px;
   }
+
   .form-options {
     flex-direction: column;
     align-items: flex-start;
@@ -457,12 +487,15 @@ text-align: left;
   .card-header {
     padding: 25px 15px 20px;
   }
+
   .card-body {
     padding: 25px 15px;
   }
+
   .brand-name {
     font-size: 1.6rem;
   }
+
   .logo-section {
     flex-direction: column;
     gap: 10px;
@@ -475,17 +508,21 @@ text-align: left;
     background: #1a1a1a;
     border-color: rgba(0, 16, 98, 0.15);
   }
+
   .form-header h2 {
     color: var(--white);
   }
+
   .form-input {
     background-color: #2a2a2a;
     border-color: #444;
     color: var(--white);
   }
+
   .form-input:focus {
     border-color: var(--primary-color);
   }
+
   .form-header p,
   .remember-me,
   .form-footer {
@@ -495,6 +532,7 @@ text-align: left;
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Tajawal:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap');
 
-html, body {
+html,
+body {
   font-family: 'Cairo', 'Tajawal', 'Noto Kufi Arabic', Arial, Tahoma, 'Segoe UI', sans-serif;
-} 
+}
