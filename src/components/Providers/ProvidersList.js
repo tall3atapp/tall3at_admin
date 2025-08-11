@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faFilter, 
-  faEye, 
-  faEdit, 
-  faTrash, 
+import {
+  faFilter,
+  faEye,
+  faEdit,
+  faTrash,
   faPlus,
   faDownload,
   faPrint,
@@ -140,9 +140,9 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
     try {
       const formData = new FormData();
       formData.append('status', newStatus);
-      
+
       console.log('Sending status update:', { providerId, status: newStatus });
-      
+
       await api.put(`/api/admin/providers/${providerId}/status`, formData);
       fetchProviders();
       showSuccessMessage('تم تحديث حالة المزود بنجاح');
@@ -260,12 +260,12 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         </body>
         </html>
       `;
-      
+
       printWindow.document.write(printContent);
       printWindow.document.close();
-      
+
       // Wait for content to load then print
-      printWindow.onload = function() {
+      printWindow.onload = function () {
         printWindow.print();
         printWindow.close();
       };
@@ -302,11 +302,11 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         cityId: filters.cityId,
         format: 'csv'
       });
-      
+
       const response = await api.get(`/api/admin/providers/export?${params}`, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -321,34 +321,34 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'Active': { 
-        class: 'status-active', 
+      'Active': {
+        class: 'status-active',
         text: 'نشط',
         icon: faCheckCircle
       },
-      'Pending': { 
-        class: 'status-pending', 
+      'Pending': {
+        class: 'status-pending',
         text: 'في الانتظار',
         icon: faClock
       },
-      'Suspended': { 
-        class: 'status-suspended', 
+      'Suspended': {
+        class: 'status-suspended',
         text: 'معلق',
         icon: faTimesCircle
       },
-      'Deleted': { 
-        class: 'status-deleted', 
+      'Deleted': {
+        class: 'status-deleted',
         text: 'محذوف',
         icon: faUserSlash
       }
     };
-    
-    const config = statusConfig[status] || { 
-      class: 'status-default', 
+
+    const config = statusConfig[status] || {
+      class: 'status-default',
       text: status,
       icon: faUserSlash
     };
-    
+
     return (
       <span className={`status-badge ${config.class}`}>
         <FontAwesomeIcon icon={config.icon} />
@@ -359,13 +359,13 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
 
   const getSortIcon = (field) => {
     if (filters.sortBy !== field) return <FontAwesomeIcon icon={faSort} />;
-    return filters.sortOrder === 'asc' ? 
-      <FontAwesomeIcon icon={faSortUp} /> : 
+    return filters.sortOrder === 'asc' ?
+      <FontAwesomeIcon icon={faSortUp} /> :
       <FontAwesomeIcon icon={faSortDown} />;
   };
 
   // Filter cities based on search
-  const filteredCities = cities.filter(city => 
+  const filteredCities = cities.filter(city =>
     city.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
@@ -426,7 +426,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
             <h2>إدارة المزودين</h2>
             <p>عرض وإدارة جميع مزودي الخدمات في النظام</p>
           </div>
-          
+
           <div className="providers-actions">
             <button className="btn btn-print" disabled>
               <FontAwesomeIcon icon={faPrint} />
@@ -473,7 +473,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
           <h2>إدارة المزودين</h2>
           <p>عرض وإدارة جميع مزودي الخدمات في النظام</p>
         </div>
-        
+
         <div className="providers-actions">
           <button className="btn btn-print" onClick={printProviders}>
             <FontAwesomeIcon icon={faPrint} />
@@ -500,7 +500,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
           />
         </div>
 
-        <button 
+        <button
           className={`filter-toggle ${showFilters ? 'active' : ''}`}
           onClick={() => setShowFilters(!showFilters)}
         >
@@ -510,19 +510,23 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
 
         {showFilters && (
           <div className="filters-panel">
-            <select 
-              value={filters.status} 
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-            >
-              <option value="">جميع الحالات</option>
-              <option value="Active">نشط</option>
-              <option value="Pending">في الانتظار</option>
-              <option value="Suspended">معلق</option>
-              <option value="Deleted">محذوف</option>
-            </select>
+            <div className="select-wrap">
+
+              <select
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+              >
+                <option value="">جميع الحالات</option>
+                <option value="Active">نشط</option>
+                <option value="Pending">في الانتظار</option>
+                <option value="Suspended">معلق</option>
+                <option value="Deleted">محذوف</option>
+              </select>
+
+            </div>
 
             <div className="city-search-container">
-              <div className="city-search-input">
+              <div className="city-search-input select-wrap">
                 <input
                   type="text"
                   placeholder="البحث في المدن..."
@@ -530,7 +534,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
                   onChange={handleCitySearchChange}
                   onFocus={() => setShowCityDropdown(true)}
                 />
-                <button 
+                <button
                   type="button"
                   className="city-clear-btn"
                   onClick={() => {
@@ -543,7 +547,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
                   ×
                 </button>
               </div>
-              
+
               {showCityDropdown && (
                 <div className="city-dropdown">
                   {filteredCities.length > 0 ? (
@@ -597,8 +601,8 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
                 <td>
                   <div className="provider-info">
                     {provider.profileImage && provider.profileImage !== 'null' && provider.profileImage !== 'undefined' && provider.profileImage.trim() !== '' ? (
-                      <img 
-                        src={getImageUrl(provider.profileImage)} 
+                      <img
+                        src={getImageUrl(provider.profileImage)}
                         alt={provider.fullName}
                         className="provider-avatar"
                         onError={(e) => {
@@ -641,21 +645,21 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
                 <td>{formatDate(provider.createdAt)}</td>
                 <td>
                   <div className="categories-action-buttons">
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-view"
                       onClick={() => onViewProvider(provider.id)}
                       title="عرض التفاصيل"
                     >
                       <FontAwesomeIcon icon={faEye} />
                     </button>
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-edit"
                       onClick={() => onEditProvider(provider.id)}
                       title="تعديل"
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-delete"
                       onClick={() => showDeleteConfirmModal(provider.id, provider.fullName)}
                       title="حذف"
@@ -676,16 +680,16 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         </div>
       )}
 
-      {pagination.totalPages > 1 && (
+      {/* {pagination.totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="btn-page"
             disabled={pagination.currentPage === 1}
             onClick={() => handlePageChange(pagination.currentPage - 1)}
           >
             السابق
           </button>
-          
+
           {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
             <button
               key={page}
@@ -695,8 +699,70 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
               {page}
             </button>
           ))}
-          
-          <button 
+
+          <button
+            className="btn-page"
+            disabled={pagination.currentPage === pagination.totalPages}
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+          >
+            التالي
+          </button>
+        </div>
+      )} */}
+      {pagination.totalPages > 1 && (
+        <div className="pagination">
+          {/* Prev button */}
+          <button
+            className="btn-page"
+            disabled={pagination.currentPage === 1}
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+          >
+            السابق
+          </button>
+
+          {/* Page numbers */}
+          {(() => {
+            let pages = [];
+            let total = pagination.totalPages;
+            let current = pagination.currentPage;
+
+            // Always show first page
+            if (current > 3) {
+              pages.push(1);
+              if (current > 4) pages.push("...");
+            }
+
+            // Show up to 5 pages around current
+            let start = Math.max(1, current - 2);
+            let end = Math.min(total, current + 2);
+
+            for (let i = start; i <= end; i++) {
+              if (i !== 1 && i !== total) pages.push(i);
+            }
+
+            // Always show last page
+            if (current < total - 2) {
+              if (current < total - 3) pages.push("...");
+              pages.push(total);
+            }
+
+            return pages.map((p, idx) =>
+              p === "..." ? (
+                <span key={`dots-${idx}`} className="dots">...</span>
+              ) : (
+                <button
+                  key={p}
+                  className={`btn-page ${p === current ? 'active' : ''}`}
+                  onClick={() => handlePageChange(p)}
+                >
+                  {p}
+                </button>
+              )
+            );
+          })()}
+
+          {/* Next button */}
+          <button
             className="btn-page"
             disabled={pagination.currentPage === pagination.totalPages}
             onClick={() => handlePageChange(pagination.currentPage + 1)}
@@ -706,7 +772,8 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         </div>
       )}
 
-      <SuccessModal 
+
+      <SuccessModal
         message={successModal.message}
         isVisible={successModal.isVisible}
         onClose={closeSuccessModal}

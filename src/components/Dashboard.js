@@ -16,13 +16,11 @@ const MenuItem = ({ title, to, onClick, isSubItem = false }) => {
         <NavLink
             to={to}
             onClick={onClick}
-            className={({ isActive }) => 
-                `flex items-center p-3 rounded-lg transition-colors duration-200 ${
-                    isSubItem ? 'ml-6 text-sm' : 'text-base'
-                } ${
-                    isActive 
-                        ? 'bg-white text-primary font-medium' 
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+            className={({ isActive }) =>
+                `flex items-center p-3 rounded-lg transition-colors duration-200 ${isSubItem ? 'ml-6 text-sm' : 'text-base'
+                } ${isActive
+                    ? 'bg-white text-primary font-medium'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                 }`
             }
         >
@@ -37,13 +35,12 @@ const MenuItem = ({ title, to, onClick, isSubItem = false }) => {
 const SubMenu = ({ title, icon, items, isOpen, onToggle }) => {
     return (
         <div className="mb-2">
-            <button 
+            <button
                 onClick={onToggle}
-                className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors duration-200 ${
-                    isOpen 
-                        ? 'bg-white/10 text-white' 
+                className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors duration-200 ${isOpen
+                        ? 'bg-white/10 text-white'
                         : 'text-white/80 hover:bg-white/10 hover:text-white'
-                }`}
+                    }`}
             >
                 <div className="flex items-center">
                     <i className={`${icon} w-5 h-5 mr-3`}></i>
@@ -54,10 +51,10 @@ const SubMenu = ({ title, icon, items, isOpen, onToggle }) => {
             {isOpen && (
                 <div className="mt-1">
                     {items.map((item, index) => (
-                        <MenuItem 
-                            key={index} 
-                            title={item.title} 
-                            to={item.path} 
+                        <MenuItem
+                            key={index}
+                            title={item.title}
+                            to={item.path}
                             isSubItem={true}
                         />
                     ))}
@@ -95,13 +92,13 @@ const Header = ({ onMenuClick, isMobileMenuOpen }) => {
     return (
         <div className="dashboard-header">
             <div className="header-left">
-                <button 
+                <button
                     onClick={onMenuClick}
                     className="menu-toggle-btn"
                 >
                     <i className={`fas fa-${isMobileMenuOpen ? 'times' : 'bars'}`}></i>
                 </button>
-                
+
                 <div className="breadcrumb">
                     <span className="text-gray-500">Admin</span>
                     <i className="fas fa-chevron-right text-gray-400 mx-2"></i>
@@ -225,7 +222,7 @@ export default function Dashboard() {
                             <span className="fa fa-user-friends"></span>العملاء
                         </NavLink>
                     </li>
-                  
+
                     <li>
                         <NavLink to="/admin/trips" className={({ isActive }) => isActive ? 'active' : ''}>
                             <span className="fa fa-route"></span>الطلعات
@@ -279,7 +276,7 @@ export default function Dashboard() {
                     <li>
                         <button className="logout-link" onClick={handleLogout}>
                             <span className="fa fa-sign-out-alt"></span>تسجيل الخروج
-                    </button>
+                        </button>
                     </li>
                 </ul>
             </aside>
@@ -290,8 +287,8 @@ export default function Dashboard() {
                         طلعات لوحة التحكم والادارة
                     </div>
                     <div className="header-actions">
-                        <button className="header-icon-btn"><span className="fa fa-bell"></span></button>
-                        <button className="header-icon-btn"><span className="fa fa-comments"></span></button>
+                        <button className="header-icon-btn" title="الإشعارات"><span className="fa fa-bell"></span></button>
+                        <button className="header-icon-btn" title="المحادثات"><span className="fa fa-comments"></span></button>
                         <div className="header-avatar">
                             <img src="/assets/images/logo.png" alt="Avatar" />
                             <span className="header-username">أحمد</span>

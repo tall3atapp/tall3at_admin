@@ -794,16 +794,16 @@
 }
 
 /* Provider Information */
-.provider-info {
+/* .provider-info {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 24px;
+  padding: 3px;
   background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
-}
+} */
 
 .provider-info:hover {
   background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
