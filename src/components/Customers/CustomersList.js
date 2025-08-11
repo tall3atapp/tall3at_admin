@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faSearch, 
-  faEye, 
-  faEdit, 
-  faTrash, 
+import {
+  faSearch,
+  faEye,
+  faEdit,
+  faTrash,
   faPlus,
   faDownload,
   faPrint,
@@ -152,9 +152,9 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
     try {
       const formData = new FormData();
       formData.append('status', newStatus);
-      
+
       console.log('Sending status update:', { customerId, status: newStatus });
-      
+
       await api.put(`/api/admin/users/${customerId}/status`, formData);
       fetchCustomers();
       showSuccessMessage('تم تحديث حالة العميل بنجاح');
@@ -258,7 +258,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
         </body>
         </html>
       `;
-      
+
       printWindow.document.write(printContent);
       printWindow.document.close();
       printWindow.focus();
@@ -298,11 +298,11 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
         cityId: filters.cityId,
         format: 'csv'
       });
-      
+
       const response = await api.get(`/api/admin/users/export?${params}`, {
         responseType: 'blob'
       });
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -317,34 +317,34 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'Active': { 
-        class: 'status-active', 
+      'Active': {
+        class: 'status-active',
         text: 'نشط',
         icon: faCheckCircle
       },
-      'Pending': { 
-        class: 'status-pending', 
+      'Pending': {
+        class: 'status-pending',
         text: 'في الانتظار',
         icon: faClock
       },
-      'Suspended': { 
-        class: 'status-suspended', 
+      'Suspended': {
+        class: 'status-suspended',
         text: 'معلق',
         icon: faTimesCircle
       },
-      'Deleted': { 
-        class: 'status-deleted', 
+      'Deleted': {
+        class: 'status-deleted',
         text: 'محذوف',
         icon: faUserSlash
       }
     };
-    
-    const config = statusConfig[status] || { 
-      class: 'status-default', 
+
+    const config = statusConfig[status] || {
+      class: 'status-default',
       text: status,
       icon: faUserSlash
     };
-    
+
     return (
       <span className={`status-badge ${config.class}`}>
         <FontAwesomeIcon icon={config.icon} />
@@ -355,13 +355,13 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
 
   const getSortIcon = (field) => {
     if (filters.sortBy !== field) return <FontAwesomeIcon icon={faSort} />;
-    return filters.sortOrder === 'asc' ? 
-      <FontAwesomeIcon icon={faSortUp} /> : 
+    return filters.sortOrder === 'asc' ?
+      <FontAwesomeIcon icon={faSortUp} /> :
       <FontAwesomeIcon icon={faSortDown} />;
   };
 
   // Filter cities based on search
-  const filteredCities = cities.filter(city => 
+  const filteredCities = cities.filter(city =>
     city.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
@@ -459,7 +459,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
           <h2>إدارة العملاء</h2>
           <p>عرض وإدارة جميع العملاء في النظام</p>
         </div>
-        
+
         <div className="customers-actions">
           <button className="btn btn-print" onClick={printCustomers}>
             <FontAwesomeIcon icon={faPrint} />
@@ -487,40 +487,46 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
         </div>
 
         <div className="filter-group">
-          <select 
-            value={filters.status} 
-            onChange={(e) => handleFilterChange('status', e.target.value)}
-          >
-            <option value="">جميع الحالات</option>
-            <option value="Active">نشط</option>
-            <option value="NotActive">غير نشط</option>
-          </select>
+          <div className="select-wrap">
+            <select
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="">جميع الحالات</option>
+              <option value="Active">نشط</option>
+              <option value="NotActive">غير نشط</option>
+            </select>
+          </div>
+
         </div>
 
         <div className="filter-group">
           <div className="city-search-container">
-            <div className="city-search-input">
-              <input
-                type="text"
-                placeholder="البحث في المدن..."
-                value={citySearch}
-                onChange={handleCitySearchChange}
-                onFocus={() => setShowCityDropdown(true)}
-              />
-              <button 
-                type="button"
-                className="city-clear-btn"
-                onClick={() => {
-                  setCitySearch('');
-                  handleFilterChange('cityId', '');
-                  setShowCityDropdown(false);
-                }}
-                style={{ display: citySearch ? 'block' : 'none' }}
-              >
-                ×
-              </button>
+            <div className="select-wrap">
+
+              <div className="city-search-input">
+                <input
+                  type="text"
+                  placeholder="البحث في المدن..."
+                  value={citySearch}
+                  onChange={handleCitySearchChange}
+                  onFocus={() => setShowCityDropdown(true)}
+                />
+                <button
+                  type="button"
+                  className="city-clear-btn"
+                  onClick={() => {
+                    setCitySearch('');
+                    handleFilterChange('cityId', '');
+                    setShowCityDropdown(false);
+                  }}
+                  style={{ display: citySearch ? 'block' : 'none' }}
+                >
+                  ×
+                </button>
+              </div>
             </div>
-            
+
             {showCityDropdown && (
               <div className="city-dropdown">
                 {filteredCities.length > 0 ? (
@@ -573,12 +579,12 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
             {customers.map(customer => (
               <tr key={customer.id}>
                 <td>
-                  <div className="customer-info">
+                  <div className="provider-info">
                     {getImageUrl(customer.profileImage) ? (
-                      <img 
-                        src={getImageUrl(customer.profileImage)} 
+                      <img
+                        src={getImageUrl(customer.profileImage)}
                         alt={customer.fullName}
-                        className="customer-avatar"
+                        className="provider-info"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
@@ -586,7 +592,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
                       />
                     ) : null}
                     {(!getImageUrl(customer.profileImage) || !customer.profileImage) && (
-                      <div className="customer-avatar-placeholder">
+                      <div className="provider-avatar-icon">
                         <FontAwesomeIcon icon={faUser} />
                       </div>
                     )}
@@ -621,21 +627,21 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
                 <td>{formatDate(customer.createdAt)}</td>
                 <td>
                   <div className="categories-action-buttons">
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-view"
                       onClick={() => onViewCustomer(customer.id)}
                       title="عرض التفاصيل"
                     >
                       <FontAwesomeIcon icon={faEye} />
                     </button>
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-edit"
                       onClick={() => onEditCustomer(customer.id)}
                       title="تعديل"
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    <button 
+                    <button
                       className="categories-btn-action categories-btn-delete"
                       onClick={() => showDeleteConfirmModal(customer.id, customer.fullName)}
                       title="حذف"
@@ -658,7 +664,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
 
       {pagination.totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="btn-page"
             disabled={pagination.currentPage === 1}
             onClick={() => handlePageChange(pagination.currentPage - 1)}
@@ -670,15 +676,15 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
               page === '...'
                 ? <span key={`ellipsis-${idx}`} className="pagination-ellipsis">...</span>
                 : <button
-                    key={page}
-                    className={`btn-page ${page === pagination.currentPage ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
+                  key={page}
+                  className={`btn-page ${page === pagination.currentPage ? 'active' : ''}`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
             )
           }
-          <button 
+          <button
             className="btn-page"
             disabled={pagination.currentPage === pagination.totalPages}
             onClick={() => handlePageChange(pagination.currentPage + 1)}
@@ -688,7 +694,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
         </div>
       )}
 
-      <SuccessModal 
+      <SuccessModal
         message={successModal.message}
         isVisible={successModal.isVisible}
         onClose={closeSuccessModal}
