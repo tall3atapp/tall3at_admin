@@ -22,6 +22,7 @@ import { formatDate } from '../../utils/dateUtils';
 import SuccessModal from '../SuccessModal';
 import DeleteConfirmModal from '../DeleteConfirmModal';
 import './ProvidersList.css';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // Utility function to get full image URL
 const getImageUrl = (imagePath) => {
@@ -36,8 +37,9 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchParams] = useSearchParams();
   const [pagination, setPagination] = useState({
-    currentPage: 1,
+    currentPage: parseInt(searchParams.get("page")) || 1,
     totalPages: 1,
     totalCount: 0,
     pageSize: 10
@@ -61,12 +63,23 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
     isVisible: false,
     providerId: null,
     providerName: ''
+
   });
 
+  const navigate = useNavigate();
+
+
+  // const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  // const [currentPage, setCurrentPage] = useState(pageFromUrl);
+
   useEffect(() => {
+    // const queryParams = new URLSearchParams(window.location.search);
+    //in progress
+    const page = parseInt(searchParams.get('page')) || 1;
+    setPagination((prev) => ({ ...prev, currentPage: page }));
     fetchProviders();
     fetchCities();
-  }, [pagination.currentPage, filters]);
+  }, [pagination.currentPage, filters, searchParams]);
 
   // Handle clicking outside city dropdown
   useEffect(() => {
@@ -117,9 +130,10 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
   };
 
   const handleSearch = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
+    const value = e.target.value
     setPagination(prev => ({ ...prev, currentPage: 1 }));
-    setFilters(prev => ({ ...prev, search: e.target.value }));
+    setFilters(prev => ({ ...prev, search: value }));
   };
 
   const handleFilterChange = (key, value) => {
@@ -133,8 +147,17 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
   };
 
   const handlePageChange = (page) => {
+    // setPagination(prev => ({ ...prev, currentPage: page }));
+    // setCurrentPage(page);
     setPagination(prev => ({ ...prev, currentPage: page }));
+    navigate(`/admin/providers?page=${page}`);
+
+    // window.history.pushState({}, '', `?page=${page}`);
+    fetchProviders(page);
   };
+
+
+
 
   const handleStatusChange = async (providerId, newStatus) => {
     try {

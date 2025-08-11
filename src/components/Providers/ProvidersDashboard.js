@@ -12,6 +12,8 @@ const ProvidersDashboard = () => {
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
 
+
+
   const handleViewProvider = (providerId) => {
     setSelectedProviderId(providerId);
     setCurrentView('details');
@@ -66,7 +68,7 @@ const ProvidersDashboard = () => {
             onCreateProvider={handleCreateProvider}
           />
         );
-      
+
       case 'details':
         return (
           <ProviderDetails
@@ -76,7 +78,7 @@ const ProvidersDashboard = () => {
             onViewBooking={handleViewBooking}
           />
         );
-      
+
       case 'form':
         return (
           <ProviderForm
@@ -91,7 +93,7 @@ const ProvidersDashboard = () => {
           <TripDetails
             tripId={selectedTripId}
             onBack={handleBackToProvider}
-            onEdit={() => {}} // You can implement trip edit if needed
+            onEdit={() => { }} // You can implement trip edit if needed
           />
         );
 
@@ -100,13 +102,13 @@ const ProvidersDashboard = () => {
           <BookingDetails
             bookingId={selectedBookingId}
             onBack={handleBackToProvider}
-            onEdit={() => {}} // You can implement booking edit if needed
-            onViewCustomer={() => {}} // You can implement customer view if needed
-            onViewProvider={() => {}} // You can implement provider view if needed
-            onViewTrip={() => {}} // You can implement trip view if needed
+            onEdit={() => { }} // You can implement booking edit if needed
+            onViewCustomer={() => { }} // You can implement customer view if needed
+            onViewProvider={() => { }} // You can implement provider view if needed
+            onViewTrip={() => { }} // You can implement trip view if needed
           />
         );
-      
+
       default:
         return (
           <ProvidersList
