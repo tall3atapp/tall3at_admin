@@ -285,7 +285,7 @@ export default function BookingDetails({ bookingId, onBack, onEdit, onViewCustom
   }
 
   /* Keep to one page */
-  .onepage { transform: scale(0.94); transform-origin: top right; width:106%; }
+  .onepage { transform: scale(0.94); transform-origin: top right; width:100%; }
 
   /* ===== Users table fixes ===== */
   .users-table { table-layout: fixed; }
@@ -322,8 +322,6 @@ ${(logoSrc || providerName) ? `
       <tbody>
         <tr class="total-row"><td>التكلفة الإجمالية</td><td class="num riyal">${val(booking.totalCost, " ريال")}</td></tr>
         <tr><td>تكلفة الرحلة</td><td class="num riyal">${val(booking.cost, " ريال")}</td></tr>
-        // <tr><td>عمولة المزود</td><td class="num riyal">${val(booking.providerCommission, " ريال")}</td></tr>
-        <tr>
   <td style="background: var(--warn-bg); -webkit-print-color-adjust: exact; print-color-adjust: exact;">
     عمولة المزود
   </td>
