@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faEye, 
-  faEdit, 
-  faTrash, 
+import {
+  faEye,
+  faEdit,
+  faTrash,
   faPlus,
   faDownload,
   faPrint,
@@ -90,7 +90,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
     const handleClickOutside = (event) => {
       const cityContainer = document.querySelector('.city-search-container');
       const categoryContainer = document.querySelector('.category-search-container');
-      
+
       if (cityContainer && !cityContainer.contains(event.target)) {
         setShowCityDropdown(false);
       }
@@ -108,7 +108,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
   const fetchTrips = async () => {
     try {
       setLoading(true);
-      
+
       // Build query parameters, only include non-empty values
       const queryParams = {
         page: pagination.currentPage,
@@ -133,13 +133,13 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
       }
 
       const params = new URLSearchParams(queryParams);
-      
+
       console.log('Search params:', queryParams); // Debug log
       console.log('URL params:', params.toString()); // Debug log
 
       const response = await api.get(`/api/admin/trips?${params}`);
       console.log('API response:', response.data); // Debug log
-      
+
       setTrips(response.data.data);
       setPagination(prev => ({
         ...prev,
@@ -203,7 +203,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
     try {
       const formData = new FormData();
       formData.append('status', newStatus);
-      
+
       await api.put(`/api/admin/trips/${tripId}/status`, formData);
       fetchTrips();
       showSuccessMessage('تم تحديث حالة الرحلة بنجاح');
@@ -300,7 +300,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
         </body>
         </html>
       `;
-      
+
       printWindow.document.write(printContent);
       printWindow.document.close();
       printWindow.focus();
@@ -334,34 +334,34 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'Active': { 
-        class: 'status-active', 
+      'Active': {
+        class: 'status-active',
         text: 'نشط',
         icon: faCheckCircle
       },
-      'Pending': { 
-        class: 'status-pending', 
+      'Pending': {
+        class: 'status-pending',
         text: 'في الانتظار',
         icon: faClock
       },
-      'Inactive': { 
-        class: 'status-inactive', 
+      'Inactive': {
+        class: 'status-inactive',
         text: 'غير نشط',
         icon: faTimesCircle
       },
-      'Deleted': { 
-        class: 'status-deleted', 
+      'Deleted': {
+        class: 'status-deleted',
         text: 'محذوف',
         icon: faBan
       }
     };
-    
-    const config = statusConfig[status] || { 
-      class: 'status-default', 
+
+    const config = statusConfig[status] || {
+      class: 'status-default',
       text: status,
       icon: faBan
     };
-    
+
     return (
       <span className={`status-badge ${config.class}`}>
         <FontAwesomeIcon icon={config.icon} />
@@ -372,17 +372,17 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
 
   const getSortIcon = (field) => {
     if (filters.sortBy !== field) return <FontAwesomeIcon icon={faSort} />;
-    return filters.sortOrder === 'asc' ? 
-      <FontAwesomeIcon icon={faSortUp} /> : 
+    return filters.sortOrder === 'asc' ?
+      <FontAwesomeIcon icon={faSortUp} /> :
       <FontAwesomeIcon icon={faSortDown} />;
   };
 
   // Filter cities and categories based on search
-  const filteredCities = cities.filter(city => 
+  const filteredCities = cities.filter(city =>
     city.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
-  const filteredCategories = categories.filter(category => 
+  const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(categorySearch.toLowerCase())
   );
 
@@ -458,14 +458,14 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
   const openReorderModal = async () => {
     try {
       setReorderModal(prev => ({ ...prev, isVisible: true, loading: true }));
-      
+
       // Fetch all trips for reordering (without pagination)
       const response = await api.get('/api/admin/trips?pageSize=1000&sortBy=order&sortOrder=asc');
-      
+
       // Add safety checks for the response
       const tripsData = response?.data?.data || [];
       const validTrips = Array.isArray(tripsData) ? tripsData.filter(trip => trip && trip.id) : [];
-      
+
       setReorderModal(prev => ({
         ...prev,
         trips: validTrips,
@@ -473,10 +473,10 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
       }));
     } catch (err) {
       console.error('Error fetching trips for reorder:', err);
-      setReorderModal(prev => ({ 
-        ...prev, 
+      setReorderModal(prev => ({
+        ...prev,
         trips: [],
-        loading: false 
+        loading: false
       }));
       setError('فشل في تحميل الرحلات لإعادة الترتيب');
     }
@@ -501,7 +501,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
     const { trips, searchTerm } = reorderModal;
     if (!trips || !Array.isArray(trips)) return [];
     if (!searchTerm) return trips;
-    
+
     return trips.filter(trip => {
       if (!trip) return false;
       return (
@@ -528,36 +528,36 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
   const handleDrop = (e, targetTrip) => {
     e.preventDefault();
     console.log('Drop on:', targetTrip.id); // Debug log
-    
+
     if (!draggedTrip || draggedTrip.id === targetTrip.id) {
       console.log('Invalid drop - same trip or no dragged trip');
       return;
     }
-    
+
     const { trips } = reorderModal;
     const draggedIndex = trips.findIndex(t => t.id === draggedTrip.id);
     const targetIndex = trips.findIndex(t => t.id === targetTrip.id);
-    
+
     console.log('Dragged index:', draggedIndex, 'Target index:', targetIndex); // Debug log
-    
+
     if (draggedIndex === -1 || targetIndex === -1) {
       console.log('Invalid indices');
       return;
     }
-    
+
     // Create new array with reordered trips
     const newTrips = [...trips];
     const [removed] = newTrips.splice(draggedIndex, 1);
     newTrips.splice(targetIndex, 0, removed);
-    
+
     // Update order numbers
     const updatedTrips = newTrips.map((trip, index) => ({
       ...trip,
       order: index + 1
     }));
-    
+
     console.log('Updated trips:', updatedTrips.map(t => ({ id: t.id, order: t.order }))); // Debug log
-    
+
     setReorderModal(prev => ({ ...prev, trips: updatedTrips }));
     setDraggedTrip(null);
   };
@@ -570,7 +570,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
   // Function to check if a trip matches search
   const isTripSearchMatch = (trip, searchTerm) => {
     if (!searchTerm || !trip) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
     return (
       (trip.title && trip.title.toLowerCase().includes(searchLower)) ||
@@ -589,15 +589,15 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
   const saveNewOrder = async () => {
     try {
       setReorderModal(prev => ({ ...prev, saving: true }));
-      
+
       const { trips } = reorderModal;
       const tripOrders = trips.map((trip, index) => ({
         tripId: trip.id,
         order: index + 1
       }));
-      
+
       await api.put('/api/admin/trips/update-orders', { tripOrders });
-      
+
       showSuccessMessage('تم حفظ الترتيب الجديد بنجاح');
       closeReorderModal();
       fetchTrips(); // Refresh the main list
@@ -646,7 +646,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
             <h2>إدارة الرحلات</h2>
             <p>عرض وإدارة جميع الرحلات في النظام</p>
           </div>
-          
+
           <div className="trips-actions">
             <button className="btn btn-print" disabled>
               <FontAwesomeIcon icon={faPrint} />
@@ -680,6 +680,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                   placeholder="البحث في المدن..."
                   disabled
                 />
+                <div className="city-dropdown"> ... </div>
               </div>
             </div>
 
@@ -710,7 +711,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
           <h2>إدارة الرحلات</h2>
           <p>عرض وإدارة جميع الرحلات في النظام</p>
         </div>
-        
+
         <div className="trips-actions">
           <button className="btn btn-reorder" onClick={openReorderModal}>
             <FontAwesomeIcon icon={faArrowsAlt} />
@@ -720,7 +721,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
             <FontAwesomeIcon icon={faPrint} />
             طباعة
           </button>
-          <button className="btn btn-export" onClick={() => {}}>
+          <button className="btn btn-export" onClick={() => { }}>
             <FontAwesomeIcon icon={faDownload} />
             تصدير
           </button>
@@ -740,7 +741,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
             onChange={handleSearchInput}
           />
           {filters.search && (
-            <button 
+            <button
               type="button"
               className="search-clear-btn"
               onClick={() => {
@@ -769,7 +770,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 onChange={handleCitySearchChange}
                 onFocus={() => setShowCityDropdown(true)}
               />
-              <button 
+              <button
                 type="button"
                 className="city-clear-btn"
                 onClick={() => {
@@ -782,7 +783,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 ×
               </button>
             </div>
-            
+
             {showCityDropdown && (
               <div className="city-dropdown">
                 {filteredCities.length > 0 ? (
@@ -813,7 +814,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 onChange={handleCategorySearchChange}
                 onFocus={() => setShowCategoryDropdown(true)}
               />
-              <button 
+              <button
                 type="button"
                 className="category-clear-btn"
                 onClick={() => {
@@ -826,7 +827,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 ×
               </button>
             </div>
-            
+
             {showCategoryDropdown && (
               <div className="category-dropdown">
                 {filteredCategories.length > 0 ? (
@@ -939,14 +940,14 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
 
       {pagination.totalPages > 1 && (
         <div className="pagination">
-          <button 
+          <button
             className="btn-page"
             disabled={pagination.currentPage === 1}
             onClick={() => handlePageChange(pagination.currentPage - 1)}
           >
             السابق
           </button>
-          
+
           {getPaginationRange().map((item, index) => (
             <React.Fragment key={index}>
               {item === '...' ? (
@@ -962,8 +963,8 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
               )}
             </React.Fragment>
           ))}
-          
-          <button 
+
+          <button
             className="btn-page"
             disabled={pagination.currentPage === pagination.totalPages}
             onClick={() => handlePageChange(pagination.currentPage + 1)}
@@ -973,7 +974,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
         </div>
       )}
 
-      <SuccessModal 
+      <SuccessModal
         message={successModal.message}
         isVisible={successModal.isVisible}
         onClose={closeSuccessModal}
@@ -1001,7 +1002,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
-            
+
             <div className="reorder-modal-search">
               <div className="reorder-search-input">
                 <FontAwesomeIcon icon={faSearch} className="reorder-search-icon" />
@@ -1012,7 +1013,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                   onChange={handleReorderSearch}
                 />
                 {reorderModal.searchTerm && (
-                  <button 
+                  <button
                     type="button"
                     className="reorder-search-clear"
                     onClick={() => setReorderModal(prev => ({ ...prev, searchTerm: '' }))}
@@ -1022,7 +1023,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 )}
               </div>
             </div>
-            
+
             <div className="reorder-modal-content">
               {reorderModal.loading ? (
                 <div className="reorder-loading">
@@ -1033,10 +1034,10 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 <div className="reorder-grid">
                   {getDisplayTrips().map((trip, index) => {
                     const isSearchMatch = isTripSearchMatch(trip, reorderModal.searchTerm);
-                    const searchClass = reorderModal.searchTerm 
+                    const searchClass = reorderModal.searchTerm
                       ? (isSearchMatch ? 'search-match' : 'search-no-match')
                       : '';
-                    
+
                     return (
                       <div
                         key={trip.id}
@@ -1104,24 +1105,24 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                   })}
                 </div>
               )}
-              
+
               {getDisplayTrips().length === 0 && !reorderModal.loading && (
                 <div className="reorder-no-results">
                   <p>لا توجد رحلات للعرض</p>
                 </div>
               )}
             </div>
-            
+
             <div className="reorder-modal-actions">
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 onClick={closeReorderModal}
                 disabled={reorderModal.saving}
               >
                 إلغاء
               </button>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={saveNewOrder}
                 disabled={reorderModal.saving || reorderModal.loading}
               >
