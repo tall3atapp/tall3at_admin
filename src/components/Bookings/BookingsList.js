@@ -293,7 +293,7 @@ const BookingsList = ({ onViewBooking, onEditBooking, onCreateBooking }) => {
         </div>
       </div>
       <div className="trips-filters">
-        <div className="search-box">
+        <div className="categories-search-box">
           <FontAwesomeIcon icon={faSearch} />
           <input
             type="text"

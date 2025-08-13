@@ -153,7 +153,7 @@ const VideosDashboard = () => {
       {/* Filters */}
       <div className="videos-filters">
         <div className="filters-row">
-          <div className="search-box">
+          {/* <div className="search-box">
             <FontAwesomeIcon icon={faSearch} className="search-icon" />
             <input
               type="text"
@@ -162,15 +162,24 @@ const VideosDashboard = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
-          </div>
+          </div> */}
+
+          <div className="categories-search-box">
+                    <FontAwesomeIcon icon={faSearch} />
+                    <input
+                      type="text"
+                      placeholder="البحث في الفئات..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
           
           <div className="filter-group">
-            <FontAwesomeIcon icon={faFilter} className="filter-icon" />
             <select
               value={selectedTrip}
               onChange={(e) => setSelectedTrip(e.target.value)}
               className="filter-select"
-            >
+              >
               <option value="">جميع الطلعات</option>
               {trips.map(trip => (
                 <option key={trip.id} value={trip.id}>
@@ -181,6 +190,7 @@ const VideosDashboard = () => {
           </div>
         </div>
       </div>
+              {/* <FontAwesomeIcon icon={faFilter} className="filter-icon" /> */}
 
       {/* Stats */}
       <div className="videos-stats">
