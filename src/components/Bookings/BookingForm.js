@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes, faMapMarkerAlt, faCalendarAlt, faClock, faUsers, faMoneyBillWave, faUser, faBox } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes, faMapMarkerAlt, faArrowLeft, faCalendarAlt, faClock, faUsers, faMoneyBillWave, faUser, faBox } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import SuccessModal from '../SuccessModal';
@@ -47,21 +47,21 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [error, setError] = useState(null);
   const [successModal, setSuccessModal] = useState({ isVisible: false, message: '' });
   const [isEdit, setIsEdit] = useState(false);
-  
+
   // Trip search functionality
   const [trips, setTrips] = useState([]);
   const [tripSearch, setTripSearch] = useState('');
   const [showTripDropdown, setShowTripDropdown] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [loadingTrips, setLoadingTrips] = useState(false);
-  
+
   // Customer search functionality
   const [customers, setCustomers] = useState([]);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
-  
+
   // Package selection
   const [selectedPackage, setSelectedPackage] = useState(null);
 
@@ -84,11 +84,11 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     const handleClickOutside = (event) => {
       const tripContainer = document.querySelector('.trip-search-container');
       const customerContainer = document.querySelector('.customer-search-container');
-      
+
       if (tripContainer && !tripContainer.contains(event.target)) {
         setShowTripDropdown(false);
       }
-      
+
       if (customerContainer && !customerContainer.contains(event.target)) {
         setShowCustomerDropdown(false);
       }
@@ -140,24 +140,24 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       setLoading(true);
       const response = await api.get(`/api/admin/bookings/${bookingId}`);
       const b = response.data;
-      
+
       // Set selected trip if available
       if (b.trip) {
         setSelectedTrip(b.trip);
         setTripSearch(b.trip.title);
       }
-      
+
       // Set selected customer if available
       if (b.user) {
         setSelectedCustomer(b.user);
         setCustomerSearch(b.user.fullName);
       }
-      
+
       // Set selected package if available
       if (b.package) {
         setSelectedPackage(b.package);
       }
-      
+
       setForm({
         tripId: b.tripId || '',
         userId: b.userId || '',
@@ -182,13 +182,13 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     const value = e.target.value;
     setTripSearch(value);
     setShowTripDropdown(true);
-    
+
     if (value.length >= 2) {
       fetchTrips(value);
     } else {
       setTrips([]);
     }
-    
+
     if (!value) {
       setSelectedTrip(null);
       setSelectedPackage(null);
@@ -216,13 +216,13 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     const value = e.target.value;
     setCustomerSearch(value);
     setShowCustomerDropdown(true);
-    
+
     if (value.length >= 2) {
       fetchCustomers(value);
     } else {
       setCustomers([]);
     }
-    
+
     if (!value) {
       setSelectedCustomer(null);
       setForm(prev => ({ ...prev, userId: '' }));
@@ -257,10 +257,10 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const payload = { ...form };
-      
+
       if (isEdit) {
         await api.put(`/api/admin/bookings/${bookingId}`, payload);
         setSuccessModal({ isVisible: true, message: 'تم تحديث الحجز بنجاح' });
@@ -268,7 +268,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
         await api.post(`/api/admin/bookings`, payload);
         setSuccessModal({ isVisible: true, message: 'تم إضافة الحجز بنجاح' });
       }
-      
+
       setTimeout(() => {
         setSuccessModal({ isVisible: false, message: '' });
         onSuccess();
@@ -285,10 +285,14 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     <div className="booking-form-container">
       <div className="booking-form-card">
         <div className="booking-form-header">
+          <button className="btn-back" onClick={onBack}>
+            <FontAwesomeIcon icon={faArrowLeft} />
+            العودة
+          </button>
           <h2>{isEdit ? 'تعديل الحجز' : 'إضافة حجز جديد'}</h2>
           <p>{isEdit ? 'تعديل بيانات الحجز المحدد' : 'إضافة حجز جديد للنظام'}</p>
         </div>
-        
+
         <div className="booking-form-content">
           <form onSubmit={handleSubmit} className="booking-form">
             {/* Trip Selection Section */}
@@ -297,7 +301,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 <FontAwesomeIcon icon={faMapMarkerAlt} />
                 اختيار الرحلة
               </h3>
-              
+
               <div className="trip-search-container">
                 <div className="trip-search-input">
                   <FontAwesomeIcon icon={faSearch} className="trip-search-icon" />
@@ -319,7 +323,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     </button>
                   )}
                 </div>
-                
+
                 {showTripDropdown && (
                   <div className="trip-dropdown">
                     {loadingTrips ? (
@@ -333,8 +337,8 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                         >
                           <div className="trip-option-image">
                             {trip.images && trip.images.split(',')[0] && (
-                              <img 
-                                src={getTripImageUrl(trip.images.split(',')[0])} 
+                              <img
+                                src={getTripImageUrl(trip.images.split(',')[0])}
                                 alt={trip.title}
                                 onError={(e) => e.target.style.display = 'none'}
                               />
@@ -359,13 +363,13 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                   </div>
                 )}
               </div>
-              
+
               {selectedTrip && (
                 <div className="selected-trip-card">
                   <div className="selected-trip-image">
                     {selectedTrip.images && selectedTrip.images.split(',')[0] && (
-                      <img 
-                        src={getTripImageUrl(selectedTrip.images.split(',')[0])} 
+                      <img
+                        src={getTripImageUrl(selectedTrip.images.split(',')[0])}
                         alt={selectedTrip.title}
                         onError={(e) => e.target.style.display = 'none'}
                       />
@@ -393,7 +397,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                   <FontAwesomeIcon icon={faBox} />
                   اختيار الباقة
                 </h3>
-                
+
                 <div className="package-selection">
                   {selectedTrip.packages.map(pkg => (
                     <div
@@ -421,7 +425,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 <FontAwesomeIcon icon={faUser} />
                 اختيار العميل
               </h3>
-              
+
               <div className="customer-search-container">
                 <div className="customer-search-input">
                   <FontAwesomeIcon icon={faSearch} className="customer-search-icon" />
@@ -443,7 +447,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     </button>
                   )}
                 </div>
-                
+
                 {showCustomerDropdown && (
                   <div className="customer-dropdown">
                     {loadingCustomers ? (
@@ -457,8 +461,8 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                         >
                           <div className="customer-option-image">
                             {customer.profileImage ? (
-                              <img 
-                                src={getImageUrl(customer.profileImage)} 
+                              <img
+                                src={getImageUrl(customer.profileImage)}
                                 alt={customer.fullName}
                                 onError={(e) => e.target.style.display = 'none'}
                               />
@@ -481,13 +485,13 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                   </div>
                 )}
               </div>
-              
+
               {selectedCustomer && (
                 <div className="selected-customer-card">
                   <div className="selected-customer-image">
                     {selectedCustomer.profileImage ? (
-                      <img 
-                        src={getImageUrl(selectedCustomer.profileImage)} 
+                      <img
+                        src={getImageUrl(selectedCustomer.profileImage)}
                         alt={selectedCustomer.fullName}
                         onError={(e) => e.target.style.display = 'none'}
                       />
@@ -512,15 +516,15 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 <FontAwesomeIcon icon={faCalendarAlt} />
                 تفاصيل الحجز
               </h3>
-              
+
               <div className="booking-form-grid">
                 <div className="booking-form-group">
                   <label className="booking-form-label">الحالة:</label>
-                  <select 
-                    name="status" 
-                    value={form.status} 
-                    onChange={handleChange} 
-                    required 
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={handleChange}
+                    required
                     className="booking-form-select"
                   >
                     {statusOptions.map(opt => (
@@ -528,80 +532,80 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="booking-form-group">
                   <label className="booking-form-label">
                     <FontAwesomeIcon icon={faUsers} />
                     عدد الأشخاص:
                   </label>
-                  <input 
-                    name="persons" 
-                    type="number" 
-                    min="1" 
-                    value={form.persons} 
-                    onChange={handleChange} 
-                    required 
+                  <input
+                    name="persons"
+                    type="number"
+                    min="1"
+                    value={form.persons}
+                    onChange={handleChange}
+                    required
                     className="booking-form-input"
                   />
                 </div>
-                
+
                 <div className="booking-form-group">
                   <label className="booking-form-label">
                     <FontAwesomeIcon icon={faClock} />
                     عدد الساعات:
                   </label>
-                  <input 
-                    name="numOfHours" 
-                    type="number" 
-                    min="1" 
-                    value={form.numOfHours} 
-                    onChange={handleChange} 
-                    required 
+                  <input
+                    name="numOfHours"
+                    type="number"
+                    min="1"
+                    value={form.numOfHours}
+                    onChange={handleChange}
+                    required
                     className="booking-form-input"
                   />
                 </div>
-                
+
                 <div className="booking-form-group">
                   <label className="booking-form-label">تاريخ الحجز:</label>
-                  <input 
-                    name="bookingDate" 
-                    type="date" 
-                    value={form.bookingDate} 
-                    onChange={handleChange} 
-                    required 
+                  <input
+                    name="bookingDate"
+                    type="date"
+                    value={form.bookingDate}
+                    onChange={handleChange}
+                    required
                     className="booking-form-input"
                   />
                 </div>
-                
+
                 <div className="booking-form-group">
                   <label className="booking-form-label">وقت البدء:</label>
-                  <input 
-                    name="startTime" 
-                    type="datetime-local" 
-                    value={form.startTime} 
-                    onChange={handleChange} 
+                  <input
+                    name="startTime"
+                    type="datetime-local"
+                    value={form.startTime}
+                    onChange={handleChange}
                     className="booking-form-input"
                   />
                 </div>
-                
+
                 <div className="booking-form-group">
                   <label className="booking-form-label">وقت الانتهاء:</label>
-                  <input 
-                    name="endTime" 
-                    type="datetime-local" 
-                    value={form.endTime} 
-                    onChange={handleChange} 
+                  <input
+                    name="endTime"
+                    type="datetime-local"
+                    value={form.endTime}
+                    onChange={handleChange}
                     className="booking-form-input"
                   />
                 </div>
               </div>
-              
+
               <div className="booking-form-group booking-form-full-width">
                 <label className="booking-form-label">ملاحظات:</label>
-                <textarea 
-                  name="notes" 
-                  value={form.notes} 
-                  onChange={handleChange} 
+                <textarea
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
                   className="booking-form-textarea"
                   placeholder="أضف أي ملاحظات إضافية..."
                   rows="4"
@@ -610,19 +614,19 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
             </div>
 
             {error && <div className="booking-error">{error}</div>}
-            
+
             <div className="booking-form-actions">
-              <button 
-                type="button" 
-                className="booking-btn booking-btn-secondary" 
-                onClick={onBack} 
+              <button
+                type="button"
+                className="booking-btn booking-btn-secondary"
+                onClick={onBack}
                 disabled={loading}
               >
                 رجوع
               </button>
-              <button 
-                type="submit" 
-                className="booking-btn booking-btn-primary" 
+              <button
+                type="submit"
+                className="booking-btn booking-btn-primary"
                 disabled={loading}
               >
                 {loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث الحجز' : 'إضافة الحجز')}
@@ -631,7 +635,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
           </form>
         </div>
       </div>
-      
+
       <SuccessModal
         message={successModal.message}
         isVisible={successModal.isVisible}
@@ -641,7 +645,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   );
 };
 
-export default BookingForm; 
+export default BookingForm;
 
 
 

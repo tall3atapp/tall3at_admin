@@ -67,6 +67,7 @@
   gap: 16px;
   align-items: center;
   flex-wrap: wrap;
+  display: inline-flex;
 }
 
 .search-box {
