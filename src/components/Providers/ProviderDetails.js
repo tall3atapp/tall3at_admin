@@ -47,8 +47,8 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
 
 
   const backText = origin === 'chats'
-    ? 'Back to provider list'
-    : 'Back to conversation';
+    ? 'العوده الى المحادثه'
+    : 'العوده الى قائمة المزودين';
 
   function handleBack() {
     // always go to chat (or 'from') with the convo id in state

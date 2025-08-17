@@ -44,8 +44,8 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
 
   // dynamic back text
   const backText = origin === 'chats'
-    ? 'Back to conversation'
-    : 'Back to customer list';
+    ? 'العوده الى المحادثه'
+    : 'العوده الى قائمة العملاء';
 
   function handleBack() {
     // always go to chat (or 'from') with the convo id in state
