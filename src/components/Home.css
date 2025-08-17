@@ -41,6 +41,7 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 22px;
   margin-bottom: 32px;
+  cursor: pointer;
 }
 
 .dashboard-card {
