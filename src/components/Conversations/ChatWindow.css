@@ -782,3 +782,115 @@
 
 .chat-actions { display:flex; align-items:center; gap:8px; }
 
+
+/* 🔸 UPDATED: background already OK */
+
+/* 🔸 UPDATED: messages container already OK */
+
+/* =========================================
+   ALIGNMENT: provider right, customer left
+========================================= */
+
+.message-item {
+  display: flex;
+
+}
+/* 🔹 NEW: customer row alignment */
+.message-item.customer { 
+  justify-content: flex-start; /* left side in RTL layout block (our CSS uses justify) */
+}
+/* 🔸 UPDATED: provider already exists but ensure right side */
+.message-item.provider { 
+  display: ruby;
+  justify-content: flex-end; 
+}
+/* OPTIONAL: remove old .sent/.received usage in markup */
+
+/* =========================================
+   BUBBLE padding a bit more (to fit header)
+========================================= */
+.message-bubble {
+  /* 🔸 UPDATED: top padding was 8px → 10px */
+  padding: 10px 12px 8px;
+}
+
+/* =========================================
+   Sender mini header (avatar + name + badge)
+========================================= */
+/* 🔹 NEW */
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* 🔹 NEW */
+.msg-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* 🔹 NEW */
+.msg-sender { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.msg-name { font-size: 12px; font-weight: 700; white-space: nowrap; color: #0f172a; }
+
+/* 🔹 NEW */
+.msg-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+  border: 1px solid transparent;
+}
+.msg-badge i { font-size: 9px; }
+
+/* 🔹 NEW: badge colors by role */
+.msg-badge.provider { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.msg-badge.customer { background: #dbeafe; color: #1e3a8a; border-color: #bfdbfe; }
+.msg-badge.admin    { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+
+/* 🔹 NEW: better contrast when bubble itself is colored (provider) */
+.message-header.provider .msg-name,
+.message-header.provider .msg-badge { color: #ffffff; }
+.message-header.provider .msg-badge { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.28); }
+
+/* If you ever style customer bubble with strong color, add similar override:
+.message-header.customer .msg-name, .message-header.customer .msg-badge { ... }
+*/
+
+/* =========================================
+   BUBBLE COLORS (keep your existing)
+========================================= */
+/* Customer bubble (left) — your existing received style reused for 'customer' */
+.message-item.customer .message-bubble {
+  background: rgba(255, 255, 255, 0.95);
+  color: #374151;
+  border: 1px solid rgba(31, 193, 222, 0.2);
+  border-bottom-right-radius: 4px;
+  backdrop-filter: blur(10px);
+  margin-right: auto; /* push left */
+}
+
+/* Provider bubble (right) — your existing provider style */
+.message-item.provider .message-bubble {
+  background: rgba(31, 193, 222, 0.8);
+  color: white;
+  border-bottom-right-radius: 4px;
+  margin-left: auto;  /* push right */
+  box-shadow: 0 2px 8px rgba(31, 193, 222, 0.2);
+  display: ruby;
+}
+
+/* (Optional) remove old selectors to avoid confusion:
+.message-item.sent {...}
+.message-item.received {...}
+*/
+
