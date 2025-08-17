@@ -43,9 +43,9 @@ function App() {
         }>
           <Route path="home" element={<Home />} />
           <Route path="providers" element={<ProvidersDashboard />} />
-          <Route path="/admin/providers/:id" element={<ProviderDetails />} />
+          <Route path="providers/:id" element={<ProviderDetails />} />
           <Route path="customers" element={<CustomersDashboard />} />
-          <Route path="/admin/customers/:id" element={<CustomerDetails />} />
+          <Route path="customers/:id" element={<CustomerDetails />} />
           <Route path="categories" element={<CategoriesDashboard />} />
           <Route path="trips" element={<TripsDashboard />} />
           <Route path="videos" element={<VideosDashboard />} />

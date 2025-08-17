@@ -14,12 +14,13 @@ import {
   faTimesCircle,
   faStar,
   faMoneyBillWave,
-  faRoute
+  faRoute,
+  faArrowLeft
 } from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import { formatDate } from '../../utils/dateUtils';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './CustomerDetails.css';
 
 // Utility function to get full image URL
@@ -33,8 +34,26 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { id: routeId } = useParams();
+  const origin = location.state?.origin || null;
+  const from = location.state?.from || '/admin/chats';
+  const convoId = location.state?.convoId || sessionStorage.getItem('lastConvoId');;
+
+  // dynamic back text
+  const backText = origin === 'chats'
+    ? 'Back to conversation'
+    : 'Back to customer list';
+
+  function handleBack() {
+    // always go to chat (or 'from') with the convo id in state
+    navigate(from, {
+      replace: true,
+      state: convoId ? { openConversationId: String(convoId) } : undefined,
+    });
+  }
 
   // ✅ merge both into ONE id (prop > route), string-safe
   const effectiveCustomerId = String(customerId ?? routeId ?? '').trim();
@@ -168,9 +187,13 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
     <div className="customers-details">
       <div className="customers-details-header">
         <div className="customers-header-left">
-          <button className="customers-btn-back" onClick={onBack}>
+          {/* <button className="customers-btn-back" onClick={onBack}>
             <FontAwesomeIcon icon={faArrowRight} />
             العودة إلى قائمة العملاء
+          </button> */}
+          <button className="btn-back" onClick={onBack ? onBack : handleBack}>
+            <FontAwesomeIcon icon={faArrowLeft} />
+            {backText}
           </button>
           <div className="customers-header-title">
             <h2>تفاصيل العميل</h2>

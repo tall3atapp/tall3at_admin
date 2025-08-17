@@ -230,14 +230,28 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
       if (!u) return;
       const id = u.id ?? u.userId;
       if (!id) return;
-      navigate(`/admin/providers/${id}`);
+      // navigate(`/admin/providers/${id}`);
+      navigate(`/admin/providers/${id}`, {
+        state: {
+        origin: 'chats',
+          from: location.pathname + location.search,
+          convoId: selectedConversation?.conversationId
+        }
+      });
     }
 
     function openCustomerDetails(u) {
       if (!u) return;
       const id = u.id ?? u.userId;
       if (!id) return;
-      navigate(`/admin/customers/${id}`);
+      // navigate(`/admin/customers/${id}`);
+      navigate(`/admin/customers/${id}`, {
+        state: {
+          origin: 'chats',                              // 👈 came from chat window
+          from: location.pathname + location.search,   // e.g. "/admin/chat"
+          convoId: selectedConversation?.conversationId
+        }
+      });
     }
 
     function getParticipants(conv) {

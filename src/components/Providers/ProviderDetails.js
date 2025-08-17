@@ -24,7 +24,7 @@ import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import { formatDate } from '../../utils/dateUtils';
 import './ProviderDetails.css';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 // Utility function to get full image URL
 const getImageUrl = (imagePath) => {
@@ -37,8 +37,27 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const { id: routeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || '/admin/chats';
+  const convoId = location.state?.convoId || sessionStorage.getItem('lastConvoId');;
+  const origin = location.state?.origin;
+
+
+  const backText = origin === 'chats'
+    ? 'Back to provider list'
+    : 'Back to conversation';
+
+  function handleBack() {
+    // always go to chat (or 'from') with the convo id in state
+    navigate(from, {
+      replace: true,
+      state: convoId ? { openConversationId: String(convoId) } : undefined,
+    });
+  }
+
 
   // ✅ merge both into ONE id (prop > route), string-safe
   const effectiveCustomerId = String(providerId ?? routeId ?? '').trim();
@@ -136,9 +155,13 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
   return (
     <div className="provider-details">
       <div className="provider-details-header">
-        <button className="btn-back" onClick={onBack}>
+        {/* <button className="btn-back" onClick={onBack}>
           <FontAwesomeIcon icon={faArrowLeft} />
           العودة إلى قائمة المزودين
+        </button> */}
+        <button className="btn-back" onClick={onBack ? onBack : handleBack}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          {backText}
         </button>
         <h2>تفاصيل المزود</h2>
       </div>
