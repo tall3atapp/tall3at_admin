@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faArrowRight, 
-  faEdit, 
-  faUser, 
-  faPhone, 
-  faEnvelope, 
-  faMapMarkerAlt, 
+import {
+  faArrowRight,
+  faEdit,
+  faUser,
+  faPhone,
+  faEnvelope,
+  faMapMarkerAlt,
   faCalendarAlt,
   faShoppingCart,
   faCheckCircle,
@@ -19,6 +19,7 @@ import {
 import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import { formatDate } from '../../utils/dateUtils';
+import { useParams } from 'react-router-dom';
 import './CustomerDetails.css';
 
 // Utility function to get full image URL
@@ -33,14 +34,28 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchCustomer();
-  }, [customerId]);
+  const { id: routeId } = useParams();
 
-  const fetchCustomer = async () => {
+  // ✅ merge both into ONE id (prop > route), string-safe
+  const effectiveCustomerId = String(customerId ?? routeId ?? '').trim();
+  console.log('CustomerDetails -> propCustomerId:', customerId, 'routeId:', routeId, 'effective:', effectiveCustomerId);
+
+  // ✅ single effect: fetch using the merged id
+  useEffect(() => {
+    if (!effectiveCustomerId) {
+      setError('لا يوجد معرّف عميل');
+      setLoading(false);
+      return;
+    }
+    fetchCustomer(effectiveCustomerId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCustomerId]);
+
+
+  const fetchCustomer = async (id) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/admin/users/${customerId}`);
+      const response = await api.get(`/api/admin/users/${encodeURIComponent(id)}`);
       setCustomer(response.data);
     } catch (err) {
       setError('فشل في تحميل بيانات العميل');
@@ -52,34 +67,34 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      'Active': { 
-        class: 'customers-status-active', 
+      'Active': {
+        class: 'customers-status-active',
         text: 'نشط',
         icon: faCheckCircle
       },
-      'Pending': { 
-        class: 'customers-status-pending', 
+      'Pending': {
+        class: 'customers-status-pending',
         text: 'في الانتظار',
         icon: faClock
       },
-      'Suspended': { 
-        class: 'customers-status-suspended', 
+      'Suspended': {
+        class: 'customers-status-suspended',
         text: 'معلق',
         icon: faTimesCircle
       },
-      'Deleted': { 
-        class: 'customers-status-deleted', 
+      'Deleted': {
+        class: 'customers-status-deleted',
         text: 'محذوف',
         icon: faTimesCircle
       }
     };
-    
-    const config = statusConfig[status] || { 
-      class: 'customers-status-default', 
+
+    const config = statusConfig[status] || {
+      class: 'customers-status-default',
       text: status,
       icon: faClock
     };
-    
+
     return (
       <span className={`customers-status-badge ${config.class}`}>
         <FontAwesomeIcon icon={config.icon} />
@@ -176,8 +191,8 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
           <div className="customers-profile-header">
             <div className="customers-profile-avatar">
               {getImageUrl(customer.profileImage) ? (
-                <img 
-                  src={getImageUrl(customer.profileImage)} 
+                <img
+                  src={getImageUrl(customer.profileImage)}
                   alt={customer.fullName}
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -300,8 +315,8 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
             <h4>الرحلات الأخيرة</h4>
             <div className="customers-trips-grid">
               {customer.recentTrips.map(trip => (
-                <div 
-                  key={trip.id} 
+                <div
+                  key={trip.id}
                   className={`customers-trip-card ${onViewTrip ? 'clickable' : ''}`}
                   onClick={() => onViewTrip && onViewTrip(trip.id)}
                 >
@@ -338,8 +353,8 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
           {customer.recentBookings && customer.recentBookings.length > 0 ? (
             <div className="customers-bookings-grid">
               {customer.recentBookings.map(booking => (
-                <div 
-                  key={booking.id} 
+                <div
+                  key={booking.id}
                   className={`customers-booking-card ${onViewBooking ? 'clickable' : ''}`}
                   onClick={() => onViewBooking && onViewBooking(booking.id)}
                 >

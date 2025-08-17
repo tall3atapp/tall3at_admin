@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faArrowLeft, 
-  faMapMarkerAlt, 
-  faCalendar, 
-  faPhone, 
+import {
+  faArrowLeft,
+  faMapMarkerAlt,
+  faCalendar,
+  faPhone,
   faEnvelope,
   faUser,
   faBuilding,
@@ -24,6 +24,7 @@ import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import { formatDate } from '../../utils/dateUtils';
 import './ProviderDetails.css';
+import { useParams } from 'react-router-dom';
 
 // Utility function to get full image URL
 const getImageUrl = (imagePath) => {
@@ -37,14 +38,27 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchProviderDetails();
-  }, [providerId]);
+  const { id: routeId } = useParams();
 
-  const fetchProviderDetails = async () => {
+  // ✅ merge both into ONE id (prop > route), string-safe
+  const effectiveCustomerId = String(providerId ?? routeId ?? '').trim();
+  console.log('CustomerDetails -> propCustomerId:', providerId, 'routeId:', routeId, 'effective:', effectiveCustomerId);
+
+  // ✅ single effect: fetch using the merged id
+  useEffect(() => {
+    if (!effectiveCustomerId) {
+      setError('لا يوجد معرّف عميل');
+      setLoading(false);
+      return;
+    }
+    fetchProviderDetails(effectiveCustomerId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCustomerId]);
+
+  const fetchProviderDetails = async (id) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/admin/providers/${providerId}`);
+      const response = await api.get(`/api/admin/providers/${id}`);
       console.log('Provider Details Response:', response.data);
       setProvider(response.data);
     } catch (err) {
@@ -69,7 +83,7 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
       'Suspended': { class: 'status-suspended', text: 'معلق', icon: faTimesCircle },
       'Deleted': { class: 'status-deleted', text: 'محذوف', icon: faUserSlash }
     };
-    
+
     const config = statusConfig[status] || { class: 'status-default', text: status, icon: faUser };
     return (
       <span className={`status-badge ${config.class}`}>
@@ -87,7 +101,7 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
       'Completed': { class: 'status-completed', text: 'مكتمل' },
       'Canceled': { class: 'status-canceled', text: 'ملغي' }
     };
-    
+
     const config = statusConfig[status] || { class: 'status-default', text: status };
     return <span className={`status-badge ${config.class}`}>{config.text}</span>;
   };
@@ -134,8 +148,8 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
         <div className="provider-basic-info">
           <div className="provider-profile">
             {provider.profileImage && provider.profileImage !== 'null' && provider.profileImage !== 'undefined' && provider.profileImage.trim() !== '' ? (
-              <img 
-                src={getImageUrl(provider.profileImage)} 
+              <img
+                src={getImageUrl(provider.profileImage)}
                 alt={provider.fullName}
                 className="provider-profile-image"
                 onError={(e) => {
@@ -235,15 +249,15 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
             {provider.recentTrips.length > 0 ? (
               <div className="trips-grid">
                 {provider.recentTrips.map(trip => (
-                  <div 
-                    key={trip.id} 
+                  <div
+                    key={trip.id}
                     className="trip-card"
                     onClick={() => onViewTrip && onViewTrip(trip.id)}
                   >
                     <div className="trip-image">
                       {trip.firstImage ? (
-                        <img 
-                          src={getTripImageUrl(trip.firstImage)} 
+                        <img
+                          src={getTripImageUrl(trip.firstImage)}
                           alt={trip.title}
                           className="trip-card-image"
                         />
@@ -277,16 +291,16 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
             {provider.recentBookings.length > 0 ? (
               <div className="bookings-grid">
                 {provider.recentBookings.map(booking => (
-                  <div 
-                    key={booking.id} 
+                  <div
+                    key={booking.id}
                     className="booking-card enhanced-booking-card"
                     onClick={() => onViewBooking && onViewBooking(booking.id)}
                   >
                     <div className="booking-card-header">
                       <div className="booking-user-avatar">
                         {booking.userImage ? (
-                          <img 
-                            src={getImageUrl(booking.userImage)} 
+                          <img
+                            src={getImageUrl(booking.userImage)}
                             alt={booking.userName}
                             className="user-avatar-large"
                           />
@@ -307,8 +321,8 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
                     <div className="booking-card-body">
                       <div className="booking-trip-thumbnail">
                         {booking.tripFirstImage ? (
-                          <img 
-                            src={getTripImageUrl(booking.tripFirstImage)} 
+                          <img
+                            src={getTripImageUrl(booking.tripFirstImage)}
                             alt={booking.tripTitle}
                             className="trip-thumbnail-rounded"
                           />

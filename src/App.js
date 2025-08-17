@@ -15,6 +15,8 @@ import AddVideoPage from './components/Videos/AddVideoPage';
 import BookingsDashboard from './components/Bookings/BookingsDashboard';
 import ChatPage from './components/Conversations/ChatPage';
 import { PrivateRoute, PublicRoute } from './utils/Routes';
+import CustomerDetails from './components/Customers/CustomerDetails';
+import ProviderDetails from './components/Providers/ProviderDetails';
 
 function App() {
   return (
@@ -41,7 +43,9 @@ function App() {
         }>
           <Route path="home" element={<Home />} />
           <Route path="providers" element={<ProvidersDashboard />} />
+          <Route path="/admin/providers/:id" element={<ProviderDetails />} />
           <Route path="customers" element={<CustomersDashboard />} />
+          <Route path="/admin/customers/:id" element={<CustomerDetails />} />
           <Route path="categories" element={<CategoriesDashboard />} />
           <Route path="trips" element={<TripsDashboard />} />
           <Route path="videos" element={<VideosDashboard />} />
