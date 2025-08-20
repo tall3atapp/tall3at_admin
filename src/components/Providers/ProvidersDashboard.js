@@ -3,6 +3,7 @@ import ProvidersList from './ProvidersList';
 import ProviderDetails from './ProviderDetails';
 import ProviderForm from './ProviderForm';
 import TripDetails from '../Trips/TripDetails';
+// import BookingDetails from '../Bookings/BookingDetails_';
 import BookingDetails from '../Bookings/BookingDetails';
 import './ProvidersDashboard.css';
 
