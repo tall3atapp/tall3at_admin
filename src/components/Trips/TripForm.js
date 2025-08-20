@@ -356,6 +356,17 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     let existingList = [];
     const uploadFiles = [];
 
+    const isCorsSafe = (it) => {
+      if (it.type !== 'existing') return false;
+      if (!it.url) return false;
+      if (it.url.startsWith('/')) return true; // relative => API origin
+      try {
+        const a = new URL(it.url);
+        const b = new URL(API_CONFIG.BASE_URL);
+        return a.origin === b.origin;
+      } catch { return false; }
+    };
+
     if (anyNew) {
       // keep all existings BEFORE first new
       const firstNewIdx = desired.findIndex(i => i.type === 'new');
@@ -369,22 +380,42 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         if (it.type === 'new') {
           uploadFiles.push(it.file);
         } else {
+          // const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
+          // uploadFiles.push(await urlToFile(it.preview, filename));
           const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
-          uploadFiles.push(await urlToFile(it.preview, filename));
+          uploadFiles.push(await urlToFile(it.url, filename));
         }
       }
     } else {
       // reorder-only: force one upload to commit order
+      // if (desired.length > 0) {
+      //   existingList = desired.slice(0, -1).map(i => i.url);
+      //   const last = desired[desired.length - 1];
+      //   const filename = (last.url?.split('/').pop()) || 'reupload.jpg';
+      //   uploadFiles.push(await urlToFile(last.preview, filename));
+      // }
+
       if (desired.length > 0) {
-        existingList = desired.slice(0, -1).map(i => i.url);
-        const last = desired[desired.length - 1];
-        const filename = (last.url?.split('/').pop()) || 'reupload.jpg';
-        uploadFiles.push(await urlToFile(last.preview, filename));
+        const pick = [...desired].reverse().find(i => isCorsSafe(i));
+        if (!pick) {
+          console.warn('[Images] No CORS-safe image to reupload. Reorder needs at least one same-origin image or CORS on CDN.');
+          throw new Error('REORDER_NEEDS_NEW_IMAGE');
+        }
+
+        // keep every other existing (order preserved)
+        existingList = desired.filter(i => i !== pick).map(i => i.url);
+        const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
+        uploadFiles.push(await urlToFile(pick.url, filename));
       }
     }
 
     fd.append('existingImages', existingList.join(','));
     for (const f of uploadFiles) fd.append('images', f);
+
+    console.groupCollapsed('[Images] FormData snapshot');
+    console.log('existingImages:', existingList.join(','));
+    uploadFiles.forEach((f, i) => console.log(`images[${i}] -> ${f?.name} (${f?.size} bytes)`));
+    console.groupEnd();
   };
 
 

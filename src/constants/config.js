@@ -39,8 +39,8 @@ export const GENDER_OPTIONS = [
 // API Configuration
 export const API_CONFIG = {
   // BASE_URL: 'https://webapi.tall3at.com/',
-  // BASE_URL: 'http://localhost:5030/',
-  BASE_URL: 'https://e1b216c64095.ngrok-free.app',
+  // BASE_URL: 'https://e1b216c64095.ngrok-free.app',
+  BASE_URL: 'http://localhost:5030',
   TIMEOUT: 10000,
 };
 
