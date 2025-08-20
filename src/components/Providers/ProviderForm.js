@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faArrowLeft, 
-  faSave, 
+import {
+  faArrowLeft,
+  faSave,
   faUpload,
   faTimes,
   faUser,
@@ -86,14 +86,14 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     if (imagePath.startsWith('http')) return imagePath;
     return `${API_CONFIG.BASE_URL}/images/profiles/${imagePath}`;
   };
-  
+
 
   const fetchProvider = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/api/admin/providers/${providerId}`);
       const provider = response.data;
-      
+
       setFormData({
         fullName: provider.fullName || '',
         userName: provider.userName || '',
@@ -123,7 +123,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -134,7 +134,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({ ...prev, [field]: file }));
-      
+
       // Clear error for this field
       if (errors[field]) {
         setErrors(prev => ({ ...prev, [field]: '' }));
@@ -150,7 +150,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
   };
 
   // Filter cities based on search
-  const filteredCities = cities.filter(city => 
+  const filteredCities = cities.filter(city =>
     city.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
@@ -158,7 +158,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     setFormData(prev => ({ ...prev, cityId: cityId }));
     setCitySearch(cityName);
     setShowCityDropdown(false);
-    
+
     // Clear error for city field
     if (errors.cityId) {
       setErrors(prev => ({ ...prev, cityId: '' }));
@@ -219,7 +219,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -229,7 +229,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
       setError(null);
 
       const formDataToSend = new FormData();
-      
+
       // Add form fields
       Object.keys(formData).forEach(key => {
         if (key === 'profileImageFile') {
@@ -262,7 +262,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     } catch (err) {
       // Handle different error response formats
       let errorMessage = 'فشل في حفظ البيانات';
-      
+
       if (err.response?.data) {
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
@@ -297,7 +297,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       console.error('Error saving provider:', err);
     } finally {
@@ -321,12 +321,14 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
 
       {error && <div className="error-message">{error}</div>}
 
+
+      {/* provider form */}
       <form onSubmit={handleSubmit} className="provider-form-content">
         <div className="form-grid">
           {/* Basic Information */}
           <div className="form-section">
             <h3>المعلومات الأساسية</h3>
-            
+
             <div className="form-group">
               <label htmlFor="fullName">
                 <FontAwesomeIcon icon={faUser} />
@@ -382,7 +384,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
           {/* Account Information */}
           <div className="form-section">
             <h3>معلومات الحساب</h3>
-            
+
             <div className="form-group">
               <label htmlFor="cityId">
                 <FontAwesomeIcon icon={faMapMarkerAlt} />
@@ -398,7 +400,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
                     onFocus={() => setShowCityDropdown(true)}
                     className={errors.cityId ? 'error' : ''}
                   />
-                  <button 
+                  <button
                     type="button"
                     className="form-city-clear-btn"
                     onClick={() => {
@@ -411,7 +413,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
                     ×
                   </button>
                 </div>
-                
+
                 {showCityDropdown && (
                   <div className="form-city-dropdown">
                     {filteredCities.length > 0 ? (
@@ -449,15 +451,15 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
               </div>
               {(formData.profileImageFile || formData.profileImage) && (
                 <div className="file-preview">
-                  <img 
-                    src={formData.profileImageFile instanceof File ? 
-                      URL.createObjectURL(formData.profileImageFile) : 
+                  <img
+                    src={formData.profileImageFile instanceof File ?
+                      URL.createObjectURL(formData.profileImageFile) :
                       (formData.profileImage || formData.profileImageFile)
-                    } 
-                    alt="Profile preview" 
+                    }
+                    alt="Profile preview"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => removeFile('profileImageFile')}
                     className="remove-file"
                   >
@@ -480,7 +482,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
         </div>
       </form>
 
-      <SuccessModal 
+      <SuccessModal
         message={successModal.message}
         isVisible={successModal.isVisible}
         onClose={closeSuccessModal}
