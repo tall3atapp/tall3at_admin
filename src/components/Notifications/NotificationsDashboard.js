@@ -13,15 +13,6 @@ import {
 import { API_CONFIG } from "../../constants/config";
 import axios from "axios";
 
-
-/**
- * API endpoints
- * Change REACT_APP_API_BASE in your .env if needed.
- * Given by you:
- *  - Providers: http://localhost:5030/api/admin/providers
- *  - Customers: http://localhost:5030/api/admin/customers
- */
-
 const API_BASE = API_CONFIG.BASE_URL + '/api/admin';
 // console.log("API_BASE", API_BASE);
 const PROVIDERS_API = `${API_BASE}/providers`;
@@ -82,7 +73,7 @@ const NotificationsDashboard = () => {
             setLoadingCustomers(true);
             setErrorCustomers("");
             try {
-                const res = await fetch(`http://localhost:5030/api/admin/users`,
+                const res = await fetch(`${CUSTOMERS_API}`,
                     { headers: authHeaders() } // send token
 
                 );
@@ -104,7 +95,7 @@ const NotificationsDashboard = () => {
             setLoadingProviders(true);
             setErrorProviders("");
             try {
-                const res = await fetch(`http://localhost:5030/api/admin/providers`, { headers: authHeaders() });
+                const res = await fetch(PROVIDERS_API, { headers: authHeaders() });
                 // console.log("Providers API:", res.url, res.status, res.statusText, res);
                 // if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
