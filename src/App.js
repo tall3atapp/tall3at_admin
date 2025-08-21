@@ -17,6 +17,10 @@ import ChatPage from './components/Conversations/ChatPage';
 import { PrivateRoute, PublicRoute } from './utils/Routes';
 import CustomerDetails from './components/Customers/CustomerDetails';
 import ProviderDetails from './components/Providers/ProviderDetails';
+// import Banner from './components/Banners/BannersDashboard';
+// import Banner from './components/Banners/BannerDetails';
+import BannerDetails from './components/Banners/BannerDetails';
+import BannersDashboard from './components/Banners/BannersDashboard';
 
 function App() {
   return (
@@ -53,6 +57,9 @@ function App() {
           <Route path="videos/add" element={<AddVideoPage />} />
           <Route path="bookings" element={<BookingsDashboard />} />
           <Route path="chats" element={<ChatPage />} />
+          <Route path="banners" element={<BannersDashboard />} />
+          {/* <Route path="banners/:id" element={<BannerDetails />} /> */}
+          {/* <Route path="banners/:id" element={<BannerDetails />} /> */}
         </Route>
 
       </Routes>

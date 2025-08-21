@@ -72,6 +72,7 @@ export default function Home() {
       sub: `هذا الشهر: ${statistics.bookings.thisMonth}`,
       to: '/admin/bookings'
     },
+    
     {
       label: 'الإيرادات',
       value: statistics.revenue.total,

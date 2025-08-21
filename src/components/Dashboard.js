@@ -38,8 +38,8 @@ const SubMenu = ({ title, icon, items, isOpen, onToggle }) => {
             <button
                 onClick={onToggle}
                 className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors duration-200 ${isOpen
-                        ? 'bg-white/10 text-white'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                     }`}
             >
                 <div className="flex items-center">
@@ -236,6 +236,11 @@ export default function Dashboard() {
                     <li>
                         <NavLink to="/admin/categories" className={({ isActive }) => isActive ? 'active' : ''}>
                             <span className="fa fa-th-large"></span>الفئات
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to="/admin/banners" className={({ isActive }) => isActive ? 'active' : ''}>
+                            <span className="fa fa-image"></span>البانرات
                         </NavLink>
                     </li>
                     <li>
