@@ -17,10 +17,8 @@ import ChatPage from './components/Conversations/ChatPage';
 import { PrivateRoute, PublicRoute } from './utils/Routes';
 import CustomerDetails from './components/Customers/CustomerDetails';
 import ProviderDetails from './components/Providers/ProviderDetails';
-// import Banner from './components/Banners/BannersDashboard';
-// import Banner from './components/Banners/BannerDetails';
-import BannerDetails from './components/Banners/BannerDetails';
 import BannersDashboard from './components/Banners/BannersDashboard';
+import NotificationsDashboard from './components/Notifications/NotificationsDashboard';
 
 function App() {
   return (
@@ -51,15 +49,15 @@ function App() {
           <Route path="customers" element={<CustomersDashboard />} />
           <Route path="customers/:id" element={<CustomerDetails />} />
           <Route path="categories" element={<CategoriesDashboard />} />
+          <Route path="banners" element={<BannersDashboard />} />
           <Route path="trips" element={<TripsDashboard />} />
           <Route path="videos" element={<VideosDashboard />} />
           <Route path="videos/upload/:tripId" element={<VideoUploadPage />} />
           <Route path="videos/add" element={<AddVideoPage />} />
           <Route path="bookings" element={<BookingsDashboard />} />
           <Route path="chats" element={<ChatPage />} />
-          <Route path="banners" element={<BannersDashboard />} />
-          {/* <Route path="banners/:id" element={<BannerDetails />} /> */}
-          {/* <Route path="banners/:id" element={<BannerDetails />} /> */}
+          <Route path="notifications" element={<NotificationsDashboard />} />
+
         </Route>
 
       </Routes>

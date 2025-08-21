@@ -11,6 +11,7 @@ export const ENDPOINTS = {
   VIDEOS: '/videos',
   VIDEOS_BY_TRIP: '/videos/trip',
   VIDEOS_UPLOAD: '/videos/upload',
+  NOTIFICATIONS: '/api/admin',
 };
 
 // Local Storage Keys
