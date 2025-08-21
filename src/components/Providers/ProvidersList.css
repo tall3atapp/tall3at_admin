@@ -87,6 +87,7 @@
   margin-bottom: 24px;
   align-items: center;
   flex-wrap: wrap;
+  display: -webkit-inline-box
 }
 
 .search-box {
@@ -293,7 +294,6 @@
   transition: background-color 0.2s ease;
 
 }
-
 
 .provider-info {
   display: flex;

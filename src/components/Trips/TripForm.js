@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faArrowRight, 
-  faSave, 
-  faTimes, 
+import {
+  faArrowRight,
+  faSave,
+  faTimes,
   faUpload,
   faSpinner,
   faCamera,
@@ -50,8 +50,12 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     featured: false,
     order: 0
   });
-  const [imageFiles, setImageFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  // const [imageFiles, setImageFiles] = useState([]);
+  // const [imagePreviews, setImagePreviews] = useState([]);
+
+  const [imageItems, setImageItems] = useState([]);
+
+
   const [options, setOptions] = useState([]);
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +69,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   const [categorySearch, setCategorySearch] = useState('');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const dragFrom = React.useRef(null);
+  const dragTo = React.useRef(null);
 
   const isEditing = !!tripId;
 
@@ -81,7 +87,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     const handleClickOutside = (event) => {
       const cityContainer = document.querySelector('.city-search-container');
       const categoryContainer = document.querySelector('.category-search-container');
-      
+
       if (cityContainer && !cityContainer.contains(event.target)) {
         setShowCityDropdown(false);
       }
@@ -95,6 +101,9 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+
+
 
   const fetchCities = async () => {
     try {
@@ -134,7 +143,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         }
       });
       const trip = response.data;
-      
+
       setFormData({
         cityId: trip.cityId?.toString() || '',
         categoryId: trip.categoryId?.toString() || '',
@@ -157,10 +166,18 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       if (category) setCategorySearch(category.name);
 
       // Set image previews
-      if (trip.images) {
-        const imageUrls = trip.images.split(',').filter(img => img.trim());
-        setImagePreviews(imageUrls.map(img => getImageUrl(img)));
-      }
+      // if (trip.images) {
+      //   const imageUrls = trip.images.split(',').filter(img => img.trim());
+      //   setImagePreviews(imageUrls.map(img => getImageUrl(img)));
+      // }
+      //     if (trip.images) {
+      const urls = trip.images.split(',').map(s => s.trim()).filter(Boolean);
+      setImageItems(urls.map(u => ({
+        id: `ex-${u}`,
+        type: 'existing',
+        preview: getImageUrl(u),
+        url: u
+      })));
 
       // Set service options
       if (trip.serviceOptions) {
@@ -206,32 +223,55 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Validate files
-    for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت');
-        return;
-      }
+    //   for (const file of files) {
+    //     if (file.size > 5 * 1024 * 1024) {
+    //       setError('حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت');
+    //       return;
+    //     }
 
-      if (!file.type.startsWith('image/')) {
-        setError('يرجى اختيار ملفات صور صحيحة');
-        return;
-      }
-    }
+    //     if (!file.type.startsWith('image/')) {
+    //       setError('يرجى اختيار ملفات صور صحيحة');
+    //       return;
+    //     }
+    //   }
 
-    setImageFiles(prev => [...prev, ...files]);
-    
+    const newItems = files.map((file) => ({
+      id: `new-${Date.now()}-${file.name}`,
+      type: 'new',
+      preview: URL.createObjectURL(file),
+      file
+    }));
+
+    setImageItems(prev => [...prev, ...newItems]);
+
+    // setImageFiles(prev => [...prev, ...files]);
+
     // Create previews
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews]);
+    // const newPreviews = files.map(file => URL.createObjectURL(file));
+    // setImagePreviews(prev => [...prev, ...newPreviews]);
     setError(null);
   };
 
+  // const removeImage = (index) => {
+  //   setImageFiles(prev => prev.filter((_, i) => i !== index));
+  //   setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  // };
+
   const removeImage = (index) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImageItems(prev => {
+      const item = prev[index];
+      // memory cleanup for object URLs
+      if (item?.type === 'new' && item.preview?.startsWith('blob:')) {
+        URL.revokeObjectURL(item.preview);
+      }
+      const copy = [...prev];
+      copy.splice(index, 1);
+      return copy;
+    });
   };
+
 
   const addOption = () => {
     setOptions(prev => [...prev, {
@@ -244,7 +284,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   };
 
   const updateOption = (index, field, value) => {
-    setOptions(prev => prev.map((option, i) => 
+    setOptions(prev => prev.map((option, i) =>
       i === index ? { ...option, [field]: value } : option
     ));
   };
@@ -267,7 +307,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   };
 
   const updatePackage = (index, field, value) => {
-    setPackages(prev => prev.map((pkg, i) => 
+    setPackages(prev => prev.map((pkg, i) =>
       i === index ? { ...pkg, [field]: value } : pkg
     ));
   };
@@ -289,16 +329,99 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       setError('يرجى اختيار الفئة');
       return false;
     }
-    if (imageFiles.length === 0 && imagePreviews.length === 0) {
+    // if (imageFiles.length === 0 && imagePreviews.length === 0) {
+    //   setError('يرجى اختيار صورة واحدة على الأقل');
+    //   return false;
+    // }
+    if (imageItems.length === 0) {
       setError('يرجى اختيار صورة واحدة على الأقل');
       return false;
     }
     return true;
   };
 
+  // --- image upload helpers (INSIDE TripForm, before handleSubmit) ---
+  const urlToFile = async (url, filenameHint = 'reupload.jpg') => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const name = filenameHint || 'reupload.jpg';
+    return new File([blob], name, { type: blob.type || 'image/jpeg' });
+  };
+
+  const appendImagesToFormData = async (fd) => {
+    // imageItems: [{ id, type:'existing'|'new', preview, url?, file? }]
+    const desired = imageItems;
+    const anyNew = desired.some(i => i.type === 'new');
+
+    let existingList = [];
+    const uploadFiles = [];
+
+    const isCorsSafe = (it) => {
+      if (it.type !== 'existing') return false;
+      if (!it.url) return false;
+      if (it.url.startsWith('/')) return true; // relative => API origin
+      try {
+        const a = new URL(it.url);
+        const b = new URL(API_CONFIG.BASE_URL);
+        return a.origin === b.origin;
+      } catch { return false; }
+    };
+
+    if (anyNew) {
+      // keep all existings BEFORE first new
+      const firstNewIdx = desired.findIndex(i => i.type === 'new');
+      existingList = desired
+        .slice(0, firstNewIdx)
+        .filter(i => i.type === 'existing')
+        .map(i => i.url); // relative path e.g. "/uploads/trips/xxx.jpg"
+
+      // from first new onward: upload (new OR re-upload existing to enforce order)
+      for (const it of desired.slice(firstNewIdx)) {
+        if (it.type === 'new') {
+          uploadFiles.push(it.file);
+        } else {
+          // const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
+          // uploadFiles.push(await urlToFile(it.preview, filename));
+          const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
+          uploadFiles.push(await urlToFile(it.url, filename));
+        }
+      }
+    } else {
+      // reorder-only: force one upload to commit order
+      // if (desired.length > 0) {
+      //   existingList = desired.slice(0, -1).map(i => i.url);
+      //   const last = desired[desired.length - 1];
+      //   const filename = (last.url?.split('/').pop()) || 'reupload.jpg';
+      //   uploadFiles.push(await urlToFile(last.preview, filename));
+      // }
+
+      if (desired.length > 0) {
+        const pick = [...desired].reverse().find(i => isCorsSafe(i));
+        if (!pick) {
+          console.warn('[Images] No CORS-safe image to reupload. Reorder needs at least one same-origin image or CORS on CDN.');
+          throw new Error('REORDER_NEEDS_NEW_IMAGE');
+        }
+
+        // keep every other existing (order preserved)
+        existingList = desired.filter(i => i !== pick).map(i => i.url);
+        const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
+        uploadFiles.push(await urlToFile(pick.url, filename));
+      }
+    }
+
+    fd.append('existingImages', existingList.join(','));
+    for (const f of uploadFiles) fd.append('images', f);
+
+    console.groupCollapsed('[Images] FormData snapshot');
+    console.log('existingImages:', existingList.join(','));
+    uploadFiles.forEach((f, i) => console.log(`images[${i}] -> ${f?.name} (${f?.size} bytes)`));
+    console.groupEnd();
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -308,7 +431,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
 
     try {
       const formDataToSend = new FormData();
-      
+
       // Validate and convert data types
       const cityId = parseInt(formData.cityId);
       const categoryId = parseInt(formData.categoryId);
@@ -346,7 +469,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         setLoading(false);
         return;
       }
-      
+
       // Basic trip data - match backend parameter names exactly
       formDataToSend.append('cityId', cityId);
       formDataToSend.append('categoryId', categoryId);
@@ -360,12 +483,15 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       formDataToSend.append('maxPersons', maxPersons);
       formDataToSend.append('featured', formData.featured ? 'true' : 'false');
       formDataToSend.append('order', order);
-      
+
+      await appendImagesToFormData(formDataToSend);
+
+
       // Images - backend expects 'images' field name
-      imageFiles.forEach(file => {
-        formDataToSend.append('images', file);
-      });
-      
+      // imageFiles.forEach(file => {
+      //   formDataToSend.append('images', file);
+      // });
+
       // Options - backend expects List<CreateOptionRequest>, send as JSON stringified array of objects
       if (options.length > 0) {
         const optionsObjects = options.map(option => ({
@@ -405,13 +531,13 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       console.log('- maxPersons:', maxPersons);
       console.log('- featured:', formData.featured ? 'true' : 'false');
       console.log('- order:', order);
-      
+
       console.log('\nImages:');
-      console.log('- Number of image files:', imageFiles.length);
-      imageFiles.forEach((file, index) => {
-        console.log(`  Image ${index + 1}:`, file.name, `(${file.size} bytes)`);
-      });
-      
+      // console.log('- Number of image files:', imageFiles.length);
+      // imageFiles.forEach((file, index) => {
+      //   console.log(`  Image ${index + 1}:`, file.name, `(${file.size} bytes)`);
+      // });
+
       console.log('\nOptions:');
       if (options.length > 0) {
         const optionsObjects = options.map(option => ({
@@ -425,7 +551,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       } else {
         console.log('- No options');
       }
-      
+
       console.log('\nPackages:');
       if (packages.length > 0) {
         const packagesObjects = packages.map(pkg => ({
@@ -441,7 +567,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       } else {
         console.log('- No packages');
       }
-      
+
       console.log('\nFormData entries:');
       for (let [key, value] of formDataToSend.entries()) {
         console.log(`${key}:`, value);
@@ -457,7 +583,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         console.log('Request headers:', {
           'Authorization': `Bearer ${token ? token.substring(0, 20) + '...' : 'No token'}`
         });
-        
+
         const response = await api.put(`/api/trips/${tripId}`, formDataToSend, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -475,7 +601,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         console.log('Request headers:', {
           'Authorization': `Bearer ${token ? token.substring(0, 20) + '...' : 'No token'}`
         });
-        
+
         const response = await api.post('/api/trips', formDataToSend, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -486,7 +612,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         console.log('Create response data:', response.data);
         setSuccessMessage('تم إنشاء الرحلة بنجاح');
       }
-      
+
       setShowSuccessModal(true);
       setTimeout(() => {
         if (onSuccess) {
@@ -496,10 +622,10 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     } catch (err) {
       console.error('Error details:', err);
       console.error('Error response:', err.response);
-      
+
       // Handle different error response formats
       let errorMessage = 'حدث خطأ أثناء حفظ الرحلة';
-      
+
       if (err.response?.data) {
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
@@ -534,7 +660,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -542,11 +668,11 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   };
 
   // Filter cities and categories based on search
-  const filteredCities = cities.filter(city => 
+  const filteredCities = cities.filter(city =>
     city.name.toLowerCase().includes(citySearch.toLowerCase())
   );
 
-  const filteredCategories = categories.filter(category => 
+  const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(categorySearch.toLowerCase())
   );
 
@@ -593,6 +719,35 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       </div>
     );
   }
+
+
+
+  const onDragStart = (index) => () => { dragFrom.current = index; };
+  const onDragEnter = (index) => (e) => { e.preventDefault(); dragTo.current = index; };
+  const onDragOver = (e) => e.preventDefault();
+  const onDragEnd = () => {
+    const from = dragFrom.current;
+    const to = dragTo.current;
+    dragFrom.current = dragTo.current = null;
+    if (from == null || to == null || from === to) return;
+
+    setImageItems(prev => {
+      const arr = [...prev];
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+
+      console.groupCollapsed('[Images] Reordered by drag');
+      console.table(arr.map((it, idx) => ({
+        idx,
+        type: it.type,
+        name: it.file?.name || it.url
+      })));
+      console.groupEnd();
+
+      return arr;
+    });
+  };
+
 
   return (
     <div className="trip-form">
@@ -683,7 +838,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     onChange={handleCitySearchChange}
                     onFocus={() => setShowCityDropdown(true)}
                   />
-                  <button 
+                  <button
                     type="button"
                     className="city-clear-btn"
                     onClick={() => {
@@ -696,7 +851,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     ×
                   </button>
                 </div>
-                
+
                 {showCityDropdown && (
                   <div className="city-dropdown">
                     {filteredCities.length > 0 ? (
@@ -726,7 +881,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     onChange={handleCategorySearchChange}
                     onFocus={() => setShowCategoryDropdown(true)}
                   />
-                  <button 
+                  <button
                     type="button"
                     className="category-clear-btn"
                     onClick={() => {
@@ -739,7 +894,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     ×
                   </button>
                 </div>
-                
+
                 {showCategoryDropdown && (
                   <div className="category-dropdown">
                     {filteredCategories.length > 0 ? (
@@ -823,7 +978,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           <div className="trip-form-section">
             <h3>صور الرحلة</h3>
             <div className="trip-images-upload">
-              <div className="trip-images-preview">
+              {/* <div className="trip-images-preview">
                 {imagePreviews.map((preview, index) => (
                   <div key={index} className="trip-image-preview-item">
                     <img
@@ -840,8 +995,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     </button>
                   </div>
                 ))}
-                
-                <div 
+
+                <div
                   className="trip-upload-placeholder"
                   onClick={() => fileInputRef.current?.click()}
                   style={{ cursor: 'pointer' }}
@@ -850,8 +1005,50 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   <p>اضغط لاختيار صور</p>
                   <span>يمكنك اختيار صور غير محدودة</span>
                 </div>
+              </div> */}
+
+
+              <div className="trip-images-preview">
+                {imageItems.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="trip-image-preview-item"
+                    draggable
+                    onDragStart={onDragStart(index)}
+                    onDragEnter={onDragEnter(index)}
+                    onDragOver={onDragOver}
+                    onDragEnd={onDragEnd}
+                    title="Drag to reorder"
+                  >
+                    <img src={item.preview} alt={`Preview ${index + 1}`} className="trip-preview-image" />
+                    <button type="button" className="trip-remove-image-btn" onClick={() => removeImage(index)}>
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                    <span className="trip-drag-handle">⋮⋮</span>
+                  </div>
+                ))}
+
+                <div className="trip-upload-placeholder" onClick={() => fileInputRef.current?.click()}>
+                  <FontAwesomeIcon icon={faUpload} />
+                  <p>اضغط لاختيار صور</p>
+                  <span>يمكنك اختيار صور غير محدودة</span>
+                </div>
               </div>
+
               <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="trip-file-input"
+                style={{ display: 'none' }}
+              />
+
+
+
+
+              {/* <input
                 ref={fileInputRef}
                 type="file"
                 id="trip-images"
@@ -860,7 +1057,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                 onChange={handleImageChange}
                 className="trip-file-input"
                 style={{ display: 'none' }}
-              />
+              /> */}
             </div>
           </div>
 
@@ -920,7 +1117,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 className="trip-add-option-btn"
@@ -1022,7 +1219,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   </div>
                 </div>
               ))}
-              
+
               <button
                 type="button"
                 className="trip-add-package-btn"

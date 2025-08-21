@@ -266,8 +266,8 @@ const CategoriesList = ({ onViewDetails, onEdit }) => {
         </div>
       )}
 
-      <div className="categories-table-container">
-        <table className="categories-table">
+      <div className="providers-table-container">
+        <table className="providers-table">
           <thead>
             <tr>
               <th onClick={() => handleSort('id')}>
@@ -312,11 +312,11 @@ const CategoriesList = ({ onViewDetails, onEdit }) => {
                     <span className="category-id">#{category.id}</span>
                   </td>
                   <td>
-                    <div className="category-info">
+                    <div className="provider-info">
                       <img
                         src={getImageUrl(category.image)}
                         alt={category.name}
-                        className="category-avatar"
+                        className="provider-avatar"
                         onError={(e) => {
                           e.target.src = '/assets/images/category.png';
                         }}

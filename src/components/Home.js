@@ -3,11 +3,13 @@ import ApexChart from 'react-apexcharts';
 import axios from 'axios';
 import './Home.css';
 import { API_CONFIG } from '../constants/config';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   console.log('Home component rendered', data);
   useEffect(() => {
@@ -43,37 +45,50 @@ export default function Home() {
       value: statistics.users.total,
       icon: 'fa-users',
       color: '#1fc1de',
-      sub: `جديد هذا الشهر: ${statistics.users.newThisMonth}`
+      sub: `جديد هذا الشهر: ${statistics.users.newThisMonth}`,
+      to: '/admin/customers'
     },
     {
       label: 'مزودي الخدمات',
       value: statistics.users.providers,
       icon: 'fa-briefcase',
       color: '#00a6c9',
-      sub: `العملاء: ${statistics.users.customers}`
+      sub: `العملاء: ${statistics.users.customers}`,
+      to: '/admin/providers'
     },
     {
       label: 'الطلعات',
       value: statistics.trips.total,
       icon: 'fa-route',
       color: '#1fc1de',
-      sub: `مميزة: ${statistics.trips.featured}`
+      sub: `مميزة: ${statistics.trips.featured}`,
+      to: '/admin/trips'
     },
     {
       label: 'الحجوزات',
       value: statistics.bookings.total,
       icon: 'fa-calendar-check',
       color: '#00a6c9',
-      sub: `هذا الشهر: ${statistics.bookings.thisMonth}`
+      sub: `هذا الشهر: ${statistics.bookings.thisMonth}`,
+      to: '/admin/bookings'
     },
+    
     {
       label: 'الإيرادات',
       value: statistics.revenue.total,
       icon: 'fa-coins',
       color: '#1fc1de',
-      sub: `عمولة التطبيق: ${statistics.revenue.totalAppCommission}`
+      sub: `عمولة التطبيق: ${statistics.revenue.totalAppCommission}`,
+      to: '/admin/revenue'
     }
   ];
+
+  const onCardKeyDown = (e, to) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      navigate(to);
+    }
+  };
 
   // Chart configs
   const revenueChart = {
@@ -107,7 +122,12 @@ export default function Home() {
     <div className="dashboard-home">
       <div className="dashboard-cards">
         {statCards.map((card, i) => (
-          <div className="dashboard-card" key={i} style={{ borderTop: `3px solid ${card.color}` }}>
+          <div className="dashboard-card"
+            key={i}
+            style={{ borderTop: `3px solid ${card.color}` }}
+            onClick={() => navigate(card.to)}                                      // 👈 navigate
+            onKeyDown={(e) => onCardKeyDown(e, card.to)}
+          >
             <div className="card-icon" style={{ background: card.color }}><span className={`fa ${card.icon}`}></span></div>
             <div className="card-info">
               <div className="card-label">{card.label}</div>

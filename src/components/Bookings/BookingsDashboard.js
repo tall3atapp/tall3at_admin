@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import BookingsList from './BookingsList';
-import BookingDetails from './BookingDetails';
 import BookingForm from './BookingForm';
+import BookingDetails from './BookingDetails';
 import CustomerDetails from '../Customers/CustomerDetails';
 import ProviderDetails from '../Providers/ProviderDetails';
 import TripDetails from '../Trips/TripDetails';
@@ -99,7 +99,7 @@ const BookingsDashboard = () => {
           <CustomerDetails
             customerId={selectedCustomerId}
             onBack={handleBackToBooking}
-            onEdit={() => {}} // You can implement customer edit if needed
+            onEdit={() => { }} // You can implement customer edit if needed
           />
         );
       case 'provider-details':
@@ -107,7 +107,7 @@ const BookingsDashboard = () => {
           <ProviderDetails
             providerId={selectedProviderId}
             onBack={handleBackToBooking}
-            onEdit={() => {}} // You can implement provider edit if needed
+            onEdit={() => { }} // You can implement provider edit if needed
           />
         );
       case 'trip-details':
@@ -115,7 +115,7 @@ const BookingsDashboard = () => {
           <TripDetails
             tripId={selectedTripId}
             onBack={handleBackToBooking}
-            onEdit={() => {}} // You can implement trip edit if needed
+            onEdit={() => { }} // You can implement trip edit if needed
           />
         );
       default:

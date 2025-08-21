@@ -3,6 +3,7 @@ import CustomersList from './CustomersList';
 import CustomerDetails from './CustomerDetails';
 import CustomerForm from './CustomerForm';
 import BookingDetails from '../Bookings/BookingDetails';
+// import BookingDetails from '../Bookings/BookingDetails_';
 
 const CustomersDashboard = () => {
   const [currentView, setCurrentView] = useState('list');
