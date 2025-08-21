@@ -156,9 +156,6 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
     fetchProviders(page);
   };
 
-
-
-
   const handleStatusChange = async (providerId, newStatus) => {
     try {
       const formData = new FormData();
@@ -318,27 +315,219 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
     }
   };
 
+  // const exportProviders = async () => {
+  //   try {
+  //     const params = new URLSearchParams({
+  //       status: filters?.status ?? '',
+  //       cityId: filters?.cityId ?? '',
+  //       format: 'csv'
+  //     });
+
+  //     console.log('Exporting providers with params:', params.toString(), params);
+
+  //     const res = await api.get(`/api/admin/providers/export?${params}`, {
+  //       responseType: 'arraybuffer',
+  //       timeout: 60000,
+  //       // optional but helpful:
+  //       headers: { Accept: 'text/csv, application/octet-stream, */*' },
+  //       validateStatus: s => s >= 200 && s < 300 // force throw on non-2xx
+  //     });
+
+  //     // --- check server content-type (maybe returned JSON error) ---
+  //     const ct = (res.headers?.['content-type'] || '').toLowerCase();
+  //     if (ct.includes('application/json') || ct.includes('text/json')) {
+  //       const txt = new TextDecoder('utf-8').decode(res.data);
+  //       let msg = 'Server returned JSON instead of CSV.';
+  //       try { msg = JSON.parse(txt)?.message || msg; } catch { }
+  //       throw new Error(msg);
+  //     }
+
+  //     // --- CSV download with UTF-8 BOM for Arabic ---
+  //     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  //     let csvText = new TextDecoder('utf-8').decode(res.data);
+
+
+  //     // Split into rows
+  //     let rows = csvText.split(/\r?\n/).filter(r => r.trim() !== "");
+
+  //     // Split first row (header) by comma
+  //     let headers = rows[0].split(",");
+
+  //     // 1) Rename "Username" → "Phone Number"
+  //     headers = headers.map(h =>
+  //       /^username$/i.test(h.trim()) ? "Phone Number" : h
+  //     );
+
+  //     // 2) Find index of the unwanted "Phone" column
+  //     const phoneIdx = headers.findIndex(h => /^phone$/i.test(h.trim()));
+
+  //     // 3) Remove that column from headers + each row
+  //     if (phoneIdx !== -1) {
+  //       headers.splice(phoneIdx, 1);
+  //       rows = rows.map(r => {
+  //         const cols = r.split(",");
+  //         cols.splice(phoneIdx, 1);
+  //         return cols.join(",");
+  //       });
+  //     }
+
+  //     // Rebuild CSV
+  //     rows[0] = headers.join(",");
+  //     csvText = rows.join("\n");
+
+
+  //     const blob = new Blob([bom, csvText], { type: 'text/csv;charset=utf-8;' });
+
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = 'providers.csv';
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     a.remove();
+  //     URL.revokeObjectURL(url);
+  //   } catch (err) {
+  //     // Axios/network/server error parsing
+  //     let message = 'Failed to export data';
+  //     if (err?.response?.data) {
+  //       try {
+  //         const txt = new TextDecoder('utf-8').decode(err.response.data);
+  //         const j = JSON.parse(txt);
+  //         message = j.message || txt || message;
+  //       } catch {
+  //         message = err?.message || message;
+  //       }
+  //     } else if (err?.message) {
+  //       message = err.message;
+  //     }
+  //     console.error('Export error:', err);
+  //     setError(message);
+  //   }
+  // };
+
   const exportProviders = async () => {
     try {
       const params = new URLSearchParams({
-        status: filters.status,
-        cityId: filters.cityId,
+        status: filters?.status ?? '',
+        cityId: filters?.cityId ?? '',
         format: 'csv'
       });
 
-      const response = await api.get(`/api/admin/providers/export?${params}`, {
-        responseType: 'blob'
+      console.log('Exporting providers with params:', params.toString(), params);
+
+      const res = await api.get(`/api/admin/providers/export?${params}`, {
+        responseType: 'arraybuffer',
+        timeout: 60000,
+        // optional but helpful:
+        headers: { Accept: 'text/csv, application/octet-stream, */*' },
+        validateStatus: s => s >= 200 && s < 300 // force throw on non-2xx
       });
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'providers.csv');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      // --- check server content-type (maybe returned JSON error) ---
+      const ct = (res.headers?.['content-type'] || '').toLowerCase();
+      if (ct.includes('application/json') || ct.includes('text/json')) {
+        const txt = new TextDecoder('utf-8').decode(res.data);
+        let msg = 'Server returned JSON instead of CSV.';
+        try { msg = JSON.parse(txt)?.message || msg; } catch { }
+        throw new Error(msg);
+      }
+
+
+      // --- CSV download with UTF-8 BOM for Arabic ---
+      const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      let csvText = new TextDecoder('utf-8').decode(res.data);
+
+      // helpers: CSV-safe split/join
+      const smartSplit = (line) => {
+        const out = [];
+        let s = '', q = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            if (q && line[i + 1] === '"') { s += '"'; i++; }
+            else q = !q;
+          } else if (c === ',' && !q) {
+            out.push(s); s = '';
+          } else {
+            s += c;
+          }
+        }
+        out.push(s);
+        return out;
+      };
+      const toCSVLine = (arr) =>
+        arr.map(v => {
+          v = v ?? '';
+          const needsQuotes = /[",\n]/.test(v);
+          if (!needsQuotes) return v;
+          return `"${String(v).replace(/"/g, '""')}"`;
+        }).join(',');
+
+      // split rows
+      let rows = csvText.split(/\r?\n/).filter(r => r.trim() !== '');
+      if (rows.length === 0) throw new Error('Empty CSV');
+
+      let headers = smartSplit(rows[0]);
+
+      // 1) Rename "Username" → "Phone Number"
+      headers = headers.map(h => (/^\s*username\s*$/i.test(h) ? 'Phone Number' : h));
+
+      // 2) Remove unwanted "Phone" column completely
+      let dropIdx = headers.findIndex(h => /^\s*phone\s*$/i.test(h));
+      if (dropIdx !== -1) {
+        headers.splice(dropIdx, 1);
+        for (let r = 1; r < rows.length; r++) {
+          const cols = smartSplit(rows[r]);
+          cols.splice(dropIdx, 1);
+          rows[r] = toCSVLine(cols);
+        }
+      }
+
+      // 3) Replace ID with S_last3DigitsOfPhone
+      const idIdx = headers.findIndex(h => /^\s*id\s*$/i.test(h));
+      const phoneIdx = headers.findIndex(h => /^\s*phone\s*number\s*$/i.test(h));
+
+      if (idIdx !== -1 && phoneIdx !== -1) {
+        for (let r = 1; r < rows.length; r++) {
+          const cols = smartSplit(rows[r]);
+          const phone = (cols[phoneIdx] || '').replace(/\D/g, ''); // digits only
+          const last3 = phone.slice(-3) || '000';
+          cols[idIdx] = `S_${last3}`;
+          rows[r] = toCSVLine(cols);
+        }
+      }
+
+      // rebuild CSV
+      rows[0] = toCSVLine(headers);
+      csvText = rows.join('\n');
+
+      // download
+      const blob = new Blob([bom, csvText], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'providers.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
     } catch (err) {
-      setError('فشل في تصدير البيانات');
+      // Axios/network/server error parsing
+      let message = 'Failed to export data';
+      if (err?.response?.data) {
+        try {
+          const txt = new TextDecoder('utf-8').decode(err.response.data);
+          const j = JSON.parse(txt);
+          message = j.message || txt || message;
+        } catch {
+          message = err?.message || message;
+        }
+      } else if (err?.message) {
+        message = err.message;
+      }
+      console.error('Export error:', err);
+      setError(message);
     }
   };
 

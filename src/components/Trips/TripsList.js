@@ -84,6 +84,8 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
     fetchCities();
     fetchCategories();
   }, [pagination.currentPage, filters]);
+  const [exporting, setExporting] = useState(false);
+
 
   // Handle clicking outside dropdowns
   useEffect(() => {
@@ -329,6 +331,127 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
       showSuccessMessage('تم حذف الرحلة بنجاح');
     } catch (err) {
       setError('فشل في حذف الرحلة');
+    }
+  };
+
+
+  const exportTrips = async () => {
+    try {
+      setExporting(true);
+      const params = new URLSearchParams({
+        role: 'trip',
+        status: filters?.status ?? '',
+        cityId: filters?.cityId ?? '',
+        format: 'csv'
+      });
+
+      console.log('Exporting providers with params:', params.toString(), params);
+
+      const res = await api.get(`/api/admin/trips/export?${params}`, {
+        responseType: 'arraybuffer',
+        timeout: 60000,
+        // optional but helpful:
+        headers: { Accept: 'text/csv, application/octet-stream, */*' },
+        validateStatus: s => s >= 200 && s < 300 // force throw on non-2xx
+      });
+
+      // --- check server content-type (maybe returned JSON error) ---
+      const ct = (res.headers?.['content-type'] || '').toLowerCase();
+      if (ct.includes('application/json') || ct.includes('text/json')) {
+        const txt = new TextDecoder('utf-8').decode(res.data);
+        let msg = 'Server returned JSON instead of CSV.';
+        try { msg = JSON.parse(txt)?.message || msg; } catch { }
+        throw new Error(msg);
+      }
+
+
+      // --- CSV download with UTF-8 BOM for Arabic ---
+      const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      let csvText = new TextDecoder('utf-8').decode(res.data);
+
+      // helpers: CSV-safe split/join
+      const smartSplit = (line) => {
+        const out = [];
+        let s = '', q = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            if (q && line[i + 1] === '"') { s += '"'; i++; }
+            else q = !q;
+          } else if (c === ',' && !q) {
+            out.push(s); s = '';
+          } else {
+            s += c;
+          }
+        }
+        out.push(s);
+        return out;
+      };
+      const toCSVLine = (arr) =>
+        arr.map(v => {
+          v = v ?? '';
+          const needsQuotes = /[",\n]/.test(v);
+          if (!needsQuotes) return v;
+          return `"${String(v).replace(/"/g, '""')}"`;
+        }).join(',');
+
+      // split rows
+      let rows = csvText.split(/\r?\n/).filter(r => r.trim() !== '');
+      if (rows.length === 0) throw new Error('Empty CSV');
+
+      let headers = smartSplit(rows[0]);
+      const dropHeaders = [/^\s*price\s*$/i, /^\s*discountedprice\s*$/i];
+
+      // find indexes to remove
+      const dropIndexes = headers
+        .map((h, idx) => dropHeaders.some(rx => rx.test(h)) ? idx : -1)
+        .filter(idx => idx !== -1);
+
+      // remove in reverse order so indexes don’t shift
+      dropIndexes.sort((a, b) => b - a);
+
+      dropIndexes.forEach(idx => {
+        headers.splice(idx, 1);
+        for (let r = 1; r < rows.length; r++) {
+          const cols = smartSplit(rows[r]);
+          cols.splice(idx, 1);
+          rows[r] = toCSVLine(cols);
+        }
+      });
+
+      // rebuild CSV
+      rows[0] = toCSVLine(headers);
+      csvText = rows.join('\n');
+
+      // download
+      const blob = new Blob([bom, csvText], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'trips.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      // Axios/network/server error parsing
+      let message = 'Failed to export data';
+      if (err?.response?.data) {
+        try {
+          const txt = new TextDecoder('utf-8').decode(err.response.data);
+          const j = JSON.parse(txt);
+          message = j.message || txt || message;
+        } catch {
+          message = err?.message || message;
+        }
+      } else if (err?.message) {
+        message = err.message;
+      }
+      console.error('Export error:', err);
+      setError(message);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -652,7 +775,8 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
               <FontAwesomeIcon icon={faPrint} />
               طباعة
             </button>
-            <button className="btn btn-export" disabled>
+
+            <button className="btn btn-export" onClick={exportTrips} disabled={exporting}>
               <FontAwesomeIcon icon={faDownload} />
               تصدير
             </button>
@@ -721,7 +845,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
             <FontAwesomeIcon icon={faPrint} />
             طباعة
           </button>
-          <button className="btn btn-export" onClick={() => { }}>
+          <button className="btn btn-export" onClick={exportTrips} disabled={exporting}>
             <FontAwesomeIcon icon={faDownload} />
             تصدير
           </button>
