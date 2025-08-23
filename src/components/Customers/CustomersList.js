@@ -686,7 +686,7 @@ const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => 
                       <img
                         src={getImageUrl(customer.profileImage)}
                         alt={customer.fullName}
-                        className="provider-info"
+                        className="provider-avatar"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextSibling.style.display = 'flex';
