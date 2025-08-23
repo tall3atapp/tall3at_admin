@@ -13,7 +13,7 @@ export default function Home() {
 
   console.log('Home component rendered', data);
   useEffect(() => {
-    axios.get(`${API_CONFIG.BASE_URL}api/admin/dashboard`)
+    axios.get(`${API_CONFIG.BASE_URL}/api/admin/dashboard`)
       .then(res => {
         setData(res.data);
         setLoading(false);
