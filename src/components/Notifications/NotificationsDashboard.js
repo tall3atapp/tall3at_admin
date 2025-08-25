@@ -20,7 +20,7 @@ const CUSTOMERS_API = `${API_BASE}/users`;
 // const FETCH_USERS = `${API_BASE}/user-ids`;
 const SEND_NOTIFICATION = `${API_BASE}/broadcast-to-users`;
 
-console.log("API_BASE", PROVIDERS_API, CUSTOMERS_API, SEND_NOTIFICATION);
+// console.log("API_BASE", PROVIDERS_API, CUSTOMERS_API, SEND_NOTIFICATION);
 
 // Small helper to read common display fields safely
 const displayName = (u) => u?.name || u?.fullName || u?.companyName || "—";
@@ -39,7 +39,7 @@ const NotificationsDashboard = () => {
     const [customers, setCustomers] = useState([]);
     const [providers, setProviders] = useState([]);
     console.log("Customers:", customers);
-    console.log("Providers:", providers);
+    // console.log("Providers:", providers);
 
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [loadingProviders, setLoadingProviders] = useState(false);
@@ -76,14 +76,16 @@ const NotificationsDashboard = () => {
             setErrorCustomers("");
             try {
                 const res = await fetch(`${CUSTOMERS_API}`,
-                    { headers: authHeaders() } 
+                    { headers: authHeaders() }
 
                 );
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                console.log("Customers data:", data.data.fullName, data);
 
-                setCustomers(toArray(data));
+                const arr = Array.isArray(data) ? data : data?.data ?? data?.results ?? [];
+                const onlyCustomers = arr.filter(user => user.role === "customer");
+                console.log("Customers data:", onlyCustomers.map((u) => u.role));
+                setCustomers(onlyCustomers);
 
             } catch (e) {
                 setErrorCustomers("Failed to load customers.");
@@ -97,10 +99,10 @@ const NotificationsDashboard = () => {
             setErrorProviders("");
             try {
                 const res = await fetch(PROVIDERS_API, { headers: authHeaders() });
-                console.log("Providers API:", res.url, res.status, res.statusText, res);
-                // if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                // console.log("Providers API:", res.url, res.status, res.statusText, res);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                console.log("Providers data:", data.data);
+                // console.log("Providers data:", data.data);
                 setProviders(toArray(data));
             } catch (e) {
                 setErrorProviders("Failed to load providers.");
@@ -186,9 +188,9 @@ const NotificationsDashboard = () => {
     const handleSend = async () => {
         const isCustomers = activeTab === TabKey.CUSTOMERS;
         const selected = isCustomers ? selectedCustomers : selectedProviders;
-        console.log("Sending to:", selected);   
+        // console.log("Sending to:", selected);   
         const recipients = Array.from(selected);
-        console.log("Recipients IDs:", recipients);
+        // console.log("Recipients IDs:", recipients);
 
         if (!title.trim() || !body.trim() || recipients.length === 0) {
             setToast({
@@ -206,18 +208,18 @@ const NotificationsDashboard = () => {
         setSending(true);
         setToast(null);
         try {
-            const res = await fetch(SEND_NOTIFICATION, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-                body: JSON.stringify({
-                    userIds: recipients,
-                    title: title.trim(),
-                    body: body.trim(),
-                }),
-            });
+            // const res = await fetch(SEND_NOTIFICATION, {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+            //     },
+            //     body: JSON.stringify({
+            //         userIds: recipients,
+            //         title: title.trim(),
+            //         body: body.trim(),
+            //     }),
+            // });
 
 
             setToast({ type: "success", msg: "Message sent successfully." });

@@ -333,6 +333,8 @@
   border-bottom-right-radius: 4px;
   margin-right: auto;
   box-shadow: 0 2px 8px rgba(31, 193, 222, 0.2);
+
+  
 }
 
 .message-content {
@@ -803,6 +805,8 @@
 .message-item.provider { 
   display: ruby;
   justify-content: flex-end; 
+      margin-bottom: 1.5rem;
+
 }
 /* OPTIONAL: remove old .sent/.received usage in markup */
 
