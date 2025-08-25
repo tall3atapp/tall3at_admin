@@ -721,7 +721,7 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         </button>
 
         {showFilters && (
-          <div className="filters-panel">
+          <div className="filters-panels">
             <div className="select-wrap">
 
               <select

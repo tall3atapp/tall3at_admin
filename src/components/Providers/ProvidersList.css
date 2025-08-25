@@ -114,6 +114,11 @@
   background: #fff;
   transition: border-color 0.2s ease;
 }
+لهف
+
+.slide-down{
+  display: contents;
+}
 
 .search-box input:focus {
   outline: none;
@@ -142,8 +147,8 @@
   background: rgba(31, 193, 222, 0.05);
 }
 
-.filters-panel {
-  display: flex;
+.filters-panels {
+  display: contents;
   gap: 12px;
   width: 100%;
   padding: 16px;
@@ -152,13 +157,13 @@
   border: 1px solid #e5e7eb;
 }
 
-.filters-panel .select-wrap {
+.filters-panels .select-wrap {
   position: relative;
   display: inline-block;
 }
 
 
-.filters-panel select {
+.filters-panels select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -176,7 +181,7 @@
 }
 
 /* custom arrow (triangle) */
-.filters-panel .select-wrap::after {
+.filters-panels .select-wrap::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -190,7 +195,7 @@
   pointer-events: none;
 }
 
-.filters-panel .select-wrap:focus {
+.filters-panels .select-wrap:focus {
   outline: none;
   border-color: #1fc1de;
   border: none;
@@ -200,19 +205,19 @@
 
 
 /* RTL adjustments: move padding and arrow to the other side */
-[dir="rtl"] .filters-panel select {
+[dir="rtl"] .filters-panels select {
   padding-inline-start: 36px;
   padding-inline-end: 12px;
 }
 
-.filters-panel select:focus {
+.filters-panels select:focus {
   outline: none;
   border-color: #1fc1de;
 }
 
 
 
-.filters-panel .select-wrap::after {
+.filters-panels .select-wrap::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -584,7 +589,7 @@
     min-width: auto;
   }
 
-  .filters-panel {
+  .filters-panels {
     flex-direction: column;
   }
 

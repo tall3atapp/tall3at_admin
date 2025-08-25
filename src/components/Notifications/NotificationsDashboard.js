@@ -14,11 +14,13 @@ import { API_CONFIG } from "../../constants/config";
 import axios from "axios";
 
 const API_BASE = API_CONFIG.BASE_URL + '/api/admin';
-// console.log("API_BASE", API_BASE);
+
 const PROVIDERS_API = `${API_BASE}/providers`;
 const CUSTOMERS_API = `${API_BASE}/users`;
+// const FETCH_USERS = `${API_BASE}/user-ids`;
+const SEND_NOTIFICATION = `${API_BASE}/broadcast-to-users`;
 
-// console.log("API_BASE", PROVIDERS_API, CUSTOMERS_API);
+console.log("API_BASE", PROVIDERS_API, CUSTOMERS_API, SEND_NOTIFICATION);
 
 // Small helper to read common display fields safely
 const displayName = (u) => u?.name || u?.fullName || u?.companyName || "—";
@@ -36,8 +38,8 @@ const NotificationsDashboard = () => {
 
     const [customers, setCustomers] = useState([]);
     const [providers, setProviders] = useState([]);
-    // console.log("Customers:", customers);
-    // console.log("Providers:", providers);
+    console.log("Customers:", customers);
+    console.log("Providers:", providers);
 
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [loadingProviders, setLoadingProviders] = useState(false);
@@ -74,15 +76,14 @@ const NotificationsDashboard = () => {
             setErrorCustomers("");
             try {
                 const res = await fetch(`${CUSTOMERS_API}`,
-                    { headers: authHeaders() } // send token
+                    { headers: authHeaders() } 
 
                 );
-                // if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                // console.log("Customers data:", data.data.fullName, data);
+                console.log("Customers data:", data.data.fullName, data);
 
-                // setCustomers(Array.isArray(data) ? data : data?.data || []);
-                                setCustomers(toArray(data));
+                setCustomers(toArray(data));
 
             } catch (e) {
                 setErrorCustomers("Failed to load customers.");
@@ -96,10 +97,10 @@ const NotificationsDashboard = () => {
             setErrorProviders("");
             try {
                 const res = await fetch(PROVIDERS_API, { headers: authHeaders() });
-                // console.log("Providers API:", res.url, res.status, res.statusText, res);
+                console.log("Providers API:", res.url, res.status, res.statusText, res);
                 // if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                // console.log("Providers data:", data.data);
+                console.log("Providers data:", data.data);
                 setProviders(toArray(data));
             } catch (e) {
                 setErrorProviders("Failed to load providers.");
@@ -111,7 +112,7 @@ const NotificationsDashboard = () => {
         fetchCustomers();
         fetchProviders();
     }, []);
-       // Derived filtered lists
+    // Derived filtered lists
     const filteredCustomers = useMemo(() => {
         const q = searchCustomers.trim().toLowerCase();
         if (!q) return customers;
@@ -185,7 +186,9 @@ const NotificationsDashboard = () => {
     const handleSend = async () => {
         const isCustomers = activeTab === TabKey.CUSTOMERS;
         const selected = isCustomers ? selectedCustomers : selectedProviders;
+        console.log("Sending to:", selected);   
         const recipients = Array.from(selected);
+        console.log("Recipients IDs:", recipients);
 
         if (!title.trim() || !body.trim() || recipients.length === 0) {
             setToast({
@@ -203,23 +206,19 @@ const NotificationsDashboard = () => {
         setSending(true);
         setToast(null);
         try {
-            // Placeholder endpoint – change to your real send route
-            // e.g. POST `${API_BASE}/notifications/send`
-            // const res = await fetch(`${API_BASE}/notifications`, {
-            //     method: "POST",
-            //     headers: { "Content-Type": "application/json" },
-            //     // credentials: "include",
-            //     body: JSON.stringify({
-            //         title: title.trim(),
-            //         body: body.trim(),
-            //         recipientType: isCustomers ? "customers" : "providers",
-            //         recipientIds: recipients,
-            //     }),
-            // });
+            const res = await fetch(SEND_NOTIFICATION, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({
+                    userIds: recipients,
+                    title: title.trim(),
+                    body: body.trim(),
+                }),
+            });
 
-            // if (!res.ok) {
-            //     throw new Error(`Send failed (HTTP ${res.status})`);
-            // }
 
             setToast({ type: "success", msg: "Message sent successfully." });
             // Optional: clear selection and form

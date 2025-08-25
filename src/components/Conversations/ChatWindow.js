@@ -14,6 +14,7 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
   const navigate = useNavigate();
   // const navigate = useNavigate();
   const location = useLocation();
+  console.log('ChatWindow location:', messages);
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/assets/images/default-avatar.png';
@@ -41,7 +42,7 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
     try {
       // Debug: Log the conversation structure
       console.log('Selected conversation:', selectedConversation);
-      console.log('All conversation properties:', Object.keys(selectedConversation));
+      // console.log('All conversation properties:', Object.keys(selectedConversation));
 
       // Extract user IDs from the conversation - try different possible structures
       let userId1, userId2;
