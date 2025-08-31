@@ -219,6 +219,7 @@
 .category-search-container.open .category-search-input::after {
   transform: translateY(-50%) rotate(180deg);
   border-top-color: #374151;
+  cursor: pointer;
 }
 
 /* move clear (×) to RIGHT (inline-start in RTL) */

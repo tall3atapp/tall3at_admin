@@ -211,6 +211,7 @@
   background: #f8f9fa;
   transition: all 0.3s ease;
   min-width: 250px;
+  cursor: pointer;
 }
 
 .city-search-input input:focus {
