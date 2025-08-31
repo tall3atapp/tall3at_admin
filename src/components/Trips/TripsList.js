@@ -205,8 +205,13 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
     try {
       const formData = new FormData();
       formData.append('status', newStatus);
+      console.log('Updating status for trip:', tripId, 'to', newStatus);  
 
-      await api.put(`/api/admin/trips/${tripId}/status`, formData);
+     const res = await api.put(`/api/admin/trips/${tripId}/status`, formData);
+      console.log('Status update response:', res.data);
+
+      
+      
       fetchTrips();
       showSuccessMessage('تم تحديث حالة الرحلة بنجاح');
     } catch (err) {
@@ -1023,12 +1028,26 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 <td>{trip.categoryName || 'غير محدد'}</td>
                 <td>
                   <div className="status-toggle">
+                     {/* <input
+                      type="checkbox"
+                      id={`status-${provider.id}`}
+                      className="status-toggle-input"
+                      checked={provider.status === 'Active'}
+                      onChange={(e) => {
+                        const newStatus = e.target.checked ? 'Active' : 'Suspended';
+                        handleStatusChange(provider.id, newStatus);
+                      }}
+                    /> */}
+
                     <input
                       type="checkbox"
                       id={`status-${trip.id}`}
                       className="status-toggle-input"
                       checked={trip.status === 'Active'}
-                      onChange={e => handleStatusChange(trip.id, e.target.checked ? 'Active' : 'Inactive')}
+                      onChange={(e) => {
+                        const newStatus = e.target.checked ? 'Active' : 'Disabled';
+                        handleStatusChange(trip.id, newStatus);
+                      }}
                     />
                     <label htmlFor={`status-${trip.id}`} className="status-toggle-label">
                       <span className="status-toggle-slider"></span>
