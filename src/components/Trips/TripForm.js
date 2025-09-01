@@ -289,8 +289,27 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     ));
   };
 
-  const removeOption = (index) => {
-    setOptions(prev => prev.filter((_, i) => i !== index));
+  // const removeOption = (index) => {
+  //   setOptions(prev => prev.filter((_, i) => i !== index));
+  // };
+
+  const removeOption = async (optionId) => {
+    try {
+
+      const token = localStorage.getItem('token');
+
+      // Backend API call to delete option
+      await api.delete(`/api/admin/trips/options/${optionId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      // Update frontend state to remove option locally
+      setOptions((prev) => prev.filter((opt) => opt.id !== optionId));
+    } catch (error) {
+      console.error("Failed to delete option:", error);
+      alert("Failed to delete option. Please try again.");
+    }
   };
 
   const addPackage = () => {
@@ -315,29 +334,29 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   // const removePackage = (index) => {
   //   setPackages(prev => prev.filter((_, i) => i !== index));
   // };
-     const removePackage = async (index) => {
-     const pkg = packages[index];
-     console.log('Removing package:', pkg);
-     if (pkg.id && typeof pkg.id === 'number') {
-       try {
-         const token = localStorage.getItem('token');
-         await api.delete(`/api/admin/trips/packages/${pkg.id}`, {
-           headers: {
-             'Authorization': `Bearer ${token}`
-           }
-         });
-         // Agar delete successful ho to state update karein
-         setPackages(prev => prev.filter((_, i) => i !== index));
-       } catch (error) {
-         console.error('Error deleting package:', error);
-         setError('حدث خطأ أثناء حذف الباقة');
-       }
-     } else {
-       // Agar package abhi server pe nahi hai (naya package), toh sirf state se hata dein
-       setPackages(prev => prev.filter((_, i) => i !== index));
-     }
-   };
-   
+  const removePackage = async (index) => {
+    const pkg = packages[index];
+    console.log('Removing package:', pkg);
+    if (pkg.id && typeof pkg.id === 'number') {
+      try {
+        const token = localStorage.getItem('token');
+        await api.delete(`/api/admin/trips/packages/${pkg.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        // Agar delete successful ho to state update karein
+        setPackages(prev => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error('Error deleting package:', error);
+        setError('حدث خطأ أثناء حذف الباقة');
+      }
+    } else {
+      // Agar package abhi server pe nahi hai (naya package), toh sirf state se hata dein
+      setPackages(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
 
   const validateForm = () => {
     if (!formData.title.trim()) {
@@ -1133,7 +1152,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     <button
                       type="button"
                       className="trip-remove-option-btn"
-                      onClick={() => removeOption(index)}
+                      onClick={() => removeOption(option.id)}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
