@@ -6,6 +6,7 @@ import TripDetails from '../Trips/TripDetails';
 // import BookingDetails from '../Bookings/BookingDetails_';
 import BookingDetails from '../Bookings/BookingDetails';
 import './ProvidersDashboard.css';
+import TripForm from '../Trips/TripForm';
 
 const ProvidersDashboard = () => {
   const [currentView, setCurrentView] = useState('list');
@@ -25,10 +26,13 @@ const ProvidersDashboard = () => {
     setCurrentView('form');
   };
 
+  
   const handleCreateProvider = () => {
     setSelectedProviderId(null);
     setCurrentView('form');
   };
+  
+
 
   const handleBackToList = () => {
     setCurrentView('list');
@@ -36,6 +40,12 @@ const ProvidersDashboard = () => {
     setSelectedTripId(null);
     setSelectedBookingId(null);
   };
+
+  const handleBackToTripDetails = () => {
+    setCurrentView('trip-details');
+    setSelectedBookingId(null);
+  }
+
 
   const handleFormSuccess = () => {
     setCurrentView('list');
@@ -58,6 +68,13 @@ const ProvidersDashboard = () => {
     setSelectedTripId(null);
     setSelectedBookingId(null);
   };
+
+    //remember to edit the trip navigation back to provider details
+
+    const handleEditTrip = (tripId) => {
+    setSelectedTripId(tripId);
+    setCurrentView('trip-form');
+  }
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -94,7 +111,7 @@ const ProvidersDashboard = () => {
           <TripDetails
             tripId={selectedTripId}
             onBack={handleBackToProvider}
-            onEdit={() => { }} // You can implement trip edit if needed
+            onEdit={handleEditTrip} // You can implement trip edit if needed
           />
         );
 
@@ -107,6 +124,15 @@ const ProvidersDashboard = () => {
             onViewCustomer={() => { }} // You can implement customer view if needed
             onViewProvider={() => { }} // You can implement provider view if needed
             onViewTrip={() => { }} // You can implement trip view if needed
+          />
+        );
+
+        case 'trip-form':
+        return (
+          <TripForm
+            tripId={selectedTripId}
+            onBack={handleBackToTripDetails}
+            // onSuccess={handleFormSuccess}
           />
         );
 
