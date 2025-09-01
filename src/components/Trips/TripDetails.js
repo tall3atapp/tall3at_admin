@@ -342,6 +342,9 @@ const TripDetails = ({ tripId, onBack, onEdit }) => {
           </div>
         </div>
 
+
+        
+{/* issue is here */}
         {/* Trip Images Gallery */}
         {images.length > 0 && (
           <div className="trip-details-images">

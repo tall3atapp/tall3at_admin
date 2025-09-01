@@ -312,9 +312,32 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     ));
   };
 
-  const removePackage = (index) => {
-    setPackages(prev => prev.filter((_, i) => i !== index));
-  };
+  // const removePackage = (index) => {
+  //   setPackages(prev => prev.filter((_, i) => i !== index));
+  // };
+     const removePackage = async (index) => {
+     const pkg = packages[index];
+     console.log('Removing package:', pkg);
+     if (pkg.id && typeof pkg.id === 'number') {
+       try {
+         const token = localStorage.getItem('token');
+         await api.delete(`/api/admin/trips/packages/${pkg.id}`, {
+           headers: {
+             'Authorization': `Bearer ${token}`
+           }
+         });
+         // Agar delete successful ho to state update karein
+         setPackages(prev => prev.filter((_, i) => i !== index));
+       } catch (error) {
+         console.error('Error deleting package:', error);
+         setError('حدث خطأ أثناء حذف الباقة');
+       }
+     } else {
+       // Agar package abhi server pe nahi hai (naya package), toh sirf state se hata dein
+       setPackages(prev => prev.filter((_, i) => i !== index));
+     }
+   };
+   
 
   const validateForm = () => {
     if (!formData.title.trim()) {

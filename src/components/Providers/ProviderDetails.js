@@ -35,6 +35,7 @@ const getImageUrl = (imagePath) => {
 
 const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
   const [provider, setProvider] = useState(null);
+  console.log('ProviderDetails -> propProviderId:', providerId, provider);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id: routeId } = useParams();
@@ -297,23 +298,6 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
                       <h4 className="trip-title">{trip.title}</h4>
                       <div className="trip-bottom">
 
-{/* {trip.packages && trip.packages.length > 0 && (
-  <span className="trip-price">
-    يبدأ من {Math.min(...trip.packages.map(pkg => pkg.cost))} ريال
-  </span>
-)} */}
-  {/* {trip.packages && trip.packages.length > 0 && (
-  <span className="trip-price">
-  {Math.min(...trip.packages.map(pkg => pkg.cost))}
-  </span>
-)}                       */}
-{/* {trip.packages && trip.packages.length > 0 && (
-  (() => {
-    const minCost = Math.min(...trip.packages.map(pkg => pkg.cost));
-    console.log('Minimum cost:', minCost); // ✅ console me check
-    return <span className="trip-price">{minCost}</span>;
-  })()
-)} */}
 
                         {/* <span className="trip-price">{trip.price}</span> */}
                         <span className="trip-date">{formatDate(trip.createdAt)}</span>
