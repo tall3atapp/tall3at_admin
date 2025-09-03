@@ -62,7 +62,7 @@ const TripDetails = ({ tripId, onBack, onEdit }) => {
     try {
       setLoading(true);
       const response = await api.get(`/api/trips/${tripId}`);
-      console.log('Trip details response:', response.data);
+      console.log('Trip details response:', response.data.packages);
       console.log('Provider image fields:', {
         providerProfileImage: response.data.providerProfileImage,
         providerImage: response.data.providerImage,

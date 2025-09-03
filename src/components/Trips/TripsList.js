@@ -140,7 +140,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
       console.log('URL params:', params.toString()); // Debug log
 
       const response = await api.get(`/api/admin/trips?${params}`);
-      console.log('API response:', response.data); // Debug log
+      console.log('API response::', response.data); // Debug log
 
       setTrips(response.data.data);
       setPagination(prev => ({

@@ -142,6 +142,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      console.log("trip form fetch: ", response.data)
       const trip = response.data;
 
       setFormData({
@@ -195,6 +197,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         setPackages(trip.packages.map(pkg => ({
           id: pkg.id,
           cost: pkg.cost?.toString() || '',
+          originalCost: pkg.cost?.toString() || '',  // add this
+
           unit: pkg.unit || '',
           minCount: pkg.minCount || 1,
           maxCount: pkg.maxCount || 1,
@@ -203,6 +207,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           featured: pkg.featured || false
         })));
       }
+
 
       setError(null);
     } catch (err) {
@@ -452,7 +457,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     }
 
     fd.append('existingImages', existingList.join(','));
-    for (const f of uploadFiles) fd.append('images', f);
+    for (const f of uploadFiles) fd.append('ImageFiles', f);
 
     console.groupCollapsed('[Images] FormData snapshot');
     console.log('existingImages:', existingList.join(','));
@@ -546,17 +551,42 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       }
 
       // Packages - backend expects List<CreatePackageRequest>, send as JSON stringified array of objects
+      // if (packages.length > 0) {
+      //   const packagesObjects = packages.map(pkg => ({
+      //     cost: parseFloat(pkg.cost) || 0,
+      //     unit: pkg.unit || '',
+      //     minCount: parseInt(pkg.minCount) || 1,
+      //     maxCount: parseInt(pkg.maxCount) || 1,
+      //     numberOfHours: parseInt(pkg.numberOfHours) || 1,
+      //     notes: pkg.notes || ''
+      //   }));
+      //   formDataToSend.append('packages', JSON.stringify(packagesObjects));
+      // }
       if (packages.length > 0) {
-        const packagesObjects = packages.map(pkg => ({
-          cost: parseFloat(pkg.cost) || 0,
-          unit: pkg.unit || '',
-          minCount: parseInt(pkg.minCount) || 1,
-          maxCount: parseInt(pkg.maxCount) || 1,
-          numberOfHours: parseInt(pkg.numberOfHours) || 1,
-          notes: pkg.notes || ''
-        }));
+        const packagesObjects = packages.map(pkg => {
+          const originalCostNum = parseFloat(pkg.originalCost) || 0;
+          const currentCostNum = parseFloat(pkg.cost) || 0;
+
+          let finalCost = currentCostNum;
+
+          // Agar user ne cost change ki hai (currentCost != originalCost)
+          if (currentCostNum !== originalCostNum) {
+            finalCost = currentCostNum * 1.15; // 15% commission add
+          }
+
+          return {
+            cost: finalCost,
+            unit: pkg.unit || '',
+            minCount: parseInt(pkg.minCount) || 1,
+            maxCount: parseInt(pkg.maxCount) || 1,
+            numberOfHours: parseInt(pkg.numberOfHours) || 1,
+            notes: pkg.notes || ''
+          };
+        });
         formDataToSend.append('packages', JSON.stringify(packagesObjects));
       }
+
+
 
       // Debug: Log the form data being sent
       console.log('=== TRIP FORM DATA BEING SENT ===');
@@ -650,6 +680,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
             // Don't set Content-Type for FormData, let the browser set it with boundary
           }
         });
+        console.log("response: ", response)
         console.log('Create response status:', response.status);
         console.log('Create response data:', response.data);
         setSuccessMessage('تم إنشاء الرحلة بنجاح');
@@ -1178,89 +1209,100 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
               باقات الرحلة
             </h3>
             <div className="trip-packages">
-              {packages.map((pkg, index) => (
-                <div key={pkg.id} className="trip-package-item">
-                  <div className="trip-package-grid">
-                    <div className="trip-form-group">
-                      <label>التكلفة</label>
-                      <input
-                        type="number"
-                        value={pkg.cost}
-                        onChange={(e) => updatePackage(index, 'cost', e.target.value)}
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label>الوحدة</label>
-                      <input
-                        type="text"
-                        value={pkg.unit}
-                        onChange={(e) => updatePackage(index, 'unit', e.target.value)}
-                        placeholder="مثال: ساعة، يوم"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label>عدد الساعات</label>
-                      <input
-                        type="number"
-                        value={pkg.numberOfHours}
-                        onChange={(e) => updatePackage(index, 'numberOfHours', e.target.value)}
-                        placeholder="1"
-                        min="1"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label>الحد الأدنى للأشخاص</label>
-                      <input
-                        type="number"
-                        value={pkg.minCount}
-                        onChange={(e) => updatePackage(index, 'minCount', e.target.value)}
-                        placeholder="1"
-                        min="1"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label>الحد الأقصى للأشخاص</label>
-                      <input
-                        type="number"
-                        value={pkg.maxCount}
-                        onChange={(e) => updatePackage(index, 'maxCount', e.target.value)}
-                        placeholder="1"
-                        min="1"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label>ملاحظات</label>
-                      <textarea
-                        value={pkg.notes}
-                        onChange={(e) => updatePackage(index, 'notes', e.target.value)}
-                        placeholder="ملاحظات إضافية للباقة"
-                        rows="2"
-                      />
-                    </div>
-                    <div className="trip-form-group">
-                      <label className="trip-checkbox-label">
+
+
+              {packages.map((pkg, index) => {
+
+                return (
+                  <div key={pkg.id} className="trip-package-item">
+                    <div className="trip-package-grid">
+                      <div className="trip-form-group">
+                        <label>التكلفة</label>
                         <input
-                          type="checkbox"
-                          checked={pkg.featured}
-                          onChange={(e) => updatePackage(index, 'featured', e.target.checked)}
+                          type="number"
+                          value={pkg.cost}
+                          onChange={(e) => updatePackage(index, 'cost', e.target.value)}
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
                         />
-                        <span className="trip-checkmark"></span>
-                        باقة مميزة
-                      </label>
+
+                        <small className="cost-with-commission">
+                          مع العمولة: {pkg.cost}
+                        </small>
+                      </div>
+                      <div className="trip-form-group">
+                        <label>الوحدة</label>
+                        <input
+                          type="text"
+                          value={pkg.unit}
+                          onChange={(e) => updatePackage(index, 'unit', e.target.value)}
+                          placeholder="مثال: ساعة، يوم"
+                        />
+                      </div>
+                      <div className="trip-form-group">
+                        <label>عدد الساعات</label>
+                        <input
+                          type="number"
+                          value={pkg.numberOfHours}
+                          onChange={(e) => updatePackage(index, 'numberOfHours', e.target.value)}
+                          placeholder="1"
+                          min="1"
+                        />
+                      </div>
+                      <div className="trip-form-group">
+                        <label>الحد الأدنى للأشخاص</label>
+                        <input
+                          type="number"
+                          value={pkg.minCount}
+                          onChange={(e) => updatePackage(index, 'minCount', e.target.value)}
+                          placeholder="1"
+                          min="1"
+                        />
+                      </div>
+                      <div className="trip-form-group">
+                        <label>الحد الأقصى للأشخاص</label>
+                        <input
+                          type="number"
+                          value={pkg.maxCount}
+                          onChange={(e) => updatePackage(index, 'maxCount', e.target.value)}
+                          placeholder="1"
+                          min="1"
+                        />
+                      </div>
+                      <div className="trip-form-group">
+                        <label>ملاحظات</label>
+                        <textarea
+                          value={pkg.notes}
+                          onChange={(e) => updatePackage(index, 'notes', e.target.value)}
+                          placeholder="ملاحظات إضافية للباقة"
+                          rows="2"
+                        />
+                      </div>
+                      <div className="trip-form-group">
+                        <label className="trip-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={pkg.featured}
+                            onChange={(e) => updatePackage(index, 'featured', e.target.checked)}
+                          />
+                          <span className="trip-checkmark"></span>
+                          باقة مميزة
+                        </label>
+                      </div>
+                      <button
+                        type="button"
+                        className="trip-remove-package-btn"
+                        onClick={() => removePackage(index)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      className="trip-remove-package-btn"
-                      onClick={() => removePackage(index)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
                   </div>
-                </div>
-              ))}
+
+
+                )
+              })}
 
               <button
                 type="button"
