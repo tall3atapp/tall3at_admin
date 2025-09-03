@@ -19,6 +19,7 @@ import CustomerDetails from './components/Customers/CustomerDetails';
 import ProviderDetails from './components/Providers/ProviderDetails';
 import BannersDashboard from './components/Banners/BannersDashboard';
 import NotificationsDashboard from './components/Notifications/NotificationsDashboard';
+import NotificationHistoryDashboard from './components/Notifications/Notification-History/NotificationHistoryDashboard';
 
 function App() {
   return (
@@ -57,7 +58,7 @@ function App() {
           <Route path="bookings" element={<BookingsDashboard />} />
           <Route path="chats" element={<ChatPage />} />
           <Route path="notifications" element={<NotificationsDashboard />} />
-
+          <Route path="notifications-history" element={<NotificationHistoryDashboard />} />
         </Route>
 
       </Routes>
