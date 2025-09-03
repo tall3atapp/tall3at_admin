@@ -260,7 +260,7 @@ export default function Dashboard() {
                     </li>
                     <li>
                         <NavLink to="/admin/notifications-history" className={({ isActive }) => isActive ? 'active' : ''}>
-                            <span className="fa fa-bell"></span>سجل الإشعارات
+                            <span className="fa fa-history"></span>سجل الإشعارات
                         </NavLink>
                     </li>
                     <li>
