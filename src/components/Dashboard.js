@@ -264,6 +264,11 @@ export default function Dashboard() {
                         </NavLink>
                     </li>
                     <li>
+                        <NavLink to="/admin/order" className={({ isActive }) => isActive ? 'active' : ''}>
+                            <span className="fa fa-map-marker-alt"></span>إدارة طلبات الأماكن
+                        </NavLink>
+                    </li>
+                    <li>
                         <NavLink to="/admin/transactions" className={({ isActive }) => isActive ? 'active' : ''}>
                             <span className="fa fa-money-check-alt"></span>المعاملات المالية
                         </NavLink>

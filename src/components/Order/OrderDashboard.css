@@ -1,0 +1,50 @@
+.order-dashboard {
+    padding: 20px;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.order-dashboard .title {
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 5px;
+}
+
+.order-dashboard .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.order-table th,
+.order-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.order-table th {
+    background: #f0f4f8;
+    color: var(--text);
+}
+
+.order-table tr.dragging {
+    background: #e6f7ff;
+}
+
+.place-img {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+}

@@ -20,6 +20,7 @@ import ProviderDetails from './components/Providers/ProviderDetails';
 import BannersDashboard from './components/Banners/BannersDashboard';
 import NotificationsDashboard from './components/Notifications/NotificationsDashboard';
 import NotificationHistoryDashboard from './components/Notifications/Notification-History/NotificationHistoryDashboard';
+import OrderDashboard from './components/Order/OrderDashboard';
 
 function App() {
   return (
@@ -59,6 +60,8 @@ function App() {
           <Route path="chats" element={<ChatPage />} />
           <Route path="notifications" element={<NotificationsDashboard />} />
           <Route path="notifications-history" element={<NotificationHistoryDashboard />} />
+          <Route path="order" element={<OrderDashboard />} />
+
         </Route>
 
       </Routes>
