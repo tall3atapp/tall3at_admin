@@ -188,6 +188,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           name: option.name,
           nameEn: option.nameEn || '',
           price: option.price?.toString() || '',
+          originalPrice: option.price?.toString() || '', // add this
+
           stock: option.stock?.toString() || ''
         })));
       }
@@ -498,49 +500,49 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   //   console.groupEnd();
   // };
 
- const appendImagesToFormData = async (fd, isEditing) => {
-  const desired = imageItems;
+  const appendImagesToFormData = async (fd, isEditing) => {
+    const desired = imageItems;
 
-  // sabhi existing images ki list preserve karo (order me)
-  const existingList = desired
-    .filter(i => i.type === 'existing')
-    .map(i => i.url);
+    // sabhi existing images ki list preserve karo (order me)
+    const existingList = desired
+      .filter(i => i.type === 'existing')
+      .map(i => i.url);
 
-  // nayi files
-  const uploadFiles = desired
-    .filter(i => i.type === 'new')
-    .map(i => i.file);
+    // nayi files
+    const uploadFiles = desired
+      .filter(i => i.type === 'new')
+      .map(i => i.file);
 
-  if (isEditing) {
-    // ✅ Update Trip
-    fd.append('existingImages', existingList.join(','));
-    for (const f of uploadFiles) {
-      fd.append('images', f);
-    }
-
-    // Agar reorder-only case ho (sirf existing hain, koi new nahi)
-    if (uploadFiles.length === 0 && desired.length > 0) {
-      const pick = desired.find(i => i.type === 'existing');
-      if (pick) {
-        const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
-        const f = await urlToFile(pick.url, filename);
+    if (isEditing) {
+      // ✅ Update Trip
+      fd.append('existingImages', existingList.join(','));
+      for (const f of uploadFiles) {
         fd.append('images', f);
       }
-    }
-  } else {
-    // ✅ Create Trip
-    for (const f of uploadFiles) {
-      fd.append('ImageFiles', f);
-    }
-  }
 
-  console.groupCollapsed('[Images] FormData snapshot');
-  console.log('existingImages:', existingList.join(','));
-  uploadFiles.forEach((f, i) =>
-    console.log(`${isEditing ? 'images' : 'ImageFiles'}[${i}] -> ${f?.name} (${f?.size} bytes)`)
-  );
-  console.groupEnd();
-};
+      // Agar reorder-only case ho (sirf existing hain, koi new nahi)
+      if (uploadFiles.length === 0 && desired.length > 0) {
+        const pick = desired.find(i => i.type === 'existing');
+        if (pick) {
+          const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
+          const f = await urlToFile(pick.url, filename);
+          fd.append('images', f);
+        }
+      }
+    } else {
+      // ✅ Create Trip
+      for (const f of uploadFiles) {
+        fd.append('ImageFiles', f);
+      }
+    }
+
+    console.groupCollapsed('[Images] FormData snapshot');
+    console.log('existingImages:', existingList.join(','));
+    uploadFiles.forEach((f, i) =>
+      console.log(`${isEditing ? 'images' : 'ImageFiles'}[${i}] -> ${f?.name} (${f?.size} bytes)`)
+    );
+    console.groupEnd();
+  };
 
 
   const handleSubmit = async (e) => {
@@ -619,17 +621,108 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       // imageFiles.forEach(file => {
       //   formDataToSend.append('images', file);
       // });
-
+      //-----
       // Options - backend expects List<CreateOptionRequest>, send as JSON stringified array of objects
+      // if (options.length > 0) {
+      //   const optionsObjects = options.map(option => ({
+      //     name: option.name || '',
+      //     nameEn: option.nameEn || '',
+      //     price: parseFloat(option.price) || 0,
+      //     stock: parseInt(option.stock) || 0
+      //   }));
+      //   formDataToSend.append('options', JSON.stringify(optionsObjects));
+      // }
+      //------------- =
+      // Service Options
+      // if (options.length > 0) {
+      //   if (isEditing) {
+      //     // ✅ Update Trip -> JSON stringify
+      //     const optionsObjects = options.map(option => ({
+      //       id: option.id,
+      //       name: option.name || '',
+      //       nameEn: option.nameEn || '',
+      //       price: parseFloat(option.price) || 0,
+      //       stock: parseInt(option.stock) || 0
+      //     }));
+      //     formDataToSend.append('options', JSON.stringify(optionsObjects));
+      //   } else {
+      //     // ✅ Create Trip -> indexed keys
+      //     options.forEach((option, i) => {
+      //       formDataToSend.append(`Options[${i}].Name`, option.name || '');
+      //       formDataToSend.append(`Options[${i}].NameEn`, option.nameEn || '');
+      //       formDataToSend.append(`Options[${i}].Price`, (parseFloat(option.price) || 0).toString());
+      //       formDataToSend.append(`Options[${i}].Stock`, (parseInt(option.stock) || 0).toString());
+      //     });
+      //   }
+      // }
+
+      // Service Options
+      // if (options.length > 0) {
+      //   if (isEditing) {
+      //     // ✅ Update Trip -> JSON stringify
+      //     const optionsObjects = options.map(option => {
+      //       const basePrice = parseFloat(option.price) || 0;
+      //       const finalPrice = basePrice * 1.15; // add 15% commission
+      //       return {
+      //         id: option.id,
+      //         name: option.name || '',
+      //         nameEn: option.nameEn || '',
+      //         price: finalPrice,
+      //         stock: parseInt(option.stock) || 0
+      //       };
+      //     });
+      //     formDataToSend.append('options', JSON.stringify(optionsObjects));
+      //   } else {
+      //     // ✅ Create Trip -> indexed keys
+      //     options.forEach((option, i) => {
+      //       const basePrice = parseFloat(option.price) || 0;
+      //       const finalPrice = basePrice * 1.15; // add 15% commission
+      //       formDataToSend.append(`Options[${i}].Name`, option.name || '');
+      //       formDataToSend.append(`Options[${i}].NameEn`, option.nameEn || '');
+      //       formDataToSend.append(`Options[${i}].Price`, finalPrice.toString());
+      //       formDataToSend.append(`Options[${i}].Stock`, (parseInt(option.stock) || 0).toString());
+      //     });
+      //   }
+      // }
+
+      //---------------000000
       if (options.length > 0) {
-        const optionsObjects = options.map(option => ({
-          name: option.name || '',
-          nameEn: option.nameEn || '',
-          price: parseFloat(option.price) || 0,
-          stock: parseInt(option.stock) || 0
-        }));
-        formDataToSend.append('options', JSON.stringify(optionsObjects));
+        if (isEditing) {
+          // ✅ Update Trip -> JSON stringify
+          const optionsObjects = options.map(option => {
+            const originalPriceNum = parseFloat(option.originalPrice) || 0;
+            const currentPriceNum = parseFloat(option.price) || 0;
+            let finalPrice = currentPriceNum;
+
+            // sirf tab commission add karo jab price change hui ho
+            if (currentPriceNum !== originalPriceNum) {
+              finalPrice = currentPriceNum * 1.15;
+            }
+
+            return {
+              id: option.id,
+              name: option.name || '',
+              nameEn: option.nameEn || '',
+              price: finalPrice,
+              stock: parseInt(option.stock) || 0
+            };
+          });
+          formDataToSend.append('options', JSON.stringify(optionsObjects));
+        } else {
+          // ✅ Create Trip -> indexed keys
+          options.forEach((option, i) => {
+            const basePrice = parseFloat(option.price) || 0;
+            const finalPrice = basePrice * 1.15; // new create par hamesha commission
+            formDataToSend.append(`Options[${i}].Name`, option.name || '');
+            formDataToSend.append(`Options[${i}].NameEn`, option.nameEn || '');
+            formDataToSend.append(`Options[${i}].Price`, finalPrice.toString());
+            formDataToSend.append(`Options[${i}].Stock`, (parseInt(option.stock) || 0).toString());
+          });
+        }
       }
+
+
+      //-----
 
       // Packages - backend expects List<CreatePackageRequest>, send as JSON stringified array of objects
       // if (packages.length > 0) {
@@ -779,6 +872,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       } else {
         console.log('- No options');
       }
+
+
 
       console.log('\nPackages:');
       if (packages.length > 0) {
@@ -1434,9 +1529,11 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                           min="0"
                         />
 
-                        <small className="cost-with-commission">
-                          مع العمولة: {pkg.cost}
-                        </small>
+                        {/* <small className="cost-with-commission"> */}
+                        {/* مع العمولة: {pkg.cost} */}
+                        {/* السعر الأصلي من المزود: {(parseFloat(pkg.cost) / 1.15).toFixed(2)} */}
+
+                        {/* </small> */}
                       </div>
                       <div className="trip-form-group">
                         <label>الوحدة</label>
