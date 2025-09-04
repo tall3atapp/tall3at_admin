@@ -319,7 +319,9 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
 
   const addPackage = () => {
     setPackages(prev => [...prev, {
-      id: Date.now(),
+      // id: Date.now(),
+      id: 'new-' + Date.now(),
+
       cost: '',
       unit: '',
       minCount: 1,
@@ -469,6 +471,10 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log('handleSubmit called');
+    console.log('isEditing:', isEditing);
+    console.log('packages:', packages);
+
     if (!validateForm()) {
       return;
     }
@@ -562,28 +568,103 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       //   }));
       //   formDataToSend.append('packages', JSON.stringify(packagesObjects));
       // }
+
+      //working on update
+      // if (packages.length > 0) {
+      //   const packagesObjects = packages.map(pkg => {
+      //     const originalCostNum = parseFloat(pkg.originalCost) || 0;
+      //     const currentCostNum = parseFloat(pkg.cost) || 0;
+
+      //     let finalCost = currentCostNum;
+
+      //     // Agar user ne cost change ki hai (currentCost != originalCost)
+      //     if (currentCostNum !== originalCostNum) {
+      //       finalCost = currentCostNum * 1.15; // 15% commission add
+      //     }
+
+      //     return {
+      //       cost: finalCost,
+      //       unit: pkg.unit || '',
+      //       minCount: parseInt(pkg.minCount) || 1,
+      //       maxCount: parseInt(pkg.maxCount) || 1,
+      //       numberOfHours: parseInt(pkg.numberOfHours) || 1,
+      //       notes: pkg.notes || ''
+      //     };
+      //   });
+      //   formDataToSend.append('packages', JSON.stringify(packagesObjects));
+      // }
+
+
+      //new logic
+      // if (packages.length > 0) {
+      //   packages.forEach((pkg, i) => {
+      //     const originalCostNum = parseFloat(pkg.originalCost) || 0;
+      //     const currentCostNum = parseFloat(pkg.cost) || 0;
+      //     let finalCost = currentCostNum;
+      //     if (currentCostNum !== originalCostNum) {
+      //       finalCost = currentCostNum * 1.15; // 15% commission add
+      //     }
+      //     formDataToSend.append(`Packages[${i}].Cost`, finalCost.toString());
+      //     formDataToSend.append(`Packages[${i}].Unit`, pkg.unit || '');
+      //     formDataToSend.append(`Packages[${i}].NumberOfHours`, (parseInt(pkg.numberOfHours) || 1).toString());
+      //     formDataToSend.append(`Packages[${i}].MinCount`, (parseInt(pkg.minCount) || 1).toString());
+      //     formDataToSend.append(`Packages[${i}].MaxCount`, (parseInt(pkg.maxCount) || 1).toString());
+      //     if (pkg.notes) {
+      //       formDataToSend.append(`Packages[${i}].Notes`, pkg.notes);
+      //     }
+      //     formDataToSend.append(`Packages[${i}].Featured`, pkg.featured ? '1' : '0');
+      //   });
+      // }
+
+
+
+      //both create and udpate packages
       if (packages.length > 0) {
-        const packagesObjects = packages.map(pkg => {
-          const originalCostNum = parseFloat(pkg.originalCost) || 0;
-          const currentCostNum = parseFloat(pkg.cost) || 0;
+        if (isEditing) {
+          console.log('Appending packages for update:', packages);
 
-          let finalCost = currentCostNum;
+          // Update کے لیے: JSON stringify والا logic
+          const packagesObjects = packages.map(pkg => {
+            const originalCostNum = parseFloat(pkg.originalCost) || 0;
+            const currentCostNum = parseFloat(pkg.cost) || 0;
+            let finalCost = currentCostNum;
+            if (currentCostNum !== originalCostNum) {
+              finalCost = currentCostNum * 1.15; // 15% commission add
+            }
+            return {
+              id: pkg.id, // اگر موجود ہو
+              cost: finalCost,
+              unit: pkg.unit || '',
+              minCount: parseInt(pkg.minCount) || 1,
+              maxCount: parseInt(pkg.maxCount) || 1,
+              numberOfHours: parseInt(pkg.numberOfHours) || 1,
+              notes: pkg.notes || '',
+              featured: pkg.featured || false
+            };
+          });
+          formDataToSend.append('packages', JSON.stringify(packagesObjects));
+        } else {
+          console.log('Appending packages for create:', packages);
 
-          // Agar user ne cost change ki hai (currentCost != originalCost)
-          if (currentCostNum !== originalCostNum) {
-            finalCost = currentCostNum * 1.15; // 15% commission add
-          }
-
-          return {
-            cost: finalCost,
-            unit: pkg.unit || '',
-            minCount: parseInt(pkg.minCount) || 1,
-            maxCount: parseInt(pkg.maxCount) || 1,
-            numberOfHours: parseInt(pkg.numberOfHours) || 1,
-            notes: pkg.notes || ''
-          };
-        });
-        formDataToSend.append('packages', JSON.stringify(packagesObjects));
+          // Create کے لیے: indexed keys والا logic
+          packages.forEach((pkg, i) => {
+            const originalCostNum = parseFloat(pkg.originalCost) || 0;
+            const currentCostNum = parseFloat(pkg.cost) || 0;
+            let finalCost = currentCostNum;
+            if (currentCostNum !== originalCostNum) {
+              finalCost = currentCostNum * 1.15; // 15% commission add
+            }
+            formDataToSend.append(`Packages[${i}].Cost`, finalCost.toString());
+            formDataToSend.append(`Packages[${i}].Unit`, pkg.unit || '');
+            formDataToSend.append(`Packages[${i}].NumberOfHours`, (parseInt(pkg.numberOfHours) || 1).toString());
+            formDataToSend.append(`Packages[${i}].MinCount`, (parseInt(pkg.minCount) || 1).toString());
+            formDataToSend.append(`Packages[${i}].MaxCount`, (parseInt(pkg.maxCount) || 1).toString());
+            if (pkg.notes) {
+              formDataToSend.append(`Packages[${i}].Notes`, pkg.notes);
+            }
+            formDataToSend.append(`Packages[${i}].Featured`, pkg.featured ? '1' : '0');
+          });
+        }
       }
 
 
@@ -693,13 +774,68 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         }
       }, 2000);
     } catch (err) {
+      // console.error('Error details:', err);
+      // console.error('Error response:', err.response);
+
+      // // Handle different error response formats
+      // let errorMessage = 'حدث خطأ أثناء حفظ الرحلة';
+
+      // if (err.response?.data) {
+      //   if (typeof err.response.data === 'string') {
+      //     errorMessage = err.response.data;
+      //   } else if (err.response.data.message) {
+      //     errorMessage = err.response.data.message;
+      //   } else if (err.response.data.title) {
+      //     errorMessage = err.response.data.title;
+      //   } else if (typeof err.response.data === 'object') {
+      //     // If it's an object, try to extract meaningful error info
+      //     const errorObj = err.response.data;
+      //     if (errorObj.errors && typeof errorObj.errors === 'object') {
+      //       // Handle validation errors
+      //       const errorKeys = Object.keys(errorObj.errors);
+      //       if (errorKeys.length > 0) {
+      //         const firstError = errorObj.errors[errorKeys[0]];
+      //         // Ensure we get a string, even if the error is an object
+      //         if (typeof firstError === 'string') {
+      //           errorMessage = firstError;
+      //         } else if (typeof firstError === 'object' && firstError.message) {
+      //           errorMessage = firstError.message;
+      //         } else if (Array.isArray(firstError)) {
+      //           errorMessage = firstError[0] || 'خطأ في التحقق من البيانات';
+      //         } else {
+      //           errorMessage = JSON.stringify(firstError);
+      //         }
+      //       }
+      //     } else {
+      //       // Convert object to string for display
+      //       errorMessage = JSON.stringify(errorObj);
+      //     }
+      //   }
+      // } else if (err.message) {
+      //   errorMessage = err.message;
+      // }
+
+
+
+      // setError(errorMessage);
       console.error('Error details:', err);
       console.error('Error response:', err.response);
 
       // Handle different error response formats
       let errorMessage = 'حدث خطأ أثناء حفظ الرحلة';
 
-      if (err.response?.data) {
+      // ✅ Extra: agar 400 Bad Request aaye to directly validation error show karo
+      if (err.response?.status === 400 && err.response.data?.errors) {
+        const errors = err.response.data.errors;
+        const firstKey = Object.keys(errors)[0];
+        const firstError = errors[firstKey];
+
+        if (Array.isArray(firstError)) {
+          errorMessage = firstError[0];
+        } else if (typeof firstError === 'string') {
+          errorMessage = firstError;
+        }
+      } else if (err.response?.data) {
         if (typeof err.response.data === 'string') {
           errorMessage = err.response.data;
         } else if (err.response.data.message) {
@@ -707,14 +843,11 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         } else if (err.response.data.title) {
           errorMessage = err.response.data.title;
         } else if (typeof err.response.data === 'object') {
-          // If it's an object, try to extract meaningful error info
           const errorObj = err.response.data;
           if (errorObj.errors && typeof errorObj.errors === 'object') {
-            // Handle validation errors
             const errorKeys = Object.keys(errorObj.errors);
             if (errorKeys.length > 0) {
               const firstError = errorObj.errors[errorKeys[0]];
-              // Ensure we get a string, even if the error is an object
               if (typeof firstError === 'string') {
                 errorMessage = firstError;
               } else if (typeof firstError === 'object' && firstError.message) {
@@ -726,7 +859,6 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
               }
             }
           } else {
-            // Convert object to string for display
             errorMessage = JSON.stringify(errorObj);
           }
         }
