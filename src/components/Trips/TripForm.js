@@ -397,75 +397,150 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
     return new File([blob], name, { type: blob.type || 'image/jpeg' });
   };
 
-  const appendImagesToFormData = async (fd) => {
-    // imageItems: [{ id, type:'existing'|'new', preview, url?, file? }]
-    const desired = imageItems;
-    const anyNew = desired.some(i => i.type === 'new');
+  // const appendImagesToFormData = async (fd) => {
+  //   // imageItems: [{ id, type:'existing'|'new', preview, url?, file? }]
+  //   const desired = imageItems;
+  //   const anyNew = desired.some(i => i.type === 'new');
 
-    let existingList = [];
-    const uploadFiles = [];
+  //   let existingList = [];
+  //   const uploadFiles = [];
 
-    const isCorsSafe = (it) => {
-      if (it.type !== 'existing') return false;
-      if (!it.url) return false;
-      if (it.url.startsWith('/')) return true; // relative => API origin
-      try {
-        const a = new URL(it.url);
-        const b = new URL(API_CONFIG.BASE_URL);
-        return a.origin === b.origin;
-      } catch { return false; }
-    };
+  //   const isCorsSafe = (it) => {
+  //     if (it.type !== 'existing') return false;
+  //     if (!it.url) return false;
+  //     if (it.url.startsWith('/')) return true; // relative => API origin
+  //     try {
+  //       const a = new URL(it.url);
+  //       const b = new URL(API_CONFIG.BASE_URL);
+  //       return a.origin === b.origin;
+  //     } catch { return false; }
+  //   };
 
-    if (anyNew) {
-      // keep all existings BEFORE first new
-      const firstNewIdx = desired.findIndex(i => i.type === 'new');
-      existingList = desired
-        .slice(0, firstNewIdx)
-        .filter(i => i.type === 'existing')
-        .map(i => i.url); // relative path e.g. "/uploads/trips/xxx.jpg"
+  //   if (anyNew) {
+  //     // keep all existings BEFORE first new
+  //     const firstNewIdx = desired.findIndex(i => i.type === 'new');
+  //     existingList = desired
+  //       .slice(0, firstNewIdx)
+  //       .filter(i => i.type === 'existing')
+  //       .map(i => i.url); // relative path e.g. "/uploads/trips/xxx.jpg"
 
-      // from first new onward: upload (new OR re-upload existing to enforce order)
-      for (const it of desired.slice(firstNewIdx)) {
-        if (it.type === 'new') {
-          uploadFiles.push(it.file);
-        } else {
-          // const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
-          // uploadFiles.push(await urlToFile(it.preview, filename));
-          const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
-          uploadFiles.push(await urlToFile(it.url, filename));
-        }
-      }
-    } else {
-      // reorder-only: force one upload to commit order
-      // if (desired.length > 0) {
-      //   existingList = desired.slice(0, -1).map(i => i.url);
-      //   const last = desired[desired.length - 1];
-      //   const filename = (last.url?.split('/').pop()) || 'reupload.jpg';
-      //   uploadFiles.push(await urlToFile(last.preview, filename));
-      // }
+  //     // from first new onward: upload (new OR re-upload existing to enforce order)
+  //     for (const it of desired.slice(firstNewIdx)) {
+  //       if (it.type === 'new') {
+  //         uploadFiles.push(it.file);
+  //       } else {
+  //         // const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
+  //         // uploadFiles.push(await urlToFile(it.preview, filename));
+  //         const filename = (it.url?.split('/').pop()) || 'reupload.jpg';
+  //         uploadFiles.push(await urlToFile(it.url, filename));
+  //       }
+  //     }
+  //   } else {
+  //     // reorder-only: force one upload to commit order
+  //     // if (desired.length > 0) {
+  //     //   existingList = desired.slice(0, -1).map(i => i.url);
+  //     //   const last = desired[desired.length - 1];
+  //     //   const filename = (last.url?.split('/').pop()) || 'reupload.jpg';
+  //     //   uploadFiles.push(await urlToFile(last.preview, filename));
+  //     // }
 
-      if (desired.length > 0) {
-        const pick = [...desired].reverse().find(i => isCorsSafe(i));
-        if (!pick) {
-          console.warn('[Images] No CORS-safe image to reupload. Reorder needs at least one same-origin image or CORS on CDN.');
-          throw new Error('REORDER_NEEDS_NEW_IMAGE');
-        }
+  //     if (desired.length > 0) {
+  //       const pick = [...desired].reverse().find(i => isCorsSafe(i));
+  //       if (!pick) {
+  //         console.warn('[Images] No CORS-safe image to reupload. Reorder needs at least one same-origin image or CORS on CDN.');
+  //         throw new Error('REORDER_NEEDS_NEW_IMAGE');
+  //       }
 
-        // keep every other existing (order preserved)
-        existingList = desired.filter(i => i !== pick).map(i => i.url);
-        const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
-        uploadFiles.push(await urlToFile(pick.url, filename));
-      }
+  //       // keep every other existing (order preserved)
+  //       existingList = desired.filter(i => i !== pick).map(i => i.url);
+  //       const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
+  //       uploadFiles.push(await urlToFile(pick.url, filename));
+  //     }
+  //   }
+
+  //   fd.append('images', existingList.join(','));
+  //   for (const f of uploadFiles) fd.append('images', f);
+
+  //   console.groupCollapsed('[Images] FormData snapshot');
+  //   console.log('existingImages:', existingList.join(','));
+  //   uploadFiles.forEach((f, i) => console.log(`images[${i}] -> ${f?.name} (${f?.size} bytes)`));
+  //   console.groupEnd();
+  // };
+
+  //---------------------------=
+
+
+
+  // const appendImagesToFormData = async (fd) => {
+  //   const desired = imageItems;
+
+  //   // ✅ Sabhi existing images ki URL preserve karo
+  //   const existingList = desired
+  //     .filter(i => i.type === 'existing')
+  //     .map(i => i.url);
+
+  //   // ✅ Sirf new images ko upload karo
+  //   const uploadFiles = desired
+  //     .filter(i => i.type === 'new')
+  //     .map(i => i.file);
+
+  //   // Backend ko dono bhejo
+  //   fd.append('existingImages', existingList.join(','));
+  //   for (const f of uploadFiles) {
+  //     fd.append('images', f);
+  //   }
+
+  //   console.groupCollapsed('[Images] FormData snapshot');
+  //   console.log('existingImages:', existingList.join(','));
+  //   uploadFiles.forEach((f, i) =>
+  //     console.log(`images[${i}] -> ${f?.name} (${f?.size} bytes)`)
+  //   );
+  //   console.groupEnd();
+  // };
+
+ const appendImagesToFormData = async (fd, isEditing) => {
+  const desired = imageItems;
+
+  // sabhi existing images ki list preserve karo (order me)
+  const existingList = desired
+    .filter(i => i.type === 'existing')
+    .map(i => i.url);
+
+  // nayi files
+  const uploadFiles = desired
+    .filter(i => i.type === 'new')
+    .map(i => i.file);
+
+  if (isEditing) {
+    // ✅ Update Trip
+    fd.append('existingImages', existingList.join(','));
+    for (const f of uploadFiles) {
+      fd.append('images', f);
     }
 
-    fd.append('existingImages', existingList.join(','));
-    for (const f of uploadFiles) fd.append('ImageFiles', f);
+    // Agar reorder-only case ho (sirf existing hain, koi new nahi)
+    if (uploadFiles.length === 0 && desired.length > 0) {
+      const pick = desired.find(i => i.type === 'existing');
+      if (pick) {
+        const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
+        const f = await urlToFile(pick.url, filename);
+        fd.append('images', f);
+      }
+    }
+  } else {
+    // ✅ Create Trip
+    for (const f of uploadFiles) {
+      fd.append('ImageFiles', f);
+    }
+  }
 
-    console.groupCollapsed('[Images] FormData snapshot');
-    console.log('existingImages:', existingList.join(','));
-    uploadFiles.forEach((f, i) => console.log(`images[${i}] -> ${f?.name} (${f?.size} bytes)`));
-    console.groupEnd();
-  };
+  console.groupCollapsed('[Images] FormData snapshot');
+  console.log('existingImages:', existingList.join(','));
+  uploadFiles.forEach((f, i) =>
+    console.log(`${isEditing ? 'images' : 'ImageFiles'}[${i}] -> ${f?.name} (${f?.size} bytes)`)
+  );
+  console.groupEnd();
+};
 
 
   const handleSubmit = async (e) => {
@@ -537,7 +612,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       formDataToSend.append('featured', formData.featured ? 'true' : 'false');
       formDataToSend.append('order', order);
 
-      await appendImagesToFormData(formDataToSend);
+      await appendImagesToFormData(formDataToSend, isEditing);
 
 
       // Images - backend expects 'images' field name
