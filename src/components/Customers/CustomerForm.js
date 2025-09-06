@@ -82,7 +82,7 @@ const CustomerForm = ({ customerId, onBack, onSuccess }) => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/assets/images/default-avatar.png';
     if (imagePath.startsWith('http')) return imagePath;
-    return `${API_CONFIG.BASE_URL}${imagePath}`;
+    return `${API_CONFIG.BASE_URL}/${imagePath}`;
   };
 
   const fetchCustomer = async () => {

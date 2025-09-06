@@ -282,7 +282,9 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
 
   const addOption = () => {
     setOptions(prev => [...prev, {
-      id: Date.now(),
+      // id: Date.now(),
+      id: 'new-' + Date.now(),
+
       name: '',
       nameEn: '',
       price: '',
@@ -303,14 +305,24 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   const removeOption = async (optionId) => {
     try {
 
-      const token = localStorage.getItem('token');
+      // const token = localStorage.getItem('token');
 
-      // Backend API call to delete option
-      await api.delete(`/api/admin/trips/options/${optionId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      //   // Backend API call to delete option
+      //   await api.delete(`/api/admin/trips/options/${optionId}`, {
+      //     headers: {
+      //       'Authorization': `Bearer ${token}`
+      //     }
+      //   });
+
+      if (typeof optionId === "number") {
+        const token = localStorage.getItem("token");
+        await api.delete(`/api/admin/trips/options/${optionId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
       // Update frontend state to remove option locally
       setOptions((prev) => prev.filter((opt) => opt.id !== optionId));
     } catch (error) {
