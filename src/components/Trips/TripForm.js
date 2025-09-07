@@ -72,11 +72,16 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   const dragFrom = React.useRef(null);
   const dragTo = React.useRef(null);
 
+  // const [providers, setProviders] = useState([]);
+  // const [providerId, setProviderId] = useState(''); // selected provider
+  const [reordered, setReordered] = useState(false);
+
   const isEditing = !!tripId;
 
   useEffect(() => {
     fetchCities();
     fetchCategories();
+    // fetchProvider();
     if (tripId) {
       fetchTrip();
     }
@@ -146,9 +151,13 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       console.log("trip form fetch: ", response.data)
       const trip = response.data;
 
+      // setProviderId(trip.providerId || ''); //add today
+
+
       setFormData({
         cityId: trip.cityId?.toString() || '',
         categoryId: trip.categoryId?.toString() || '',
+        // providerId: trip.providers?.providerId.toString() || '', //added tthis
         title: trip.title || '',
         titleEn: trip.titleEn || '',
         description: trip.description || '',
@@ -164,22 +173,29 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       // Set city and category search values
       const city = cities.find(c => c.id === trip.cityId);
       const category = categories.find(c => c.id === trip.categoryId);
-      if (city) setCitySearch(city.name);
-      if (category) setCategorySearch(category.name);
+      // if (city) setCitySearch(city.name);
+      // if (category) setCategorySearch(category.name);
+      setCitySearch(trip.cityName || '');
+      setCategorySearch(trip.categoryName || '');
 
       // Set image previews
       // if (trip.images) {
       //   const imageUrls = trip.images.split(',').filter(img => img.trim());
       //   setImagePreviews(imageUrls.map(img => getImageUrl(img)));
       // }
-      //     if (trip.images) {
-      const urls = trip.images.split(',').map(s => s.trim()).filter(Boolean);
-      setImageItems(urls.map(u => ({
-        id: `ex-${u}`,
-        type: 'existing',
-        preview: getImageUrl(u),
-        url: u
-      })));
+
+      if (trip.images) {
+
+        const urls = trip.images.split(',').map(s => s.trim()).filter(Boolean);
+        setImageItems(urls.map(u => ({
+          id: `ex-${u}`,
+          type: 'existing',
+          preview: getImageUrl(u),
+          url: u
+        })));
+      } else {
+        setImageItems([])
+      }
 
       // Set service options
       if (trip.serviceOptions) {
@@ -533,13 +549,16 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       }
 
       // Agar reorder-only case ho (sirf existing hain, koi new nahi)
-      if (uploadFiles.length === 0 && desired.length > 0) {
+      if (uploadFiles.length === 0 && desired.length > 0 && reordered) {
         const pick = desired.find(i => i.type === 'existing');
         if (pick) {
           const filename = (pick.url?.split('/').pop()) || 'reupload.jpg';
           const f = await urlToFile(pick.url, filename);
           fd.append('images', f);
+
+
         }
+        setReordered(false)
       }
     } else {
       // ✅ Create Trip
@@ -616,6 +635,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       formDataToSend.append('cityId', cityId);
       formDataToSend.append('categoryId', categoryId);
       formDataToSend.append('title', formData.title.trim());
+      // formDataToSend.append('providerId', providerId); //add this
       formDataToSend.append('titleEn', formData.titleEn.trim());
       formDataToSend.append('description', formData.description.trim());
       formDataToSend.append('descriptionEn', formData.descriptionEn.trim());
@@ -1129,6 +1149,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         type: it.type,
         name: it.file?.name || it.url
       })));
+      setReordered(true);
       console.groupEnd();
 
       return arr;
@@ -1158,6 +1179,9 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           <div className="trip-form-section">
             <h3>معلومات الرحلة الأساسية</h3>
             <div className="trip-form-grid">
+
+
+
               <div className="trip-form-group">
                 <label htmlFor="title">عنوان الرحلة *</label>
                 <input
@@ -1303,6 +1327,27 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
             </div>
           </div>
 
+          {/* <div className="trip-form-section">
+            <h3>مقدم الخدمة</h3>
+            <div className="trip-form-group">
+              <label htmlFor="providerId">اختر المزود *</label>
+              <select
+                id="providerId"
+                value={providerId}
+                onChange={(e) => setProviderId(e.target.value)}
+                required
+              >
+                <option value="">-- اختر المزود --</option>
+                {providers.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.fullName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div> */}
+
+
           {/* Availability */}
           <div className="trip-form-section">
             <h3>أوقات التوفر</h3>
@@ -1407,7 +1452,14 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     onDragEnd={onDragEnd}
                     title="Drag to reorder"
                   >
+
+                    {/* {item.preview && (
                     <img src={item.preview} alt={`Preview ${index + 1}`} className="trip-preview-image" />
+                    )} */}
+                    {item.preview && (
+                      <img src={item.preview} alt={`Preview ${index + 1}`} className="trip-preview-image" />
+                    )}
+
                     <button type="button" className="trip-remove-image-btn" onClick={() => removeImage(index)}>
                       <FontAwesomeIcon icon={faTimes} />
                     </button>
