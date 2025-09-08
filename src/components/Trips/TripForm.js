@@ -167,7 +167,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         setSelectedProvider(trip.providerId)
       }
 
-     
+
 
       setFormData({
         cityId: trip.cityId?.toString() || '',
@@ -469,6 +469,30 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       setError('يرجى اختيار صورة واحدة على الأقل');
       return false;
     }
+
+
+    // ✅ Provider required only on create
+    if (!isEditing && !selectedProvider) {
+      setError('يرجى اختيار المزود');
+      return false;
+    }
+
+    // ✅ Packages must exist only for create mode
+    if (!isEditing && packages.length === 0) {
+      setError('يرجى إضافة باقة واحدة على الأقل');
+      return false;
+    }
+
+    // ✅ Availability required (both create & update)
+    if (!formData.availableFrom) {
+      setError('يرجى تحديد وقت البداية');
+      return false;
+    }
+    if (!formData.availableTo) {
+      setError('يرجى تحديد وقت النهاية');
+      return false;
+    }
+
     return true;
   };
 
@@ -684,11 +708,11 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         return;
       }
 
-      if (!selectedProvider) {
-        setError("يرجى اختيار المزود");
-        setLoading(false);
-        return;
-      }
+      // if (!selectedProvider) {
+      //   setError("يرجى اختيار المزود");
+      //   setLoading(false);
+      //   return;
+      // }
 
       // Basic trip data - match backend parameter names exactly
       formDataToSend.append('cityId', cityId);
@@ -1432,6 +1456,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                 onChange={(option) => setSelectedProvider(option?.value || "")}
                 placeholder="اختر المزود"
                 isSearchable={true}
+                isClearable={true}
                 filterOption={(option, input) =>
                   (option?.label || "").toLowerCase().includes(input.toLowerCase())
                 }
@@ -1456,6 +1481,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   name="availableFrom"
                   value={formData.availableFrom}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
 
@@ -1467,6 +1493,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   name="availableTo"
                   value={formData.availableTo}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
@@ -1485,6 +1512,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   onChange={handleInputChange}
                   placeholder="أدخل وصف الرحلة بالعربية"
                   rows="4"
+                  required
                 />
               </div>
 
@@ -1497,6 +1525,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                   onChange={handleInputChange}
                   placeholder="Enter trip description in English"
                   rows="4"
+                  required
                 />
               </div>
             </div>
