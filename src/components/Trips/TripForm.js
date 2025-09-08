@@ -25,6 +25,7 @@ import api from '../../services/api';
 import { API_CONFIG } from '../../constants/config';
 import ShimmerLoading from '../ShimmerLoading';
 import SuccessModal from '../SuccessModal';
+import Select from "react-select";
 import './TripForm.css';
 
 // Utility function to get full image URL
@@ -72,16 +73,22 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
   const dragFrom = React.useRef(null);
   const dragTo = React.useRef(null);
 
-  // const [providers, setProviders] = useState([]);
-  // const [providerId, setProviderId] = useState(''); // selected provider
+  const [selectedProvider, setSelectedProvider] = useState(null);
+
+  // const [searchText, setSearchText] = useState("");
+  const [providers, setProviders] = useState([]);
+  // const [providerId, setProviderId] = useState("");
+  console.log("providers:____ ", providers)
   const [reordered, setReordered] = useState(false);
+
+  console.log("providers detaills information: ", providers)
 
   const isEditing = !!tripId;
 
   useEffect(() => {
     fetchCities();
     fetchCategories();
-    // fetchProvider();
+    fetchProviders();
     if (tripId) {
       fetchTrip();
     }
@@ -106,6 +113,9 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+
+
 
 
 
@@ -150,14 +160,19 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
 
       console.log("trip form fetch: ", response.data)
       const trip = response.data;
+      console.log("this is the trip details: ", trip)
 
-      // setProviderId(trip.providerId || ''); //add today
+      if (trip.providerId) {
+        console.log("providers in trip: ", trip.providers)
+        setSelectedProvider(trip.providerId)
+      }
 
+     
 
       setFormData({
         cityId: trip.cityId?.toString() || '',
         categoryId: trip.categoryId?.toString() || '',
-        // providerId: trip.providers?.providerId.toString() || '', //added tthis
+        // providerId: trip.providers?.providerId || '', //added tthis
         title: trip.title || '',
         titleEn: trip.titleEn || '',
         description: trip.description || '',
@@ -235,6 +250,44 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
       setInitialLoading(false);
     }
   };
+
+  const fetchProviders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await api.get('/api/admin/trips/providers/details?page=1&pageSize=100', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Fetched providers:", response.data);
+
+      // if (response.data && response.data.data) {
+      //   setProviders(response.data.data); // ✅ API me providers "data" key ke andar aa rahe hain
+      // }
+      if (response.data && response.data.data) {
+        const formatted = response.data.data.map((p) => ({
+          value: p.id,
+          label: `${p.fullName} | ${p.phoneNumber}`,
+        }));
+
+        console.log("formatted providers: ", formatted)
+        setProviders(formatted);
+      }
+    } catch (err) {
+      console.error('Error fetching providers:', err);
+    }
+  };
+
+
+  // const filteredProviders = providers.filter(
+  //   (p) =>
+  //     p.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
+  //     p.id.toLowerCase().includes(searchText.toLowerCase()) ||
+  //     (p.phoneNumber && p.phoneNumber.includes(searchText))
+  // );
+
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -631,11 +684,17 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         return;
       }
 
+      if (!selectedProvider) {
+        setError("يرجى اختيار المزود");
+        setLoading(false);
+        return;
+      }
+
       // Basic trip data - match backend parameter names exactly
       formDataToSend.append('cityId', cityId);
       formDataToSend.append('categoryId', categoryId);
       formDataToSend.append('title', formData.title.trim());
-      // formDataToSend.append('providerId', providerId); //add this
+      formDataToSend.append('providerId', selectedProvider); //add this
       formDataToSend.append('titleEn', formData.titleEn.trim());
       formDataToSend.append('description', formData.description.trim());
       formDataToSend.append('descriptionEn', formData.descriptionEn.trim());
@@ -1327,11 +1386,12 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
             </div>
           </div>
 
-          {/* <div className="trip-form-section">
+
+          <div className="trip-form-section">
             <h3>مقدم الخدمة</h3>
             <div className="trip-form-group">
-              <label htmlFor="providerId">اختر المزود *</label>
-              <select
+              {/* <label htmlFor="providerId">اختر المزود *</label> */}
+              {/* <select
                 id="providerId"
                 value={providerId}
                 onChange={(e) => setProviderId(e.target.value)}
@@ -1343,9 +1403,45 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     {p.fullName}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              {/* <select
+                value={providerId}
+                onChange={(e) => setSelectedProvider(e.target.value)}
+              >
+                <option value="">Select Provider</option>
+                {providers.map((provider) => (
+                  <option key={provider.providerId} value={provider.providerId}>
+                    {provider.fullName}
+                  </option>
+                ))}
+              </select> */}
+
+              {/* <Select
+                options={providers}
+                value={providers.find((p) => p.value === selectedProvider) || null}
+                onChange={(option) => setSelectedProvider(option.value)}
+                placeholder="اختر المزود"
+                isSearchable={true} // ✅ allows search
+                filterOption={(option, input) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+              /> */}
+              <Select
+                options={providers}
+                value={providers.find((p) => p.value === selectedProvider) || null}
+                onChange={(option) => setSelectedProvider(option?.value || "")}
+                placeholder="اختر المزود"
+                isSearchable={true}
+                filterOption={(option, input) =>
+                  (option?.label || "").toLowerCase().includes(input.toLowerCase())
+                }
+              />
+
+
+
             </div>
-          </div> */}
+          </div>
+
 
 
           {/* Availability */}
@@ -1744,7 +1840,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
             </button>
           </div>
         </form>
-      </div>
+      </div >
 
       <SuccessModal
         isVisible={showSuccessModal}
@@ -1753,7 +1849,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           setShowSuccessModal(false);
         }}
       />
-    </div>
+    </div >
   );
 };
 
