@@ -153,16 +153,7 @@ const VideosDashboard = () => {
       {/* Filters */}
       <div className="videos-filters">
         <div className="filters-row">
-          {/* <div className="search-box">
-            <FontAwesomeIcon icon={faSearch} className="search-icon" />
-            <input
-              type="text"
-              placeholder="البحث في الطلعات..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div> */}
+         
 
           <div className="categories-search-box">
                     <FontAwesomeIcon icon={faSearch} />
@@ -190,7 +181,6 @@ const VideosDashboard = () => {
           </div>
         </div>
       </div>
-              {/* <FontAwesomeIcon icon={faFilter} className="filter-icon" /> */}
 
       {/* Stats */}
       <div className="videos-stats">

@@ -45,7 +45,6 @@ const CustomerForm = ({ customerId, onBack, onSuccess }) => {
     }
   }, [customerId]);
 
-  // Set city search text when cities are loaded and customer is being edited
   useEffect(() => {
     if (cities.length > 0 && isEdit && formData.cityId && !citySearch) {
       const selectedCity = cities.find(city => city.id.toString() === formData.cityId);

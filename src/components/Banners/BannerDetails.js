@@ -233,9 +233,7 @@ const BannerDetails = ({ bannerId, onBack, onEdit }) => {
 
 
 
-                                {/* <span className="trip-price">
-                                  {formatPrice(trip.price)}
-                                </span> */}
+                           
 
                                 <span className="trip-price">
                                   {trip.packages && trip.packages.length > 0 && trip.packages[0].cost}
@@ -243,17 +241,6 @@ const BannerDetails = ({ bannerId, onBack, onEdit }) => {
 
 
 
-                                {/* {trip.discountedPrice && trip.discountedPrice < trip.price && (
-                                    <span className="trip-discount">
-                                      {formatPrice(trip.discountedPrice)}
-                                    </span>
-                                  )} */}
-                                {/* {trip.discountedPrice && trip.discountedPrice < trip.price && ( */}
-                                {/* <span className="trip-discount">
-                                  {trip.packages && trip.packages.length > 0 && trip.packages[0].cost}
-
-                                </span> */}
-                                {/* )} */}
                               </div>
                               <div className="trip-location">
                                 <span className="fa fa-map-marker"></span>

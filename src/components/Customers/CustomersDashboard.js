@@ -3,7 +3,6 @@ import CustomersList from './CustomersList';
 import CustomerDetails from './CustomerDetails';
 import CustomerForm from './CustomerForm';
 import BookingDetails from '../Bookings/BookingDetails';
-// import BookingDetails from '../Bookings/BookingDetails_';
 
 const CustomersDashboard = () => {
   const [currentView, setCurrentView] = useState('list');
@@ -13,7 +12,6 @@ const CustomersDashboard = () => {
   // Handle browser back button
   useEffect(() => {
     const handlePopState = (event) => {
-      // If we're not on the list view, go back to list
       if (currentView !== 'list') {
         setCurrentView('list');
         setSelectedCustomerId(null);

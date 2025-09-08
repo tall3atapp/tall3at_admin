@@ -42,7 +42,6 @@ const ConversationsSidebar = ({ onSelectConversation, selectedConversationId, in
     return `${API_CONFIG.BASE_URL}/images/profiles/${imagePath}`;
   };
 
-  // ConversationsSidebar.jsx(after conversations list load)
   useEffect(() => {
     if (!initialSelectedConversationId || conversations.length === 0) return;
     const conv = conversations.find(c => String(c.conversationId) === String(initialSelectedConversationId));
@@ -52,7 +51,6 @@ const ConversationsSidebar = ({ onSelectConversation, selectedConversationId, in
 
   useEffect(() => {
     loadConversations();
-    // eslint-disable-next-line
   }, [search, sortOrder, pagination.page]);
 
   async function loadConversations() {
@@ -75,7 +73,6 @@ const ConversationsSidebar = ({ onSelectConversation, selectedConversationId, in
   }
 
   function getOtherUser(conv) {
-    // Show the user who is not admin
     if (conv.user1?.role === 'admin') return conv.user2;
     return conv.user1;
   }

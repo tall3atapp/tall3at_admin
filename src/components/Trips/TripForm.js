@@ -1414,42 +1414,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           <div className="trip-form-section">
             <h3>مقدم الخدمة</h3>
             <div className="trip-form-group">
-              {/* <label htmlFor="providerId">اختر المزود *</label> */}
-              {/* <select
-                id="providerId"
-                value={providerId}
-                onChange={(e) => setProviderId(e.target.value)}
-                required
-              >
-                <option value="">-- اختر المزود --</option>
-                {providers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.fullName}
-                  </option>
-                ))}
-              </select> */}
-              {/* <select
-                value={providerId}
-                onChange={(e) => setSelectedProvider(e.target.value)}
-              >
-                <option value="">Select Provider</option>
-                {providers.map((provider) => (
-                  <option key={provider.providerId} value={provider.providerId}>
-                    {provider.fullName}
-                  </option>
-                ))}
-              </select> */}
 
-              {/* <Select
-                options={providers}
-                value={providers.find((p) => p.value === selectedProvider) || null}
-                onChange={(option) => setSelectedProvider(option.value)}
-                placeholder="اختر المزود"
-                isSearchable={true} // ✅ allows search
-                filterOption={(option, input) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-              /> */}
               <Select
                 options={providers}
                 value={providers.find((p) => p.value === selectedProvider) || null}
@@ -1462,12 +1427,8 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                 }
               />
 
-
-
             </div>
           </div>
-
-
 
           {/* Availability */}
           <div className="trip-form-section">
@@ -1535,35 +1496,6 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
           <div className="trip-form-section">
             <h3>صور الرحلة</h3>
             <div className="trip-images-upload">
-              {/* <div className="trip-images-preview">
-                {imagePreviews.map((preview, index) => (
-                  <div key={index} className="trip-image-preview-item">
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="trip-preview-image"
-                    />
-                    <button
-                      type="button"
-                      className="trip-remove-image-btn"
-                      onClick={() => removeImage(index)}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                ))}
-
-                <div
-                  className="trip-upload-placeholder"
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <FontAwesomeIcon icon={faUpload} />
-                  <p>اضغط لاختيار صور</p>
-                  <span>يمكنك اختيار صور غير محدودة</span>
-                </div>
-              </div> */}
-
 
               <div className="trip-images-preview">
                 {imageItems.map((item, index) => (
@@ -1578,9 +1510,6 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                     title="Drag to reorder"
                   >
 
-                    {/* {item.preview && (
-                    <img src={item.preview} alt={`Preview ${index + 1}`} className="trip-preview-image" />
-                    )} */}
                     {item.preview && (
                       <img src={item.preview} alt={`Preview ${index + 1}`} className="trip-preview-image" />
                     )}
@@ -1608,20 +1537,6 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                 className="trip-file-input"
                 style={{ display: 'none' }}
               />
-
-
-
-
-              {/* <input
-                ref={fileInputRef}
-                type="file"
-                id="trip-images"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="trip-file-input"
-                style={{ display: 'none' }}
-              /> */}
             </div>
           </div>
 
@@ -1718,11 +1633,6 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                           min="0"
                         />
 
-                        {/* <small className="cost-with-commission"> */}
-                        {/* مع العمولة: {pkg.cost} */}
-                        {/* السعر الأصلي من المزود: {(parseFloat(pkg.cost) / 1.15).toFixed(2)} */}
-
-                        {/* </small> */}
                       </div>
                       <div className="trip-form-group">
                         <label>الوحدة</label>

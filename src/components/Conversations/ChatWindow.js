@@ -12,7 +12,6 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
   const [renderError, setRenderError] = useState(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
-  // const navigate = useNavigate();
   const location = useLocation();
   console.log('ChatWindow location:', messages);
 
@@ -42,9 +41,7 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
     try {
       // Debug: Log the conversation structure
       console.log('Selected conversation:', selectedConversation);
-      // console.log('All conversation properties:', Object.keys(selectedConversation));
 
-      // Extract user IDs from the conversation - try different possible structures
       let userId1, userId2;
 
       if (selectedConversation.user1 && selectedConversation.user2) {
@@ -123,12 +120,6 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
       minute: '2-digit'
     });
   }
-
-  // function getOtherUser() {
-  //   if (!selectedConversation) return null;
-  //   if (selectedConversation.user1?.role === 'admin') return selectedConversation.user2;
-  //   return selectedConversation.user1;
-  // }
 
   function getOtherUser() {
     if (!selectedConversation) return null;
@@ -249,7 +240,7 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
       navigate(`/admin/customers/${id}`, {
         state: {
           origin: 'chats',                              // 👈 came from chat window
-          from: location.pathname + location.search,   // e.g. "/admin/chat"
+          from: location.pathname + location.search,   
           convoId: selectedConversation?.conversationId
         }
       });
@@ -267,34 +258,6 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
 
     return (
       <div className="chat-window">
-        {/* Chat Header */}
-        {/* <div className="chat-header">
-          <div className="chat-user-info" onClick={handleJumpToDetails}>
-            <div className="chat-user-avatar">
-              <img
-                src={getImageUrl(otherUser?.profileImage)}
-                alt={otherUser?.fullName || 'مستخدم'}
-                onError={e => { e.target.src = '/assets/images/users.png'; }}
-              />
-              <div className="user-status-indicator online"></div>
-            </div>
-            <div className="chat-user-details">
-              <h3 className="chat-user-name">{otherUser?.fullName || 'مستخدم'}</h3>
-              <span className="chat-user-role">
-                {otherUser?.role === 'provider' ? 'مزود خدمة' : otherUser?.role === 'customer' ? 'عميل' : 'مستخدم'}
-              </span>
-            </div>
-          </div>
-          <div className="chat-actions">
-            <button className="chat-action-btn" title="البحث في المحادثة">
-              <i className="fas fa-search"></i>
-            </button>
-            <button className="chat-action-btn" title="المزيد من الخيارات">
-              <i className="fas fa-ellipsis-v"></i>
-            </button>
-          </div>
-        </div> */}
-
         <div className="chat-header two-sided">
           {/* LEFT: Provider */}
           {provider && (
@@ -320,16 +283,6 @@ const ChatWindow = ({ selectedConversation, onMessageSent }) => {
               </div>
             </div>
           )}
-
-          {/* Actions (center) */}
-          {/* <div className="chat-actions">
-            <button className="chat-action-btn" title="البحث في المحادثة">
-              <i className="fas fa-search"></i>
-            </button>
-            <button className="chat-action-btn" title="المزيد من الخيارات">
-              <i className="fas fa-ellipsis-v"></i>
-            </button>
-          </div> */}
 
           {/* RIGHT: Customer */}
           {customer && (

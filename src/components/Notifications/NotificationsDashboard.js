@@ -15,12 +15,8 @@ import axios from "axios";
 
 const API_BASE = API_CONFIG.BASE_URL + '/api/admin';
 
-// const PROVIDERS_API = `${API_BASE}/providers`;
 const CUSTOMERS_API = `${API_BASE}/users?page=1&pageSize=2147483647`;
-// const FETCH_USERS = `${API_BASE}/user-ids`;
 const SEND_NOTIFICATION = `${API_BASE}/broadcast-to-users`;
-
-// console.log("API_BASE", PROVIDERS_API, CUSTOMERS_API, SEND_NOTIFICATION);
 
 // Small helper to read common display fields safely
 const displayName = (u) => u?.name || u?.fullName || u?.companyName || "—";
@@ -39,21 +35,12 @@ const displayPhone = (u) => {
     // return `+${phone}`;
      const result = `+${phone}`;
     
-    // console.log("Original phone:", u?.userName || u?.phoneNumber, "Result:", result);
     return result;
 };
-// ...existing code...
-// const displayId = (u) => u?.id ?? u?._id ?? u?.uuid ?? String(displayEmail(u));
+
 const displayId = (u) => {
   // Pehle actual IDs check karo
   if (u?.id) return u.id;
-//   if (u?._id) return u._id;
-//   if (u?.uuid) return u.uuid;
-  
-  // Agar email hai to use karo
-//   if (u?.email) return u.email;
-  
-  // Last resort - array index ke saath fallback (lekin yeh ideal nahi hai)
   return `fallback-${Math.random().toString(36).substr(2, 9)}`;
 };
 
@@ -67,8 +54,6 @@ const NotificationsDashboard = () => {
 
     const [customers, setCustomers] = useState([]);
     const [providers, setProviders] = useState([]);
-    // console.log("Customers:", customers);
-    // console.log("Providers:", providers);
 
     const [loadingCustomers, setLoadingCustomers] = useState(false);
     const [loadingProviders, setLoadingProviders] = useState(false);
@@ -81,14 +66,13 @@ const NotificationsDashboard = () => {
 
     const [selectedCustomers, setSelectedCustomers] = useState(new Set());
     const [selectedProviders, setSelectedProviders] = useState(new Set());
-    // console.log("Selected Customers:", selectedCustomers);
-    // console.log("Selected Providers with array:", Array.from(selectedProviders));
+   
     console.log("Selected Providers:", selectedProviders);
 
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
     const [sending, setSending] = useState(false);
-    const [toast, setToast] = useState(null); // {type: 'success'|'error', msg: string}
+    const [toast, setToast] = useState(null); 
 
     // Fetch data on mount
     useEffect(() => {
@@ -116,7 +100,6 @@ const NotificationsDashboard = () => {
 
                 const arr = Array.isArray(data) ? data : data?.data ?? data?.results ?? [];
                 const onlyCustomers = arr.filter(user => user.role === "customer");
-                // console.log("Customers data:", onlyCustomers.map((u) => u.role));
                 setCustomers(onlyCustomers);
 
             } catch (e) {
@@ -131,16 +114,13 @@ const NotificationsDashboard = () => {
             setErrorProviders("");
             try {
                 const res = await fetch(CUSTOMERS_API, { headers: authHeaders() });
-                // console.log("Providers API:", res.url, res.status, res.statusText, res);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
 
                 const arr = Array.isArray(data) ? data : data?.data ?? data?.results ?? [];
                 const onlyProvider = arr.filter(user => user.role === "provider");
-                // console.log("Provider data:", onlyProvider.map((u) => u.role));
                 setProviders(onlyProvider);
 
-                // console.log("Providers data:", data.data);
             } catch (e) {
                 setErrorProviders("Failed to load providers.");
             } finally {
@@ -225,9 +205,7 @@ const NotificationsDashboard = () => {
     const handleSend = async () => {
         const isCustomers = activeTab === TabKey.CUSTOMERS;
         const selected = isCustomers ? selectedCustomers : selectedProviders;
-        // console.log("Sending to:", selected);   
         const recipients = Array.from(selected);
-        // console.log("Recipients IDs:", recipients);
 
         if (!title.trim() || !body.trim() || recipients.length === 0) {
             setToast({
@@ -265,10 +243,8 @@ const NotificationsDashboard = () => {
 
 
             setToast({ type: "success", msg: "Message sent successfully." });
-            // Optional: clear selection and form
             isCustomers ? setSelectedCustomers(new Set()) : setSelectedProviders(new Set());
-            // keep title/body? If not, clear:
-            // setTitle(""); setBody("");
+           
         } catch (e) {
             setToast({ type: "error", msg: "Failed to send message." });
         } finally {
@@ -463,19 +439,7 @@ const UserList = ({ users, selected, onToggle }) => {
             {users.map((u) => {
                 const id = displayId(u);
                 const isChecked = selected.has(id);
-                // console.log("Rendering user:", { id, isChecked });
-
-                //    const selectedUsers = users.filter(u => selected.has(displayId(u)));
-    // if (selectedUsers.length > 0) {
-    //     console.log("Selected users:", selectedUsers.map(u => ({
-    //         id: displayId(u),
-    //         name: displayName(u)
-    //     })));
-    // }
-                // console.log("User:", id, isChecked);
-                // console.log(users.map(u => displayId(u)));
-    // console.log("UserList rendered with users count:", users.length);
-    // console.log("Selected IDs:", Array.from(selected));
+               
                 return (
                     <li key={id} className={`user-row ${isChecked ? "checked" : ""}`}>
                         <label className="row-inner">

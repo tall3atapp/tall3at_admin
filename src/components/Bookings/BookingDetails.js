@@ -39,7 +39,6 @@ import { API_CONFIG } from '../../constants/config';
 import { formatDate } from '../../utils/dateUtils';
 import SuccessModal from '../SuccessModal';
 import DeleteConfirmModal from '../DeleteConfirmModal';
-// import './BookingsList.css';
 import './Bookings_List.css';
 import './BookingDetails.css';
 

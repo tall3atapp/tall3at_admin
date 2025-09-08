@@ -55,11 +55,9 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
     });
   }
 
-  // ✅ merge both into ONE id (prop > route), string-safe
   const effectiveCustomerId = String(customerId ?? routeId ?? '').trim();
   console.log('CustomerDetails -> propCustomerId:', customerId, 'routeId:', routeId, 'effective:', effectiveCustomerId);
 
-  // ✅ single effect: fetch using the merged id
   useEffect(() => {
     if (!effectiveCustomerId) {
       setError('لا يوجد معرّف عميل');
@@ -67,7 +65,6 @@ const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip
       return;
     }
     fetchCustomer(effectiveCustomerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCustomerId]);
 
 

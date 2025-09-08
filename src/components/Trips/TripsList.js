@@ -150,7 +150,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
       }));
     } catch (err) {
       console.error('Error fetching trips:', err);
-      console.error('Error response:', err.response?.data); // Log the error response
+      console.error('Error response:', err.response?.data);
       setError('فشل في تحميل بيانات الرحلات');
     } finally {
       setLoading(false);
@@ -1028,16 +1028,7 @@ const TripsList = ({ onViewTrip, onEditTrip, onCreateTrip }) => {
                 <td>{trip.categoryName || 'غير محدد'}</td>
                 <td>
                   <div className="status-toggle">
-                     {/* <input
-                      type="checkbox"
-                      id={`status-${provider.id}`}
-                      className="status-toggle-input"
-                      checked={provider.status === 'Active'}
-                      onChange={(e) => {
-                        const newStatus = e.target.checked ? 'Active' : 'Suspended';
-                        handleStatusChange(provider.id, newStatus);
-                      }}
-                    /> */}
+    
 
                     <input
                       type="checkbox"

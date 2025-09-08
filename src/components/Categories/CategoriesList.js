@@ -26,7 +26,6 @@ import SuccessModal from '../SuccessModal';
 import DeleteConfirmModal from '../DeleteConfirmModal';
 import './CategoriesList.css';
 
-// Utility function to get full image URL
 const getImageUrl = (imagePath) => {
   if (!imagePath) return '/assets/images/default-category.png';
   if (imagePath.startsWith('http')) return imagePath;
@@ -98,11 +97,9 @@ const CategoriesList = ({ onViewDetails, onEdit }) => {
 
   const exportCategories = async () => {
     try {
-      // setExporting(true);
       const params = new URLSearchParams({
         role: 'category',
-        // status: filters?.status ?? '',
-        // cityId: filters?.cityId ?? '',
+        
         format: 'csv'
       });
 
@@ -111,9 +108,8 @@ const CategoriesList = ({ onViewDetails, onEdit }) => {
       const res = await api.get(`/api/admin/categories/export?${params}`, {
         responseType: 'arraybuffer',
         timeout: 60000,
-        // optional but helpful:
         headers: { Accept: 'text/csv, application/octet-stream, */*' },
-        validateStatus: s => s >= 200 && s < 300 // force throw on non-2xx
+        validateStatus: s => s >= 200 && s < 300 
       });
 
       // --- check server content-type (maybe returned JSON error) ---

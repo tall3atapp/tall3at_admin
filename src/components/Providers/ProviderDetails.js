@@ -72,7 +72,6 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
       return;
     }
     fetchProviderDetails(effectiveCustomerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCustomerId]);
 
   const fetchProviderDetails = async (id) => {
@@ -156,10 +155,7 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
   return (
     <div className="provider-details">
       <div className="provider-details-header">
-        {/* <button className="btn-back" onClick={onBack}>
-          <FontAwesomeIcon icon={faArrowLeft} />
-          العودة إلى قائمة المزودين
-        </button> */}
+       
         <button className="btn-back" onClick={onBack ? onBack : handleBack}>
           <FontAwesomeIcon icon={faArrowLeft} />
           {backText}
@@ -297,9 +293,6 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
                     <div className="trip-card-content">
                       <h4 className="trip-title">{trip.title}</h4>
                       <div className="trip-bottom">
-
-
-                        {/* <span className="trip-price">{trip.price}</span> */}
                         <span className="trip-date">{formatDate(trip.createdAt)}</span>
                       </div>
                     </div>

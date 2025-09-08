@@ -146,7 +146,6 @@ const CategoryForm = ({ categoryId, onBack, onSuccess }) => {
         }
       }, 2000);
     } catch (err) {
-      // Handle different error response formats
       let errorMessage = 'حدث خطأ أثناء حفظ الفئة';
       
       if (err.response?.data) {

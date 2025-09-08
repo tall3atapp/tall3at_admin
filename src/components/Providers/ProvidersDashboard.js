@@ -3,7 +3,6 @@ import ProvidersList from './ProvidersList';
 import ProviderDetails from './ProviderDetails';
 import ProviderForm from './ProviderForm';
 import TripDetails from '../Trips/TripDetails';
-// import BookingDetails from '../Bookings/BookingDetails_';
 import BookingDetails from '../Bookings/BookingDetails';
 import './ProvidersDashboard.css';
 import TripForm from '../Trips/TripForm';
@@ -69,8 +68,6 @@ const ProvidersDashboard = () => {
     setSelectedBookingId(null);
   };
 
-    //remember to edit the trip navigation back to provider details
-
     const handleEditTrip = (tripId) => {
     setSelectedTripId(tripId);
     setCurrentView('trip-form');
@@ -132,7 +129,6 @@ const ProvidersDashboard = () => {
           <TripForm
             tripId={selectedTripId}
             onBack={handleBackToTripDetails}
-            // onSuccess={handleFormSuccess}
           />
         );
 

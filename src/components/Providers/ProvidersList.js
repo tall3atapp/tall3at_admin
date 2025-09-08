@@ -68,13 +68,8 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
 
   const navigate = useNavigate();
 
-
-  // const pageFromUrl = parseInt(searchParams.get("page")) || 1;
-  // const [currentPage, setCurrentPage] = useState(pageFromUrl);
-
   useEffect(() => {
-    // const queryParams = new URLSearchParams(window.location.search);
-    //in progress
+ 
     const page = parseInt(searchParams.get('page')) || 1;
     setPagination((prev) => ({ ...prev, currentPage: page }));
     fetchProviders();
@@ -147,12 +142,9 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
   };
 
   const handlePageChange = (page) => {
-    // setPagination(prev => ({ ...prev, currentPage: page }));
-    // setCurrentPage(page);
+
     setPagination(prev => ({ ...prev, currentPage: page }));
     navigate(`/admin/providers?page=${page}`);
-
-    // window.history.pushState({}, '', `?page=${page}`);
     fetchProviders(page);
   };
 
@@ -175,7 +167,6 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
 
   const printProviders = () => {
     try {
-      // Create a print-friendly version of the providers table
       const printWindow = window.open('', '_blank');
       const printContent = `
         <!DOCTYPE html>
@@ -314,96 +305,6 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
       setError('فشل في حذف المزود');
     }
   };
-
-  // const exportProviders = async () => {
-  //   try {
-  //     const params = new URLSearchParams({
-  //       status: filters?.status ?? '',
-  //       cityId: filters?.cityId ?? '',
-  //       format: 'csv'
-  //     });
-
-  //     console.log('Exporting providers with params:', params.toString(), params);
-
-  //     const res = await api.get(`/api/admin/providers/export?${params}`, {
-  //       responseType: 'arraybuffer',
-  //       timeout: 60000,
-  //       // optional but helpful:
-  //       headers: { Accept: 'text/csv, application/octet-stream, */*' },
-  //       validateStatus: s => s >= 200 && s < 300 // force throw on non-2xx
-  //     });
-
-  //     // --- check server content-type (maybe returned JSON error) ---
-  //     const ct = (res.headers?.['content-type'] || '').toLowerCase();
-  //     if (ct.includes('application/json') || ct.includes('text/json')) {
-  //       const txt = new TextDecoder('utf-8').decode(res.data);
-  //       let msg = 'Server returned JSON instead of CSV.';
-  //       try { msg = JSON.parse(txt)?.message || msg; } catch { }
-  //       throw new Error(msg);
-  //     }
-
-  //     // --- CSV download with UTF-8 BOM for Arabic ---
-  //     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  //     let csvText = new TextDecoder('utf-8').decode(res.data);
-
-
-  //     // Split into rows
-  //     let rows = csvText.split(/\r?\n/).filter(r => r.trim() !== "");
-
-  //     // Split first row (header) by comma
-  //     let headers = rows[0].split(",");
-
-  //     // 1) Rename "Username" → "Phone Number"
-  //     headers = headers.map(h =>
-  //       /^username$/i.test(h.trim()) ? "Phone Number" : h
-  //     );
-
-  //     // 2) Find index of the unwanted "Phone" column
-  //     const phoneIdx = headers.findIndex(h => /^phone$/i.test(h.trim()));
-
-  //     // 3) Remove that column from headers + each row
-  //     if (phoneIdx !== -1) {
-  //       headers.splice(phoneIdx, 1);
-  //       rows = rows.map(r => {
-  //         const cols = r.split(",");
-  //         cols.splice(phoneIdx, 1);
-  //         return cols.join(",");
-  //       });
-  //     }
-
-  //     // Rebuild CSV
-  //     rows[0] = headers.join(",");
-  //     csvText = rows.join("\n");
-
-
-  //     const blob = new Blob([bom, csvText], { type: 'text/csv;charset=utf-8;' });
-
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     a.download = 'providers.csv';
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     a.remove();
-  //     URL.revokeObjectURL(url);
-  //   } catch (err) {
-  //     // Axios/network/server error parsing
-  //     let message = 'Failed to export data';
-  //     if (err?.response?.data) {
-  //       try {
-  //         const txt = new TextDecoder('utf-8').decode(err.response.data);
-  //         const j = JSON.parse(txt);
-  //         message = j.message || txt || message;
-  //       } catch {
-  //         message = err?.message || message;
-  //       }
-  //     } else if (err?.message) {
-  //       message = err.message;
-  //     }
-  //     console.error('Export error:', err);
-  //     setError(message);
-  //   }
-  // };
 
   const exportProviders = async () => {
     try {
@@ -892,35 +793,6 @@ const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => 
         </div>
       )}
 
-      {/* {pagination.totalPages > 1 && (
-        <div className="pagination">
-          <button
-            className="btn-page"
-            disabled={pagination.currentPage === 1}
-            onClick={() => handlePageChange(pagination.currentPage - 1)}
-          >
-            السابق
-          </button>
-
-          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
-            <button
-              key={page}
-              className={`btn-page ${page === pagination.currentPage ? 'active' : ''}`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </button>
-          ))}
-
-          <button
-            className="btn-page"
-            disabled={pagination.currentPage === pagination.totalPages}
-            onClick={() => handlePageChange(pagination.currentPage + 1)}
-          >
-            التالي
-          </button>
-        </div>
-      )} */}
       {pagination.totalPages > 1 && (
         <div className="pagination">
           {/* Prev button */}
