@@ -9,6 +9,7 @@ import {
     faSave,
 } from "@fortawesome/free-solid-svg-icons";
 import "./NotificationHistoryDashboard.css";
+import { API_CONFIG } from "../../../constants/config";
 
 // Dummy data generator
 const generateDummyData = (type, count = 25) => {
@@ -56,28 +57,35 @@ const NotificationHistoryDashboard = () => {
 
 
     //api yahan hit hogi
-    // useEffect(() => {
-    //     const fetchHistory = async () => {
-    //         try {
-    //             const res = await fetch(`${API_CONFIG.BASE_URL}/api/admin/notifications-history`, {
-    //                 headers: {
-    //                     "Content-Type": "application/json",
-    //                     Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //                 },
-    //             });
-    //             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    //             const data = await res.json();
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await fetch(`${API_CONFIG.BASE_URL}/api/admin/notification-history`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });
 
-    //             // Yahan assume kar raha hoon API customers aur providers alag alag return karegi
-    //             setCustomers(data.customers || []);
-    //             setProviders(data.providers || []);
-    //         } catch (err) {
-    //             console.error("Failed to fetch history:", err);
-    //         }
-    //     };
 
-    //     fetchHistory();
-    // }, []);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                console.log(data)
+
+                const customers = data.filter(n => n.role?.toLowerCase() === "customer");
+                const providers = data.filter(n => n.role?.toLowerCase() === "provider");
+
+                console.log(customers, providers)
+
+                setCustomers(customers);
+                setProviders(providers);
+            } catch (err) {
+                console.error("Failed to fetch history:", err);
+            }
+        };
+
+        fetchHistory();
+    }, []);
 
 
     // Select list by tab
@@ -85,7 +93,7 @@ const NotificationHistoryDashboard = () => {
 
     // Apply search
     const filtered = list.filter((h) =>
-        `${h.title} ${h.body} ${h.recipientName} ${h.recipientEmail} ${h.recipientPhone}`
+        `${h.title} ${h.body} ${h.fullName} ${h.email} ${h.userName}`
             .toLowerCase()
             .includes(search.toLowerCase())
     );
@@ -255,15 +263,15 @@ const NotificationHistoryDashboard = () => {
                                 <th className="message">Message</th>
                                 <th>Status</th>
                                 <th className="date">Date</th>
-                                <th className="actions">Actions</th>
+                                {/* <th className="actions">Actions</th> */}
                             </tr>
                         </thead>
                         <tbody>
                             {paginated.map((h) => (
                                 <tr key={h.id}>
-                                    <td>{h.recipientName}</td>
-                                    <td className="email">{h.recipientEmail}</td>
-                                    <td className="phone">{h.recipientPhone}</td>
+                                    <td>{h.fullName}</td>
+                                    <td className="email">{h.email}</td>
+                                    <td className="phone">{h.userName}</td>
 
                                     {/* If editing this row */}
                                     {editing === h.id ? (
@@ -293,7 +301,7 @@ const NotificationHistoryDashboard = () => {
                                         {h.status}
                                     </td>
                                     <td className="date">{new Date(h.createdAt).toLocaleString()}</td>
-                                    <td className="actions">
+                                    {/* <td className="actions">
                                         {editing === h.id ? (
                                             <>
                                                 <button className="save-btn" onClick={handleSave}>
@@ -313,7 +321,7 @@ const NotificationHistoryDashboard = () => {
                                                 </button>
                                             </>
                                         )}
-                                    </td>
+                                    </td> */}
                                 </tr>
                             ))}
                         </tbody>
