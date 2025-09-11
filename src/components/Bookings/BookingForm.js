@@ -17,20 +17,23 @@ const getImageUrl = (imagePath) => {
   if (!imagePath) return '/assets/images/default-avatar.png';
   if (imagePath.startsWith('http')) return imagePath;
   return `${API_CONFIG.BASE_URL}${imagePath}`;
+
+
 };
+
 
 const initialForm = {
   tripId: '',
   userId: '',
-  providerId: '',
+  // providerId: '',
   packageId: '',
-  status: 'Provider Pending',
+  // status: 'Provider Pending',
   persons: 1,
-  numOfHours: 1,
+  // numOfHours: 1,
   bookingDate: '',
   startTime: '',
   endTime: '',
-  notes: '',
+  notes: 'TEST',
 };
 
 const statusOptions = [
@@ -43,6 +46,7 @@ const statusOptions = [
 
 const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [form, setForm] = useState(initialForm);
+  console.log('BookingForm:', form);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successModal, setSuccessModal] = useState({ isVisible: false, message: '' });
@@ -53,6 +57,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [tripSearch, setTripSearch] = useState('');
   const [showTripDropdown, setShowTripDropdown] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  console.log("Selected Trip:", selectedTrip);
   const [loadingTrips, setLoadingTrips] = useState(false);
 
   // Customer search functionality
@@ -64,6 +69,12 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
 
   // Package selection
   const [selectedPackage, setSelectedPackage] = useState(null);
+
+  const [cities, setCities] = useState([]);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+
 
   useEffect(() => {
     if (bookingId) {
@@ -78,6 +89,72 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     }
     // eslint-disable-next-line
   }, [bookingId]);
+
+  // /api/home/home cities, categorieis, trips, packages so on
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const res = await api.get('/api/home/home');
+        const data = res.data;
+        console.log("Fetched home data:", data);
+        // Assume API response contains { cities: [], categories: [], trips: [] }
+        setCities(data.cities || []);
+        setCategories(data.categories || []);
+        setTrips(data.trips || []);
+      } catch (err) {
+        console.error("Error fetching home data:", err);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
+
+
+  // // useEffect(() => {
+  // //   api.get('/api/admin/cities').then(res => setCities(res.data.data));
+  // // }, []);
+
+  // // useEffect(() => {
+  // //   if (selectedCity) {
+  // //     api.get(`/api/admin/categories?cityId=${selectedCity}`)
+  // //       .then(res => setCategories(res.data.data));
+  // //   }
+  // // }, [selectedCity]);
+
+  // useEffect(() => {
+  //   const fetchCities = async () => {
+  //     try {
+  //       const res = await api.get('/api/cities');
+  //       console.log("Fetched cities response:", res);
+  //       setCities(res.data);
+  //       console.log("✅ Cities fetched:", res.data);
+  //     } catch (err) {
+  //       console.error("❌ Error fetching cities:", err);
+  //     }
+  //   };
+
+  //   fetchCities();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       if (selectedCity) {
+  //         const res = await api.get(`/api/categories`);
+  //         console.log("Fetched categories response:", res);
+
+  //         setCategories(res.data);
+  //         console.log("✅ Categories fetched:", res.data);
+  //       }
+  //     } catch (err) {
+  //       console.error("❌ Error fetching categories:", err);
+  //     }
+  //   };
+
+  //   fetchCategories();
+  // }, [selectedCity]);
+
 
   // Handle clicking outside dropdowns
   useEffect(() => {
@@ -104,9 +181,11 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     try {
       setLoadingTrips(true);
       const params = new URLSearchParams({
+        cityId: selectedCity,
+        categoryId: selectedCategory,
         page: 1,
         pageSize: 20,
-        search: searchTerm
+        search: searchTerm,
       });
       const response = await api.get(`/api/admin/trips?${params}`);
       setTrips(response.data.data);
@@ -141,6 +220,8 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       const response = await api.get(`/api/admin/bookings/${bookingId}`);
       const b = response.data;
 
+      console.log('Fetched booking data:', b);
+
       // Set selected trip if available
       if (b.trip) {
         setSelectedTrip(b.trip);
@@ -161,14 +242,14 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       setForm({
         tripId: b.tripId || '',
         userId: b.userId || '',
-        providerId: b.providerId || '',
+        // providerId: b.providerId || '',
         packageId: b.packageId || '',
-        status: b.status || 'Provider Pending',
+        // status: b.status || 'Provider Pending',
         persons: b.persons || 1,
-        numOfHours: b.numOfHours || 1,
+        // numOfHours: b.numOfHours || 1,
         bookingDate: b.bookingDate ? b.bookingDate.split('T')[0] : '',
-        startTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
-        endTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        StartTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
+        EndTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
         notes: b.notes || '',
       });
     } catch (err) {
@@ -196,13 +277,26 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     }
   };
 
-  const handleTripSelect = (trip) => {
-    setSelectedTrip(trip);
-    setTripSearch(trip.title);
-    setSelectedPackage(null);
-    setForm(prev => ({ ...prev, tripId: trip.id, packageId: '' }));
-    setShowTripDropdown(false);
+  // const handleTripSelect = (trip) => {
+  //   setSelectedTrip(trip);
+  //   setTripSearch(trip.title);
+  //   setSelectedPackage(null);
+  //   setForm(prev => ({ ...prev, tripId: trip.id, packageId: '' }));
+  //   setShowTripDropdown(false);
+  // };
+  const handleTripSelect = async (trip) => {
+    try {
+      setSelectedTrip(trip);
+      setForm(prev => ({ ...prev, tripId: trip.id }));
+
+      const res = await api.get(`/api/trips/${trip.id}`);
+      setSelectedTrip(res.data);   // full trip details with packages
+      setSelectedPackage(null);
+    } catch (err) {
+      console.error("Error fetching trip details:", err);
+    }
   };
+
 
   const clearTripSelection = () => {
     setSelectedTrip(null);
@@ -253,19 +347,45 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const formatDateTime = (value) => {
+    if (!value) return null;
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString().slice(0, 23).replace('T', ' ').replace('Z', '');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const payload = { ...form };
+      const payload = {
+        TripId: form.tripId,
+        UserId: form.userId,
+        PackageId: form.packageId,
+        Persons: form.persons,
+        BookingDate: formatDateTime(form.bookingDate),
+        StartTime: formatDateTime(form.startTime),
+        EndTime: formatDateTime(form.endTime),
+        Notes: form.notes,
+      };
+      console.log('Submitting booking payload:', payload);
 
       if (isEdit) {
         await api.put(`/api/admin/bookings/${bookingId}`, payload);
         setSuccessModal({ isVisible: true, message: 'تم تحديث الحجز بنجاح' });
       } else {
-        await api.post(`/api/admin/bookings`, payload);
+        await api.post(`/api/admin/bookings`, payload,
+
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          }
+
+
+        );
         setSuccessModal({ isVisible: true, message: 'تم إضافة الحجز بنجاح' });
       }
 
@@ -273,10 +393,31 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
         setSuccessModal({ isVisible: false, message: '' });
         onSuccess();
       }, 1200);
+      // } catch (err) {
+      //   setError('فشل في حفظ بيانات الحجز');
+      //   console.error('Error saving booking:', err.response.data.title || err.message);
+      // }
     } catch (err) {
-      setError('فشل في حفظ بيانات الحجز');
-      console.error('Error saving booking:', err);
-    } finally {
+      if (err.response && err.response.data) {
+        if (err.response.data.errors) {
+          // Laravel style validation errors
+          const errors = err.response.data.errors;
+          const errorMessages = Object.values(errors).flat();
+          setError(errorMessages);
+        } else if (err.response.data.message) {
+          // Single message error (e.g. "This time slot is already booked")
+          setError(err.response.data.message);
+        } else {
+          setError('فشل في حفظ بيانات الحجز');
+        }
+        console.error('Error saving booking:', err.response.data);
+      } else {
+        setError('فشل في حفظ بيانات الحجز');
+        console.error('Error saving booking:', err);
+      }
+    }
+
+    finally {
       setLoading(false);
     }
   };
@@ -301,6 +442,31 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 <FontAwesomeIcon icon={faMapMarkerAlt} />
                 اختيار الرحلة
               </h3>
+
+              <select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="booking-form-select"
+              >
+                <option value="">اختر المدينة</option>
+                {cities && cities.length > 0 && cities.map(city => (
+                  <option key={city.id} value={city.id}>{city.name}</option>
+                ))}
+              </select>
+
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="booking-form-select"
+              >
+                <option value="">اختر الفئة</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+
+
+
 
               <div className="trip-search-container">
                 <div className="trip-search-input">
@@ -333,6 +499,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                         <div
                           key={trip.id}
                           className={`trip-option ${selectedTrip?.id === trip.id ? 'selected' : ''}`}
+
                           onClick={() => handleTripSelect(trip)}
                         >
                           <div className="trip-option-image">
@@ -352,12 +519,12 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                             </div>
                             <div className="trip-option-price">
                               <FontAwesomeIcon icon={faMoneyBillWave} />
-                              {trip.price} ريال
+                              {trip.cost} ريال
                             </div>
                           </div>
                         </div>
                       ))
-                    ) : tripSearch.length >= 2 ? (
+                    ) : tripSearch.length >= 1 ? (
                       <div className="trip-no-results">لا توجد نتائج</div>
                     ) : null}
                   </div>
@@ -381,10 +548,10 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                       <FontAwesomeIcon icon={faMapMarkerAlt} />
                       {selectedTrip.cityName}
                     </p>
-                    <p>
+                    {/* <p>
                       <FontAwesomeIcon icon={faMoneyBillWave} />
                       {selectedTrip.price} ريال
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               )}
@@ -410,7 +577,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                         <p>{pkg.description}</p>
                         <div className="package-price">
                           <FontAwesomeIcon icon={faMoneyBillWave} />
-                          {pkg.price} ريال
+                          {pkg.cost} ريال
                         </div>
                       </div>
                     </div>
@@ -418,7 +585,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 </div>
               </div>
             )}
-
+            {/*neeche wala*/}
             {/* Customer Selection Section */}
             <div className="booking-form-section">
               <h3 className="booking-form-section-title">
@@ -518,7 +685,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
               </h3>
 
               <div className="booking-form-grid">
-                <div className="booking-form-group">
+                {/* <div className="booking-form-group">
                   <label className="booking-form-label">الحالة:</label>
                   <select
                     name="status"
@@ -531,7 +698,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
-                </div>
+                </div> */}
 
                 <div className="booking-form-group">
                   <label className="booking-form-label">
@@ -549,7 +716,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                   />
                 </div>
 
-                <div className="booking-form-group">
+                {/* <div className="booking-form-group">
                   <label className="booking-form-label">
                     <FontAwesomeIcon icon={faClock} />
                     عدد الساعات:
@@ -563,7 +730,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     required
                     className="booking-form-input"
                   />
-                </div>
+                </div> */}
 
                 <div className="booking-form-group">
                   <label className="booking-form-label">تاريخ الحجز:</label>
