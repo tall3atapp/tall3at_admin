@@ -26,14 +26,15 @@ const initialForm = {
   tripId: '',
   userId: '',
   // providerId: '',
-  packageId: '',
-  // status: 'Provider Pending',
+  packageId: null,
+  status: 'Provider Pending',
   persons: 1,
   // numOfHours: 1,
   bookingDate: '',
   startTime: '',
   endTime: '',
   notes: 'TEST',
+  packageQuantity: 1,
 };
 
 const statusOptions = [
@@ -74,6 +75,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [selectedCity, setSelectedCity] = useState('');
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedServices, setSelectedServices] = useState([]);
 
 
   useEffect(() => {
@@ -236,20 +238,26 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
 
       // Set selected package if available
       if (b.package) {
+        console.log("Setting selected package:", b.package);
         setSelectedPackage(b.package);
       }
+
+      console.log("start and end time from API:", b.startTime, b.endTime);
 
       setForm({
         tripId: b.tripId || '',
         userId: b.userId || '',
         // providerId: b.providerId || '',
         packageId: b.packageId || '',
-        // status: b.status || 'Provider Pending',
+        status: b.status || 'Provider Pending',
         persons: b.persons || 1,
         // numOfHours: b.numOfHours || 1,
         bookingDate: b.bookingDate ? b.bookingDate.split('T')[0] : '',
-        StartTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
-        EndTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        // StartTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
+        // EndTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        startTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
+        endTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        packageQuantity: b.packageQuantity,
         notes: b.notes || '',
       });
     } catch (err) {
@@ -292,6 +300,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       const res = await api.get(`/api/trips/${trip.id}`);
       setSelectedTrip(res.data);   // full trip details with packages
       setSelectedPackage(null);
+      // setSelectedServices([]);
     } catch (err) {
       console.error("Error fetching trip details:", err);
     }
@@ -347,15 +356,29 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const formatDateTime = (value) => {
+  const formatDate = (value) => {
     if (!value) return null;
     const date = new Date(value);
     if (isNaN(date.getTime())) return null;
-    return date.toISOString().slice(0, 23).replace('T', ' ').replace('Z', '');
+    // return date.toISOString().slice(0, 23).replace('T', ' ').replace('Z', ''); on create working
+    return date.toISOString();
   };
+
+  const formatDateTime = (value) => {
+    if (!value) return null;
+    // value expected: "2025-09-14T14:06" from datetime-local
+    return value + ":00";  // backend ke liye "YYYY-MM-DDTHH:mm:00"
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+
+    if (form.status === "Completed" || form.status === "Canceled") {
+      setError("لا يمكن تعديل الحجز المكتمل أو الملغي"); // Cannot update completed or canceled bookings
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -363,13 +386,25 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       const payload = {
         TripId: form.tripId,
         UserId: form.userId,
-        PackageId: form.packageId,
+        // PackageId: form.packageId,
+        PackageId: form.packageId ? Number(form.packageId) : null, // ✅ int me convert karo
+
         Persons: form.persons,
-        BookingDate: formatDateTime(form.bookingDate),
+        BookingDate: formatDate(form.bookingDate),
         StartTime: formatDateTime(form.startTime),
         EndTime: formatDateTime(form.endTime),
         Notes: form.notes,
+        PackageQuantity: form.packageQuantity,  // 👈 added here
+
+        //   Services: selectedServices.filter(s => s.quantity > 0).map(s => ({
+        //   Id: s.id,
+        //   Quantity: s.quantity,
+        // })),
       };
+
+      // if (isEdit) {
+      //   payload.Status = form.status;
+      // }
       console.log('Submitting booking payload:', payload);
 
       if (isEdit) {
@@ -585,6 +620,113 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 </div>
               </div>
             )}
+
+            {selectedPackage && (
+              <div className="booking-form-section">
+                <h3 className="booking-form-section-title">
+                  <FontAwesomeIcon icon={faBox} />
+                  عدد الباقات
+                </h3>
+
+                <div className="package-quantity">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm(prev => ({
+                        ...prev,
+                        packageQuantity: Math.max(1, Number(prev.packageQuantity) - 1),
+                      }))
+                    }
+                  >
+                    -
+                  </button>
+                  <span style={{ margin: "0 10px" }}>{form.packageQuantity}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm(prev => ({
+                        ...prev,
+                        packageQuantity: Number(prev.packageQuantity) + 1,
+                      }))
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
+
+
+
+            {/* {selectedTrip && selectedTrip.serviceOptions && selectedTrip.serviceOptions.length > 0 && (
+  <div className="booking-form-section">
+    <h3 className="booking-form-section-title">
+      <FontAwesomeIcon icon={faBox} />
+      اختيار الخدمات الإضافية
+    </h3>
+
+    <div className="service-options">
+      {selectedTrip.serviceOptions.map(service => {
+        const selected = selectedServices.find(s => s.id === service.id) || { quantity: 0 };
+
+        return (
+          <div key={service.id} className="service-option">
+            <div className="service-info">
+              <h4>{service.name}</h4>
+              <p>
+                <FontAwesomeIcon icon={faMoneyBillWave} /> {service.price} ريال
+              </p>
+              <p>المتوفر: {service.stock}</p>
+            </div>
+
+            <div className="service-quantity">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedServices(prev => {
+                    const exists = prev.find(s => s.id === service.id);
+                    if (exists) {
+                      return prev.map(s =>
+                        s.id === service.id && s.quantity > 0
+                          ? { ...s, quantity: s.quantity - 1 }
+                          : s
+                      );
+                    }
+                    return prev;
+                  });
+                }}
+              >
+                -
+              </button>
+              <span>{selected.quantity}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (selected.quantity < service.stock) {
+                    setSelectedServices(prev => {
+                      const exists = prev.find(s => s.id === service.id);
+                      if (exists) {
+                        return prev.map(s =>
+                          s.id === service.id ? { ...s, quantity: s.quantity + 1 } : s
+                        );
+                      }
+                      return [...prev, { ...service, quantity: 1 }];
+                    });
+                  }
+                }}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)} */}
+
+
             {/*neeche wala*/}
             {/* Customer Selection Section */}
             <div className="booking-form-section">
@@ -699,6 +841,23 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     ))}
                   </select>
                 </div> */}
+                {/* {isEdit && (
+                  <div className="booking-form-group">
+                    <label className="booking-form-label">الحالة:</label>
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleChange}
+                      required
+                      className="booking-form-select"
+                    >
+                      {statusOptions.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )} */}
+
 
                 <div className="booking-form-group">
                   <label className="booking-form-label">
@@ -795,6 +954,8 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 type="submit"
                 className="booking-btn booking-btn-primary"
                 disabled={loading}
+              // disabled={loading || form.status === "Completed" || form.status === "Canceled"}
+
               >
                 {loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث الحجز' : 'إضافة الحجز')}
               </button>
