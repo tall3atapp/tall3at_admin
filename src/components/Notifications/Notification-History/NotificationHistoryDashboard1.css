@@ -1,0 +1,88 @@
+.notif-history-wrap {
+  padding: 20px;
+}
+
+.notif-history-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notif-history-controls {
+  margin: 15px 0;
+}
+
+.notif-history-controls .search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 300px;
+}
+
+.notif-history-controls input {
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.notif-history-table {
+  margin-top: 20px;
+}
+
+.notif-history-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.notif-history-table th,
+.notif-history-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.notif-history-table th {
+  background: #f9f9f9;
+}
+
+.body-preview {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loading,
+.error,
+.empty {
+  margin: 20px 0;
+  text-align: center;
+  color: #555;
+}
+
+.notif-history-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.notif-history-pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.notif-history-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+

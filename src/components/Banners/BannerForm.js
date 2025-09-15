@@ -4,6 +4,15 @@ import api from '../../services/api';
 import ShimmerLoading from '../ShimmerLoading';
 import SuccessModal from '../SuccessModal';
 import './BannerForm.css';
+import { API_CONFIG } from '../../constants/config';
+
+// Utility function to get full image URL
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return '/assets/images/default-banner.png';
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${API_CONFIG.BASE_URL}${imagePath}`;
+};
+
 
 const BannerForm = ({ bannerId, onBack, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +25,8 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
   console.log('BannerForm bannerId:', formData);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  // console.log('BannerForm imageFile:', imageFile);
+  console.log('BannerForm imagePreview:', imagePreview);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState(null);
@@ -34,12 +45,21 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
 
   const isEditing = !!bannerId;
 
+  // useEffect(() => {
+  //   fetchTrips();
+  //   if (isEditing) {
+  //     fetchBannerData();
+  //   }
+  // }, [bannerId]);
   useEffect(() => {
     fetchTrips();
-    if (isEditing) {
+  }, []);
+
+  useEffect(() => {
+    if (isEditing && trips.length > 0) {
       fetchBannerData();
     }
-  }, [bannerId]);
+  }, [bannerId, trips]);
 
   // Handle ESC key to close modal
   useEffect(() => {
@@ -73,6 +93,10 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
       const response = await bannersApi.getBanner(bannerId);
       const banner = response.data;
 
+      console.log('Raw banner data from API:', response.data);
+
+      console.log('Fetched banner data:', banner);
+
       setFormData({
         title: banner.title || '',
         subtitle: banner.subtitle || '',
@@ -84,6 +108,10 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
       if (banner.image) {
         setImagePreview(banner.image);
       }
+      // if (banner.image) {
+      //   console.log('Setting image preview with URL:', getImageUrl(banner.image));
+      //   setImagePreview(getImageUrl(banner.image, '/assets/images/default-banner.png'));
+      // }
 
       // Set selected trips if banner has tripIds
       if (banner.tripIds) {
@@ -187,6 +215,7 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
     try {
       setUploadingImage(true);
       const response = await bannersApi.uploadBannerImage(imageFile);
+      console.log('Image upload response:', response.data);
       return response.data.imageUrl;
     } catch (err) {
       throw new Error('فشل في رفع الصورة');
@@ -219,6 +248,14 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
       submitData.append('tripIds', selectedTrips.map(trip => trip.id).join(','));
       submitData.append('image', imageUrl);
 
+      console.log('Submitting banner data:', {
+        title: formData.title,
+        subtitle: formData.subtitle,
+        link: formData.link,
+        tripIds: selectedTrips.map(trip => trip.id).join(','),
+        image: imageUrl
+      });
+
       if (isEditing) {
         await bannersApi.updateBanner(bannerId, submitData);
         setSuccessMessage('تم تحديث البانر بنجاح');
@@ -228,6 +265,10 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
       }
 
       setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        onSuccess();   // ✅ page refresh ya list reload ke liye
+      }, 1200);
     } catch (err) {
       setError(err.response?.data?.message || 'حدث خطأ أثناء حفظ البانر');
       console.error('Error saving banner:', err);

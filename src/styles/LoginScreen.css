@@ -261,19 +261,21 @@ body {
 }
 
 .toggle-visibility {
-  color: white;
+  color: var(--primary-color);
   text-align: left;
   line-height: 1.5;
+  cursor: pointer;
 }
 
 .toggle-visibility:hover {
-  color: var(--primary-color);
+  color: var(--text-light);
 }
 
 .toggle-text {
   white-space: nowrap;
   font-size: 0.85rem;
   padding-right: 8px;
+  color: var(--primary-color)
 }
 
 .remember-me {
@@ -282,8 +284,10 @@ body {
   gap: 8px;
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--secondary-color);
+  /* color: var(--secondary-color); */
   user-select: none;
+  color: var(--primary-color);
+
 }
 
 .remember-me input[type="checkbox"] {

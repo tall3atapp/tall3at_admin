@@ -30,3 +30,6 @@ coverage/
 
 # TailwindCSS JIT cache
 .tailwindcache/
+
+# Local Netlify folder
+.netlify
