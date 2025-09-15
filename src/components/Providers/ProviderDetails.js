@@ -209,6 +209,28 @@ const ProviderDetails = ({ providerId, onBack, onViewTrip, onViewBooking }) => {
               <FontAwesomeIcon icon={faCalendar} />
               <span>انضم في {formatDate(provider.createdAt)}</span>
             </div>
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faMoneyBillWave} />
+              <span>الرصيد: {provider.balance ?? 0} ريال</span>
+            </div>
+
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faBuilding} />
+              <span>اسم البنك: {provider.bankName || '---'}</span>
+            </div>
+
+              <div className="contact-item">
+              <FontAwesomeIcon icon={faBuilding} />
+              <span>اسم البنك: {provider.accountName || '---'}</span>
+            </div>
+
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faBookmark} />
+              <span>رقم الآيبان: {provider.ibanNumber || '---'}</span>
+            </div>
+
+
+
           </div>
         </div>
 

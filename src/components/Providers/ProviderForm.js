@@ -25,7 +25,12 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     confirmPassword: '',
     cityId: '',
     profileImageFile: null,
-    profileImage: null
+    profileImage: null,
+    balance: 0,
+    accountName: '',
+    bankName: '',
+    IbanNumber: '',
+    status: 'Active' // Active, Inactive, Suspended
   });
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -84,7 +89,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/assets/images/default-avatar.png';
     if (imagePath.startsWith('http')) return imagePath;
-    return `${API_CONFIG.BASE_URL}/images/profiles/${imagePath}`;
+    return `${API_CONFIG.BASE_URL}/${imagePath}`;
   };
 
 
@@ -93,6 +98,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
       setLoading(true);
       const response = await api.get(`/api/admin/providers/${providerId}`);
       const provider = response.data;
+      console.log('Fetched provider data:', provider);
 
       setFormData({
         fullName: provider.fullName || '',
@@ -102,7 +108,12 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
         confirmPassword: '',
         cityId: provider.cityId?.toString() || '',
         profileImageFile: null,
-        profileImage: getImageUrl(provider.profileImage) || null
+        profileImage: getImageUrl(provider.profileImage) || null,
+        balance: provider.balance || 0,
+        bankName: provider.bankName || '',
+        accountName: provider.accountName || '',
+        IbanNumber: provider.ibanNumber || '',
+        status: provider.status || 'Active'
       });
 
       // Set city search text if city is selected and cities are already loaded
@@ -468,6 +479,64 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
                 </div>
               )}
             </div>
+
+            <div className="form-group">
+              <label>الرصيد (Balance)</label>
+              <input
+                type="number"
+                name="balance"
+                value={formData.balance ?? ''}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+                placeholder="أدخل الرصيد"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>اسم البنك (Account Name)</label>
+              <input
+                type="text"
+                name="accountName"
+                value={formData.accountName}
+                onChange={handleInputChange}
+              />
+            </div>
+
+
+            <div className="form-group">
+              <label>اسم البنك (Bank Name)</label>
+              <input
+                type="text"
+                name="bankName"
+                value={formData.bankName}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>اسم البنك (Iban Number)</label>
+              <input
+                type="text"
+                name="IbanNumber"
+                value={formData.IbanNumber}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>الحالة (Status)</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+
           </div>
         </div>
 

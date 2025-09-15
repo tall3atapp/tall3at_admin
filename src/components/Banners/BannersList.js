@@ -8,6 +8,7 @@ import { API_CONFIG } from '../../constants/config';
 
 const BannersList = ({ onViewBanner, onEditBanner, onCreateBanner }) => {
   const [banners, setBanners] = useState([]);
+  console.log('Banners state:', banners);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,12 +72,14 @@ const BannersList = ({ onViewBanner, onEditBanner, onCreateBanner }) => {
 
   const handleDeleteBanner = (banner) => {
     setBannerToDelete(banner);
+    console.log('Banner to delete:', banner);
     setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
     try {
       await bannersApi.deleteBanner(bannerToDelete.id);
+      console.log('Deleted banner ID:', bannerToDelete.id);
       setSuccessMessage('تم حذف البانر بنجاح');
       setShowSuccessModal(true);
       setShowDeleteModal(false);
@@ -183,7 +186,7 @@ const BannersList = ({ onViewBanner, onEditBanner, onCreateBanner }) => {
                   <div className="banner-image">
                     {banner.image ? (
                       <img 
-                        src={banner.image.startsWith('http') ? banner.image : `${API_CONFIG.BASE_URL}${banner.image}`} 
+                        src={banner.image.startsWith('http') ? `${API_CONFIG.BASE_URL}${banner.image}` : `${API_CONFIG.BASE_URL}${banner.image}`} 
                         alt={banner.title || 'Banner'} 
                       />
                     ) : (
