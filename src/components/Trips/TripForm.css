@@ -325,9 +325,10 @@
 
 /* Service Options */
 .trip-options {
-  display: flex;
+  /* display: table-column; */
   flex-direction: column;
   gap: 16px;
+  display: flex;
 }
 
 .trip-option-item {
@@ -499,6 +500,14 @@
     flex-direction: column;
     gap: 16px;
     text-align: center;
+  }
+
+  .trip-options{
+    display: table-column;
+  }
+
+  .trip-option-item{
+    display: table-column;
   }
 
   .trip-form-content {
@@ -726,3 +735,10 @@
   position:absolute; left:8px; top:8px; font-weight:700; opacity:.6;
   user-select:none; pointer-events:none;
 } */
+
+.cost-without-commission {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 4px;
+}
