@@ -1554,6 +1554,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                         value={option.name}
                         onChange={(e) => updateOption(index, 'name', e.target.value)}
                         placeholder="اسم الخدمة"
+                        required
                       />
                     </div>
                     <div className="trip-form-group">

@@ -36,9 +36,10 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
 
   // Trips multi-select state
   const [trips, setTrips] = useState([]);
-  const [selectedTrips, setSelectedTrips] = useState([]);
   console.log('BannerForm trips:', trips);
-  console.log('BannerForm selectedTrips:', selectedTrips);
+  const [selectedTrips, setSelectedTrips] = useState([]);
+  // console.log('BannerForm trips:', trips);
+  // console.log('BannerForm selectedTrips:', selectedTrips);
   const [tripsLoading, setTripsLoading] = useState(false);
   const [tripsSearchTerm, setTripsSearchTerm] = useState('');
   const [showTripsModal, setShowTripsModal] = useState(false);
@@ -585,7 +586,14 @@ const BannerForm = ({ bannerId, onBack, onSuccess }) => {
                         </div>
                         <div className="trip-grid-price">
                           <span className="price-label">السعر:</span>
-                          <span className="price-value">{trip.price || 0} ريال</span>
+                          <span className="price-value">
+                            {trip.packages && trip.packages.length > 0
+                              ? Math.min(...trip.packages.map(pkg => pkg.cost))
+                              : 0}
+                            ريال
+
+
+                          </span>
                         </div>
                       </div>
                     </div>

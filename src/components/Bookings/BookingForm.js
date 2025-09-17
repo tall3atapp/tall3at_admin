@@ -47,7 +47,7 @@ const statusOptions = [
 
 const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [form, setForm] = useState(initialForm);
-  console.log('BookingForm:', form);
+  // console.log('BookingForm:', form);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successModal, setSuccessModal] = useState({ isVisible: false, message: '' });
@@ -58,7 +58,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [tripSearch, setTripSearch] = useState('');
   const [showTripDropdown, setShowTripDropdown] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  console.log("Selected Trip:", selectedTrip);
+  // console.log("Selected Trip:", selectedTrip);
   const [loadingTrips, setLoadingTrips] = useState(false);
 
   // Customer search functionality
@@ -253,10 +253,14 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
         persons: b.persons || 1,
         // numOfHours: b.numOfHours || 1,
         bookingDate: b.bookingDate ? b.bookingDate.split('T')[0] : '',
-        // StartTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
-        // EndTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        // bookingDate: b.package.creationDate ? b.package.creationDate.split('T')[0] : '',
+
+
         startTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
         endTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        // startTime: b.bookingDate ? `${b.bookingDate.split('T')[0]}T${b.trip.availableFrom}:00` : '',
+        // endTime: b.bookingDate ? `${b.bookingDate.split('T')[0]}T${b.trip.availableTo}:00` : '',
+
         packageQuantity: b.packageQuantity,
         notes: b.notes || '',
       });
@@ -300,6 +304,15 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       const res = await api.get(`/api/trips/${trip.id}`);
       setSelectedTrip(res.data);   // full trip details with packages
       setSelectedPackage(null);
+
+      //will done later for fetching trip start and endtime from trip. 
+      // if (form.bookingDate) {
+      //   setForm(prev => ({
+      //     ...prev,
+      //     startTime: `${prev.bookingDate}T${res.data.availableFrom}:00`,
+      //     endTime: `${prev.bookingDate}T${res.data.availableTo}:00`,
+      //   }));
+      // }
       // setSelectedServices([]);
     } catch (err) {
       console.error("Error fetching trip details:", err);

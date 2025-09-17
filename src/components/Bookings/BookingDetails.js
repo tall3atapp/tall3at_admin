@@ -64,12 +64,12 @@ const formatTime = (time) => {
     if (time.includes(' ')) {
       timeString = time.split(' ')[1]; // Extract time part after space
     }
-    
+
     // Remove milliseconds if present
     if (timeString.includes('.')) {
       timeString = timeString.split('.')[0];
     }
-    
+
     const [hours, minutes] = timeString.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'م' : 'ص';
@@ -100,6 +100,7 @@ const statusMap = {
 
 const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvider, onViewTrip }) => {
   const [booking, setBooking] = useState(null);
+  console.log('BookingDetails booking:', booking);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -140,9 +141,9 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
 
   const generatePDF = async () => {
     if (!contentRef.current) return;
-    
+
     setIsGeneratingPDF(true);
-    
+
     try {
       // Create invoice-like PDF container
       const pdfContainer = document.createElement('div');
@@ -153,7 +154,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       pdfContainer.style.fontSize = '16px';
       pdfContainer.style.lineHeight = '1.5';
       pdfContainer.style.color = '#1e293b';
-      
+
       // Invoice Header
       const header = document.createElement('div');
       header.style.display = 'grid';
@@ -162,11 +163,11 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       header.style.marginBottom = '40px';
       header.style.paddingBottom = '20px';
       header.style.borderBottom = '3px solid #31beb5';
-      
+
       // Left side - Company Info
       const companyInfo = document.createElement('div');
       companyInfo.style.textAlign = 'right';
-      
+
       const companyTitle = document.createElement('h1');
       companyTitle.textContent = 'تطبيق طلعات';
       companyTitle.style.fontSize = '36px';
@@ -175,14 +176,14 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       companyTitle.style.margin = '0 0 15px 0';
       companyInfo.appendChild(companyTitle);
 
-      
-      
+
+
       const companySubtitle = document.createElement('p');
       companySubtitle.textContent = 'نظام إدارة الحجوزات';
       companySubtitle.style.fontSize = '20px';
       companySubtitle.style.color = '#64748b';
       companyInfo.appendChild(companySubtitle);
-      
+
       const invoiceInfo = document.createElement('div');
       invoiceInfo.style.fontSize = '18px';
       invoiceInfo.style.color = '#64748b';
@@ -192,13 +193,13 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         <div>الحالة: ${statusMap[booking.status]?.text || booking.status}</div>
       `;
       companyInfo.appendChild(invoiceInfo);
-      
+
       header.appendChild(companyInfo);
-      
+
       // Right side - Booking Details
       const bookingInfo = document.createElement('div');
       bookingInfo.style.textAlign = 'left';
-      
+
       const bookingTitle = document.createElement('h2');
       bookingTitle.textContent = 'تفاصيل الحجز';
       bookingTitle.style.fontSize = '24px';
@@ -206,7 +207,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       bookingTitle.style.color = '#1e293b';
       bookingTitle.style.margin = '0 0 20px 0';
       bookingInfo.appendChild(bookingTitle);
-      
+
       const bookingDetails = document.createElement('div');
       bookingDetails.style.fontSize = '18px';
       bookingDetails.style.color = '#64748b';
@@ -217,16 +218,16 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         <div>وقت الانتهاء: ${formatTime(booking.endTime)} - ${formatDate(extractDateFromDateTime(booking.endTime))}</div>
       `;
       bookingInfo.appendChild(bookingDetails);
-      
+
       header.appendChild(bookingInfo);
       pdfContainer.appendChild(header);
-      
+
       // Centered Header Text
       const centeredHeader = document.createElement('div');
       centeredHeader.style.textAlign = 'center';
       centeredHeader.style.marginBottom = '30px';
       centeredHeader.style.padding = '20px';
-      
+
       const headerText = document.createElement('h2');
       const headerTripTitle = booking.trip?.title || 'رحلة غير محددة';
       headerText.textContent = `حجز رقم #${booking.id} - ${headerTripTitle}`;
@@ -235,14 +236,14 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       headerText.style.color = '#10b981';
       headerText.style.margin = '0';
       headerText.style.textAlign = 'center';
-      
+
       centeredHeader.appendChild(headerText);
       pdfContainer.appendChild(centeredHeader);
-      
+
       // Cost Breakdown Table
       const costTable = document.createElement('div');
       costTable.style.marginBottom = '30px';
-      
+
       const costTitle = document.createElement('h3');
       costTitle.textContent = 'تفاصيل التكاليف';
       costTitle.style.fontSize = '22px';
@@ -251,46 +252,46 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       costTitle.style.margin = '0 0 20px 0';
       costTitle.style.textAlign = 'right';
       costTable.appendChild(costTitle);
-      
+
       const costGrid = document.createElement('div');
       costGrid.style.display = 'grid';
       costGrid.style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
       costGrid.style.gap = '15px';
       costGrid.style.marginBottom = '20px';
-      
+
       const costItems = [
         { label: 'تكلفة الرحلة', value: `${booking.cost} ريال`, color: '#f1f5f9' },
         { label: 'الإضافات', value: `${booking.addOnCost} ريال`, color: '#f1f5f9' },
         { label: 'عمولة التطبيق', value: `${booking.appCommission} ريال`, color: '#fef3c7' },
         { label: 'عمولة المزود', value: `${booking.providerCommission} ريال`, color: '#fef3c7' }
       ];
-      
-        costItems.forEach(item => {
+
+      costItems.forEach(item => {
         const costItem = document.createElement('div');
         costItem.style.padding = '15px';
         costItem.style.backgroundColor = item.color;
         costItem.style.borderRadius = '6px';
         costItem.style.textAlign = 'center';
-        
+
         const label = document.createElement('div');
         label.textContent = item.label;
         label.style.fontSize = '16px';
         label.style.color = '#64748b';
         label.style.marginBottom = '8px';
         costItem.appendChild(label);
-        
+
         const value = document.createElement('div');
         value.textContent = item.value;
         value.style.fontSize = '20px';
         value.style.fontWeight = '600';
         value.style.color = '#1e293b';
         costItem.appendChild(value);
-        
+
         costGrid.appendChild(costItem);
       });
-      
+
       costTable.appendChild(costGrid);
-      
+
       // Total Cost
       const totalCost = document.createElement('div');
       totalCost.style.textAlign = 'center';
@@ -302,36 +303,36 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       totalCost.style.fontWeight = '700';
       totalCost.textContent = `التكلفة الإجمالية: ${booking.totalCost} ريال`;
       costTable.appendChild(totalCost);
-      
+
       pdfContainer.appendChild(costTable);
-      
+
       // Customer and Provider Information Grid
       const userGrid = document.createElement('div');
       userGrid.style.display = 'grid';
       userGrid.style.gridTemplateColumns = '1fr 1fr';
       userGrid.style.gap = '30px';
       userGrid.style.marginBottom = '30px';
-      
+
       // Customer Information
       const customerInfo = document.createElement('div');
       customerInfo.style.padding = '20px';
       customerInfo.style.backgroundColor = '#f8fafc';
       customerInfo.style.borderRadius = '8px';
       customerInfo.style.borderRight = '4px solid #31beb5';
-      
-             const customerTitle = document.createElement('h4');
-       customerTitle.textContent = 'معلومات العميل';
-       customerTitle.style.fontSize = '20px';
-       customerTitle.style.fontWeight = '600';
-       customerTitle.style.color = '#1e293b';
-       customerTitle.style.margin = '0 0 20px 0';
-       customerTitle.style.textAlign = 'right';
-       customerInfo.appendChild(customerTitle);
-       
-       if (booking.user) {
-         const customerDetails = document.createElement('div');
-         customerDetails.style.fontSize = '16px';
-         customerDetails.style.color = '#64748b';
+
+      const customerTitle = document.createElement('h4');
+      customerTitle.textContent = 'معلومات العميل';
+      customerTitle.style.fontSize = '20px';
+      customerTitle.style.fontWeight = '600';
+      customerTitle.style.color = '#1e293b';
+      customerTitle.style.margin = '0 0 20px 0';
+      customerTitle.style.textAlign = 'right';
+      customerInfo.appendChild(customerTitle);
+
+      if (booking.user) {
+        const customerDetails = document.createElement('div');
+        customerDetails.style.fontSize = '16px';
+        customerDetails.style.color = '#64748b';
         customerDetails.innerHTML = `
           <div style="margin-bottom: 8px; text-align: right;">الاسم: ${booking.user.fullName || 'غير محدد'}</div>
           <div style="margin-bottom: 8px; text-align: right;">اسم المستخدم: ${booking.user.userName || '-'}</div>
@@ -346,29 +347,29 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         noCustomer.style.textAlign = 'right';
         customerInfo.appendChild(noCustomer);
       }
-      
+
       userGrid.appendChild(customerInfo);
-      
+
       // Provider Information
       const providerInfo = document.createElement('div');
       providerInfo.style.padding = '20px';
       providerInfo.style.backgroundColor = '#f8fafc';
       providerInfo.style.borderRadius = '8px';
       providerInfo.style.borderRight = '4px solid #31beb5';
-      
-             const providerTitle = document.createElement('h4');
-       providerTitle.textContent = 'معلومات المزود';
-       providerTitle.style.fontSize = '20px';
-       providerTitle.style.fontWeight = '600';
-       providerTitle.style.color = '#1e293b';
-       providerTitle.style.margin = '0 0 20px 0';
-       providerTitle.style.textAlign = 'right';
-       providerInfo.appendChild(providerTitle);
-       
-       if (booking.provider) {
-         const providerDetails = document.createElement('div');
-         providerDetails.style.fontSize = '16px';
-         providerDetails.style.color = '#64748b';
+
+      const providerTitle = document.createElement('h4');
+      providerTitle.textContent = 'معلومات المزود';
+      providerTitle.style.fontSize = '20px';
+      providerTitle.style.fontWeight = '600';
+      providerTitle.style.color = '#1e293b';
+      providerTitle.style.margin = '0 0 20px 0';
+      providerTitle.style.textAlign = 'right';
+      providerInfo.appendChild(providerTitle);
+
+      if (booking.provider) {
+        const providerDetails = document.createElement('div');
+        providerDetails.style.fontSize = '16px';
+        providerDetails.style.color = '#64748b';
         providerDetails.innerHTML = `
           <div style="margin-bottom: 8px; text-align: right;">الاسم: ${booking.provider.fullName || 'غير محدد'}</div>
           <div style="margin-bottom: 8px; text-align: right;">اسم المستخدم: ${booking.provider.userName || '-'}</div>
@@ -384,65 +385,65 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         noProvider.style.textAlign = 'right';
         providerInfo.appendChild(noProvider);
       }
-      
+
       userGrid.appendChild(providerInfo);
-             pdfContainer.appendChild(userGrid);
-       
-       // Provider Bank Details Section - Simplified
-       if (booking.provider && booking.provider.bankName) {
-         const bankSection = document.createElement('div');
-         bankSection.style.marginBottom = '30px';
-         bankSection.style.padding = '20px';
-         bankSection.style.backgroundColor = '#f1f5f9';
-         bankSection.style.borderRadius = '8px';
-         bankSection.style.border = '2px solid #31beb5';
-         
-         const bankTitle = document.createElement('h3');
-         bankTitle.textContent = 'معلومات البنك';
-         bankTitle.style.fontSize = '20px';
-         bankTitle.style.fontWeight = '600';
-         bankTitle.style.color = '#1e293b';
-         bankTitle.style.margin = '0 0 15px 0';
-         bankTitle.style.textAlign = 'right';
-         bankSection.appendChild(bankTitle);
-         
-         const bankDetails = document.createElement('div');
-         bankDetails.style.fontSize = '16px';
-         bankDetails.style.color = '#64748b';
-         bankDetails.style.textAlign = 'right';
-         
-         let bankInfo = '';
-         if (booking.provider.bankName) {
-           bankInfo += `<div>اسم البنك: <span style="font-weight: 600; color: #1e293b;">${booking.provider.bankName}</span></div>`;
-         }
-         
-         bankDetails.innerHTML = bankInfo;
-         bankSection.appendChild(bankDetails);
-         
-                pdfContainer.appendChild(bankSection);
-       }
-      
+      pdfContainer.appendChild(userGrid);
+
+      // Provider Bank Details Section - Simplified
+      if (booking.provider && booking.provider.bankName) {
+        const bankSection = document.createElement('div');
+        bankSection.style.marginBottom = '30px';
+        bankSection.style.padding = '20px';
+        bankSection.style.backgroundColor = '#f1f5f9';
+        bankSection.style.borderRadius = '8px';
+        bankSection.style.border = '2px solid #31beb5';
+
+        const bankTitle = document.createElement('h3');
+        bankTitle.textContent = 'معلومات البنك';
+        bankTitle.style.fontSize = '20px';
+        bankTitle.style.fontWeight = '600';
+        bankTitle.style.color = '#1e293b';
+        bankTitle.style.margin = '0 0 15px 0';
+        bankTitle.style.textAlign = 'right';
+        bankSection.appendChild(bankTitle);
+
+        const bankDetails = document.createElement('div');
+        bankDetails.style.fontSize = '16px';
+        bankDetails.style.color = '#64748b';
+        bankDetails.style.textAlign = 'right';
+
+        let bankInfo = '';
+        if (booking.provider.bankName) {
+          bankInfo += `<div>اسم البنك: <span style="font-weight: 600; color: #1e293b;">${booking.provider.bankName}</span></div>`;
+        }
+
+        bankDetails.innerHTML = bankInfo;
+        bankSection.appendChild(bankDetails);
+
+        pdfContainer.appendChild(bankSection);
+      }
+
       // Trip and Add-ons Section - Last Section
       const tripAddonsRow = document.createElement('div');
       tripAddonsRow.style.display = 'grid';
       tripAddonsRow.style.gridTemplateColumns = '1fr 1fr';
       tripAddonsRow.style.gap = '20px';
       tripAddonsRow.style.marginBottom = '30px';
-      
+
       // Trip Section - Left side
       const tripSection = document.createElement('div');
       tripSection.style.padding = '15px';
       tripSection.style.backgroundColor = '#f8fafc';
       tripSection.style.borderRadius = '8px';
       tripSection.style.border = '1px solid #31beb5';
-      
+
       // Trip Header
       const tripHeader = document.createElement('div');
       tripHeader.style.display = 'flex';
       tripHeader.style.alignItems = 'center';
       tripHeader.style.marginBottom = '12px';
       tripHeader.style.justifyContent = 'start';
-      
+
       const tripSectionTitle = document.createElement('h3');
       tripSectionTitle.textContent = 'تفاصيل الرحلة';
       tripSectionTitle.style.fontSize = '18px';
@@ -450,11 +451,11 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       tripSectionTitle.style.color = '#1e293b';
       tripSectionTitle.style.marginLeft = '8px';
       tripHeader.appendChild(tripSectionTitle);
-      
-     
-      
+
+
+
       tripSection.appendChild(tripHeader);
-      
+
       if (booking.trip) {
         // Simple trip info row
         const tripInfoRow = document.createElement('div');
@@ -465,10 +466,10 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         tripInfoRow.style.backgroundColor = '#ffffff';
         tripInfoRow.style.borderRadius = '6px';
         tripInfoRow.style.border = '1px solid #e2e8f0';
-        
+
         const tripInfo = document.createElement('div');
         tripInfo.style.textAlign = 'right';
-        
+
         const tripName = document.createElement('div');
         tripName.textContent = booking.trip.title;
         tripName.style.fontSize = '16px';
@@ -476,7 +477,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         tripName.style.color = '#1e293b';
         tripName.style.marginBottom = '4px';
         tripInfo.appendChild(tripName);
-        
+
         const tripDetails = document.createElement('div');
         tripDetails.style.fontSize = '14px';
         tripDetails.style.color = '#64748b';
@@ -485,9 +486,9 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           <span style="margin-left: 15px;">عدد الأشخاص: ${booking.persons}</span>
         `;
         tripInfo.appendChild(tripDetails);
-        
+
         tripInfoRow.appendChild(tripInfo);
-        
+
         const tripPrice = document.createElement('div');
         tripPrice.style.textAlign = 'center';
         tripPrice.style.padding = '8px 16px';
@@ -497,9 +498,9 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         tripPrice.style.fontWeight = '600';
         tripPrice.textContent = `${booking.trip.price} ريال / ${booking.numOfHours} ساعات`;
         tripInfoRow.appendChild(tripPrice);
-        
+
         tripSection.appendChild(tripInfoRow);
-        
+
       } else {
         // No trip data - simplified
         const noTripText = document.createElement('div');
@@ -510,16 +511,16 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         noTripText.textContent = 'لا توجد بيانات رحلة متاحة';
         tripSection.appendChild(noTripText);
       }
-      
+
       tripAddonsRow.appendChild(tripSection);
-      
+
       // Add-ons Section - Right side
       const addonsSection = document.createElement('div');
       addonsSection.style.padding = '15px';
       addonsSection.style.backgroundColor = '#f8fafc';
       addonsSection.style.borderRadius = '8px';
       addonsSection.style.border = '1px solid #31beb5';
-      
+
       const addonsTitle = document.createElement('h3');
       addonsTitle.textContent = 'الإضافات المختارة';
       addonsTitle.style.fontSize = '18px';
@@ -528,12 +529,12 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
       addonsTitle.style.margin = '0 0 12px 0';
       addonsTitle.style.textAlign = 'right';
       addonsSection.appendChild(addonsTitle);
-      
+
       if (parsedAddOns && Array.isArray(parsedAddOns) && parsedAddOns.length > 0) {
         const addonsList = document.createElement('div');
         addonsList.style.fontSize = '14px';
         addonsList.style.color = '#64748b';
-        
+
         parsedAddOns.forEach((addon, index) => {
           const addonItem = document.createElement('div');
           addonItem.style.padding = '8px 12px';
@@ -542,7 +543,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           addonItem.style.border = '1px solid #e2e8f0';
           addonItem.style.marginBottom = '8px';
           addonItem.style.textAlign = 'right';
-          
+
           const addonName = document.createElement('div');
           addonName.textContent = addon.Name || addon.NameEn || `إضافة ${index + 1}`;
           addonName.style.fontSize = '14px';
@@ -550,25 +551,25 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           addonName.style.color = '#1e293b';
           addonName.style.marginBottom = '4px';
           addonItem.appendChild(addonName);
-          
+
           const addonDetails = document.createElement('div');
           addonDetails.style.fontSize = '12px';
           addonDetails.style.color = '#64748b';
-          
+
           let detailsText = '';
           if (addon.Quantity) detailsText += `الكمية: ${addon.Quantity} | `;
           if (addon.Price) detailsText += `السعر: ${addon.Price} ريال`;
-          
+
           if (addon.Quantity && addon.Price) {
             detailsText += ` | المجموع: ${(addon.Quantity * addon.Price).toFixed(2)} ريال`;
           }
-          
+
           addonDetails.textContent = detailsText;
           addonItem.appendChild(addonDetails);
-          
+
           addonsList.appendChild(addonItem);
         });
-        
+
         addonsSection.appendChild(addonsList);
       } else {
         // Empty add-ons section placeholder
@@ -580,32 +581,32 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         emptyAddonsText.textContent = 'لا توجد إضافات';
         addonsSection.appendChild(emptyAddonsText);
       }
-      
+
       tripAddonsRow.appendChild(addonsSection);
       pdfContainer.appendChild(tripAddonsRow);
-      
+
       // Footer
       const footer = document.createElement('div');
       footer.style.marginTop = '40px';
       footer.style.paddingTop = '20px';
       footer.style.borderTop = '2px solid #e2e8f0';
-             footer.style.textAlign = 'center';
-       footer.style.fontSize = '16px';
-       footer.style.color = '#64748b';
+      footer.style.textAlign = 'center';
+      footer.style.fontSize = '16px';
+      footer.style.color = '#64748b';
       footer.innerHTML = `
         <div style="margin-bottom: 10px;">تم إنشاء هذا التقرير بواسطة نظام طلعات الإداري</div>
         <div>تاريخ الإنشاء: ${formatDate(booking.createdAt)}</div>
       `;
       pdfContainer.appendChild(footer);
-      
+
       // Temporarily append PDF container to body
       pdfContainer.style.position = 'absolute';
       pdfContainer.style.left = '-9999px';
       pdfContainer.style.top = '0';
       document.body.appendChild(pdfContainer);
-      
-             // No images to wait for - removed for cleaner PDF
-      
+
+      // No images to wait for - removed for cleaner PDF
+
       // Generate canvas
       const canvas = await html2canvas(pdfContainer, {
         scale: 2,
@@ -622,26 +623,26 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         logging: false,
         removeContainer: true
       });
-      
+
       // Remove PDF container from DOM
       document.body.removeChild(pdfContainer);
-      
+
       // Create PDF
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      
+
       // Add border to the entire PDF page
       pdf.setDrawColor(49, 190, 181); // #31beb5 color
       pdf.setLineWidth(1);
       pdf.rect(5, 5, pdfWidth - 10, pdfHeight - 10);
-      
+
       // Calculate image dimensions with border consideration
       const imgWidth = pdfWidth - 30; // Reduced width to account for border
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
       // Check if content fits on one page
       if (imgHeight <= pdfHeight - 30) {
         // Single page
@@ -650,10 +651,10 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
         // Multiple pages if needed
         let heightLeft = imgHeight;
         let position = 15;
-        
+
         pdf.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight);
         heightLeft -= (pdfHeight - 30);
-        
+
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight + 15;
           pdf.addPage();
@@ -665,17 +666,17 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           heightLeft -= (pdfHeight - 30);
         }
       }
-      
+
       // Save PDF with Arabic filename
       const tripTitle = booking.trip?.title || 'رحلة غير محددة';
       const fileName = `حجز رقم #${booking.id} - ${tripTitle}.pdf`;
       pdf.save(fileName);
-      
+
       setSuccessModal({ isVisible: true, message: 'تم إنشاء ملف PDF بنجاح' });
       setTimeout(() => {
         setSuccessModal({ isVisible: false, message: '' });
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error generating PDF:', error);
       setError('فشل في إنشاء ملف PDF');
@@ -732,15 +733,15 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           الحجز #{booking.id}
         </h1>
         <div className="booking-details-actions">
-          <button 
-            className="btn-pdf" 
-            onClick={generatePDF} 
+          <button
+            className="btn-pdf"
+            onClick={generatePDF}
             disabled={isGeneratingPDF}
             title="تحميل PDF"
           >
             <FontAwesomeIcon icon={isGeneratingPDF ? faClock : faDownload} />
           </button>
-      
+
           <button className="btn-edit" onClick={() => onEdit(booking.id)} title="تعديل الحجز">
             <FontAwesomeIcon icon={faEdit} />
           </button>
@@ -749,7 +750,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
           </button>
         </div>
       </div>
-      
+
       <div className="booking-details-content" ref={contentRef}>
         {/* Invoice Header - Similar to PDF */}
         <div className="invoice-header">
@@ -766,7 +767,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
             <h2 className="booking-title">تفاصيل الحجز</h2>
             <div className="booking-meta">
               <div>عدد الأشخاص: {booking.persons} شخص</div>
-              <div>عدد الساعات: {booking.package?.numberOfHours || booking.numOfHours} ساعات</div>
+              <div>عدد الساعات: {booking.numOfHours || booking.numOfHours} ساعات</div>
               <div>وقت البدء: {formatTime(booking.startTime)} - {formatDate(extractDateFromDateTime(booking.startTime))}</div>
               <div>وقت الانتهاء: {formatTime(booking.endTime)} - {formatDate(extractDateFromDateTime(booking.endTime))}</div>
             </div>
@@ -864,12 +865,12 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
             {booking.trip ? (
               <div className="trip-info">
                 <div className="trip-name">{booking.trip.title}</div>
-                <div className="trip-details">
+                {/* <div className="trip-details">
                   <span>عدد الساعات: {booking.package?.numberOfHours || 'غير محدد'}</span>
                   <span>عدد الأشخاص: {booking.persons}</span>
-                </div>
+                </div> */}
                 <div className="trip-price">
-                  {booking.trip.price} ريال / {booking.package?.numberOfHours || booking.numOfHours} ساعات
+                  {booking.trip.price} ريال / {booking.numOfHours} ساعات
                 </div>
               </div>
             ) : (
