@@ -767,7 +767,7 @@ const BookingDetails = ({ bookingId, onBack, onEdit, onViewCustomer, onViewProvi
             <h2 className="booking-title">تفاصيل الحجز</h2>
             <div className="booking-meta">
               <div>عدد الأشخاص: {booking.persons} شخص</div>
-              <div>عدد الساعات: {booking.numOfHours || booking.numOfHours} ساعات</div>
+              <div>عدد الساعات: {booking.package?.numberOfHours} ساعات</div>
               <div>وقت البدء: {formatTime(booking.startTime)} - {formatDate(extractDateFromDateTime(booking.startTime))}</div>
               <div>وقت الانتهاء: {formatTime(booking.endTime)} - {formatDate(extractDateFromDateTime(booking.endTime))}</div>
             </div>
