@@ -263,6 +263,13 @@ export default function Dashboard() {
                             <span className="fa fa-history"></span>سجل الإشعارات
                         </NavLink>
                     </li>
+
+                    <li>
+                        <NavLink to="/admin/phonesimulator" className={({ isActive }) => isActive ? 'active' : ''}>
+                            <span className="fa fa-history"></span>PhoneSimulator 
+                        </NavLink>
+                    </li>
+
                     <li>
                         <NavLink to="/admin/transactions" className={({ isActive }) => isActive ? 'active' : ''}>
                             <span className="fa fa-money-check-alt"></span>المعاملات المالية

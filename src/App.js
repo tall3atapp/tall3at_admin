@@ -21,6 +21,7 @@ import BannersDashboard from './components/Banners/BannersDashboard';
 import NotificationsDashboard from './components/Notifications/NotificationsDashboard';
 import NotificationHistoryDashboard from './components/Notifications/Notification-History/NotificationHistoryDashboard';
 import SettingsDashboard from './components/Settings/SettingsDashboard';
+import PhoneSimulator from './components/PhoneSimulatorBooking/PhoneSimulator';
 
 function App() {
   return (
@@ -60,7 +61,9 @@ function App() {
           <Route path="chats" element={<ChatPage />} />
           <Route path="notifications" element={<NotificationsDashboard />} />
           <Route path="notifications-history" element={<NotificationHistoryDashboard />} />
+          <Route path="phonesimulator" element={<PhoneSimulator />} />
           <Route path="settings" element={<SettingsDashboard />} />
+
 
         </Route>
 
