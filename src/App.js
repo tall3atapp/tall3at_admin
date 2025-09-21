@@ -21,6 +21,8 @@ import BannersDashboard from './components/Banners/BannersDashboard';
 import NotificationsDashboard from './components/Notifications/NotificationsDashboard';
 import NotificationHistoryDashboard from './components/Notifications/Notification-History/NotificationHistoryDashboard';
 import SettingsDashboard from './components/Settings/SettingsDashboard';
+import Transactions from './components/Transactions/Transactions';
+import DeletedPackages from './components/DeletedPackage/DeletedPackage';
 
 function App() {
   return (
@@ -60,6 +62,8 @@ function App() {
           <Route path="chats" element={<ChatPage />} />
           <Route path="notifications" element={<NotificationsDashboard />} />
           <Route path="notifications-history" element={<NotificationHistoryDashboard />} />
+          <Route path="transactions" element={< Transactions />} />
+          <Route path="deleted-package" element={<DeletedPackages />} />
           <Route path="settings" element={<SettingsDashboard />} />
 
         </Route>

@@ -160,7 +160,7 @@ const SettingsDashboard = () => {
             {/* ⚙️ Settings Section */}
             <section className="settings-dashboard">
                 <div className="settings-header">
-                    <h2>Settings Dashboard</h2>
+                    <h2>Manage Version</h2>
                     {appVersion && <span className="version-badge">v{appVersion}</span>}
                 </div>
 

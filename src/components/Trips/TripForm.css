@@ -434,6 +434,7 @@
 /* Form Actions */
 .trip-form-actions {
   display: flex;
+  align-items: center; 
   justify-content: flex-end;
   gap: 16px;
   padding-top: 24px;
@@ -741,4 +742,15 @@
   font-size: 0.8em;
   color: #666;
   margin-top: 4px;
+}
+
+.trip-form-error-inline {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 8px 14px;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap; /* ek line me show hoga */
 }
