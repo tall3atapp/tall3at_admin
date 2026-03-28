@@ -35,6 +35,7 @@ const getImageUrl = (imagePath) => {
 
 const ProvidersList = ({ onViewProvider, onEditProvider, onCreateProvider }) => {
   const [providers, setProviders] = useState([]);
+  console.log('ProvidersList render, providers:', providers);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();

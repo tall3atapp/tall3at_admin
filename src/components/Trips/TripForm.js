@@ -437,10 +437,35 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
         });
         // Agar delete successful ho to state update karein
         setPackages(prev => prev.filter((_, i) => i !== index));
-      } catch (error) {
-        console.error('Error deleting package:', error);
-        setError('حدث خطأ أثناء حذف الباقة');
+      } catch (err) {
+        console.error('Error details:', err);
+        console.error('Error response:', err.response);
+
+        let errorMessage = 'حدث خطأ أثناء حفظ الرحلة'; // default
+
+        // ✅ Pehle backend ka "message" field check karo
+        if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response?.status === 400 && err.response.data?.errors) {
+          const errors = err.response.data.errors;
+          const firstKey = Object.keys(errors)[0];
+          const firstError = errors[firstKey];
+          if (Array.isArray(firstError)) {
+            errorMessage = firstError[0];
+          } else if (typeof firstError === 'string') {
+            errorMessage = firstError;
+          }
+        } else if (typeof err.response?.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
       }
+
     } else {
       // Agar package abhi server pe nahi hai (naya package), toh sirf state se hata dein
       setPackages(prev => prev.filter((_, i) => i !== index));
@@ -1554,6 +1579,7 @@ const TripForm = ({ tripId, onBack, onSuccess }) => {
                         value={option.name}
                         onChange={(e) => updateOption(index, 'name', e.target.value)}
                         placeholder="اسم الخدمة"
+                        required
                       />
                     </div>
                     <div className="trip-form-group">

@@ -27,7 +27,7 @@ import './CustomerDetails.css';
 const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${API_CONFIG.BASE_URL}${imagePath}`;
+  return `${API_CONFIG.BASE_URL}/${imagePath}`;
 };
 
 const CustomerDetails = ({ customerId, onBack, onEdit, onViewBooking, onViewTrip }) => {

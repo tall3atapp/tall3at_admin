@@ -269,6 +269,12 @@ export default function Dashboard() {
                         </NavLink>
                     </li>
                     <li>
+                        <NavLink to="/admin/deleted-package" className={({ isActive }) => isActive ? 'active' : ''}>
+                            <span className="fa fa-trash"></span> الحزمة المحذوفة
+                        </NavLink>
+
+                    </li>
+                    <li>
                         <NavLink to="/admin/reports" className={({ isActive }) => isActive ? 'active' : ''}>
                             <span className="fa fa-chart-bar"></span>التقارير
                         </NavLink>

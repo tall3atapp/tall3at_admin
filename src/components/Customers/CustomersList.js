@@ -28,7 +28,7 @@ import './CustomersList.css';
 const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${API_CONFIG.BASE_URL}${imagePath}`;
+  return `${API_CONFIG.BASE_URL}/${imagePath}`;
 };
 
 const CustomersList = ({ onViewCustomer, onEditCustomer, onCreateCustomer }) => {

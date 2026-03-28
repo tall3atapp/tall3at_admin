@@ -32,6 +32,8 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     IbanNumber: '',
     status: 'Active' // Active, Inactive, Suspended
   });
+
+  console.log('Form Data State:', formData);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -43,6 +45,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
     isVisible: false,
     message: ''
   });
+  const [imagePreview, setImagePreview] = useState(''); // For image preview
 
   useEffect(() => {
     fetchCities();
@@ -89,7 +92,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/assets/images/default-avatar.png';
     if (imagePath.startsWith('http')) return imagePath;
-    return `${API_CONFIG.BASE_URL}/${imagePath}`;
+    return `${API_CONFIG.BASE_URL}${imagePath}`;
   };
 
 
@@ -99,7 +102,7 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
       const response = await api.get(`/api/admin/providers/${providerId}`);
       const provider = response.data;
       console.log('Fetched provider data:', provider);
-
+      console.log('fetch provider image: ', getImageUrl(provider.profileImage));
       setFormData({
         fullName: provider.fullName || '',
         userName: provider.userName || '',
@@ -108,13 +111,16 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
         confirmPassword: '',
         cityId: provider.cityId?.toString() || '',
         profileImageFile: null,
-        profileImage: getImageUrl(provider.profileImage) || null,
+        profileImage: provider.profileImage || null,
         balance: provider.balance || 0,
         bankName: provider.bankName || '',
         accountName: provider.accountName || '',
         IbanNumber: provider.ibanNumber || '',
         status: provider.status || 'Active'
       });
+
+      setImagePreview(getImageUrl(provider.profileImage)); // for preview
+
 
       // Set city search text if city is selected and cities are already loaded
       if (provider.cityId && cities.length > 0) {
@@ -246,7 +252,9 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
         if (key === 'profileImageFile') {
           // Handle profile image separately
           if (formData[key] instanceof File) {
-            formDataToSend.append(key, formData[key]);
+            // formDataToSend.append(key, formData[key]);
+            formDataToSend.append('profileImageFile', formData[key]);
+
           }
         } else if (formData[key] !== null && formData[key] !== '') {
           formDataToSend.append(key, formData[key]);
@@ -463,15 +471,23 @@ const ProviderForm = ({ providerId, onBack, onSuccess }) => {
               {(formData.profileImageFile || formData.profileImage) && (
                 <div className="file-preview">
                   <img
-                    src={formData.profileImageFile instanceof File ?
-                      URL.createObjectURL(formData.profileImageFile) :
-                      (formData.profileImage || formData.profileImageFile)
-                    }
+                    // src={formData.profileImageFile instanceof File ?
+                    //   URL.createObjectURL(formData.profileImageFile) :
+                    //   (formData.profileImage || formData.profileImageFile)
+                    // }
+                    src={formData.profileImageFile instanceof File
+                      ? URL.createObjectURL(formData.profileImageFile)
+                      : imagePreview}
                     alt="Profile preview"
                   />
                   <button
                     type="button"
-                    onClick={() => removeFile('profileImageFile')}
+                    // onClick={() => removeFile('profileImageFile')}
+                    onClick={() => {
+                      removeFile('profileImageFile');
+                      setImagePreview('');
+                      setFormData(prev => ({ ...prev, profileImage: null }));
+                    }}
                     className="remove-file"
                   >
                     <FontAwesomeIcon icon={faTimes} />

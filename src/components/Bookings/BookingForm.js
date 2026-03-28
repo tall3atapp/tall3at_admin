@@ -47,7 +47,7 @@ const statusOptions = [
 
 const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [form, setForm] = useState(initialForm);
-  console.log('BookingForm:', form);
+  // console.log('BookingForm:', form);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successModal, setSuccessModal] = useState({ isVisible: false, message: '' });
@@ -58,7 +58,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
   const [tripSearch, setTripSearch] = useState('');
   const [showTripDropdown, setShowTripDropdown] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
-  console.log("Selected Trip:", selectedTrip);
+  // console.log("Selected Trip:", selectedTrip);
   const [loadingTrips, setLoadingTrips] = useState(false);
 
   // Customer search functionality
@@ -253,10 +253,14 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
         persons: b.persons || 1,
         // numOfHours: b.numOfHours || 1,
         bookingDate: b.bookingDate ? b.bookingDate.split('T')[0] : '',
-        // StartTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
-        // EndTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        // bookingDate: b.package.creationDate ? b.package.creationDate.split('T')[0] : '',
+
+
         startTime: b.startTime ? b.startTime.replace(' ', 'T').substring(0, 16) : '',
         endTime: b.endTime ? b.endTime.replace(' ', 'T').substring(0, 16) : '',
+        // startTime: b.bookingDate ? `${b.bookingDate.split('T')[0]}T${b.trip.availableFrom}:00` : '',
+        // endTime: b.bookingDate ? `${b.bookingDate.split('T')[0]}T${b.trip.availableTo}:00` : '',
+
         packageQuantity: b.packageQuantity,
         notes: b.notes || '',
       });
@@ -300,6 +304,15 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
       const res = await api.get(`/api/trips/${trip.id}`);
       setSelectedTrip(res.data);   // full trip details with packages
       setSelectedPackage(null);
+
+      //will done later for fetching trip start and endtime from trip. 
+      // if (form.bookingDate) {
+      //   setForm(prev => ({
+      //     ...prev,
+      //     startTime: `${prev.bookingDate}T${res.data.availableFrom}:00`,
+      //     endTime: `${prev.bookingDate}T${res.data.availableTo}:00`,
+      //   }));
+      // }
       // setSelectedServices([]);
     } catch (err) {
       console.error("Error fetching trip details:", err);
@@ -364,302 +377,328 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
     return date.toISOString();
   };
 
-  const formatDateTime = (value) => {
+  // const formatDateTime = (value) => {
+  //   if (!value) return null;
+  //   // value expected: "2025-09-14T14:06" from datetime-local
+  //   return value + ":00";  // backend ke liye "YYYY-MM-DDTHH:mm:00"
+  //   // return value.replace('T', ' ') + ":00"; // backend ke liye "YYYY
+  // };
+
+
+  const formatDateTime = (value, isEdit) => {
     if (!value) return null;
-    // value expected: "2025-09-14T14:06" from datetime-local
-    return value + ":00";  // backend ke liye "YYYY-MM-DDTHH:mm:00"
-  };
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-
-    if (form.status === "Completed" || form.status === "Canceled") {
-      setError("لا يمكن تعديل الحجز المكتمل أو الملغي"); // Cannot update completed or canceled bookings
-      return;
+console.log("Formatting date time:", value, "isEdit:", isEdit);
+    if (isEdit) {
+      // value expected: "2025-09-14T14:06" from datetime-local
+      return value + ":00";  // backend ke liye "YYYY-MM-DDTHH:mm:00"
+      // return value.replace('T', ' ') + ":00"; // backend ke liye "YYYY
+    } else {
+      return value.replace('T', ' ') + ":00"; // backend ke liye "YYYY-MM-DD HH:mm:00" (space wala)
     }
-    setLoading(true);
-    setError(null);
+  }
 
-    try {
-      const payload = {
-        TripId: form.tripId,
-        UserId: form.userId,
-        // PackageId: form.packageId,
-        PackageId: form.packageId ? Number(form.packageId) : null, // ✅ int me convert karo
+    // const formatDateTime = (value, isEdit) => {
+    //   if (!value) return null;
 
-        Persons: form.persons,
-        BookingDate: formatDate(form.bookingDate),
-        StartTime: formatDateTime(form.startTime),
-        EndTime: formatDateTime(form.endTime),
-        Notes: form.notes,
-        PackageQuantity: form.packageQuantity,  // 👈 added here
-
-        //   Services: selectedServices.filter(s => s.quantity > 0).map(s => ({
-        //   Id: s.id,
-        //   Quantity: s.quantity,
-        // })),
-      };
-
-      // if (isEdit) {
-      //   payload.Status = form.status;
-      // }
-      console.log('Submitting booking payload:', payload);
-
-      if (isEdit) {
-        await api.put(`/api/admin/bookings/${bookingId}`, payload);
-        setSuccessModal({ isVisible: true, message: 'تم تحديث الحجز بنجاح' });
-      } else {
-        await api.post(`/api/admin/bookings`, payload,
-
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            }
-          }
+    //   if (isEdit) {
+    //     // Update flow -> backend "YYYY-MM-DDTHH:mm:00" expect karta hai
+    //     return value + ":00";
+    //   } else {
+    //     // Create flow -> backend "YYYY-MM-DD HH:mm:00" (space wala) expect karta hai
+    //     return value.replace('T', ' ') + ":00";
+    //   }
+    // };
 
 
-        );
-        setSuccessModal({ isVisible: true, message: 'تم إضافة الحجز بنجاح' });
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+
+
+      if (form.status === "Completed" || form.status === "Canceled") {
+        setError("لا يمكن تعديل الحجز المكتمل أو الملغي"); // Cannot update completed or canceled bookings
+        return;
       }
+      setLoading(true);
+      setError(null);
 
-      setTimeout(() => {
-        setSuccessModal({ isVisible: false, message: '' });
-        onSuccess();
-      }, 1200);
-      // } catch (err) {
-      //   setError('فشل في حفظ بيانات الحجز');
-      //   console.error('Error saving booking:', err.response.data.title || err.message);
-      // }
-    } catch (err) {
-      if (err.response && err.response.data) {
-        if (err.response.data.errors) {
-          // Laravel style validation errors
-          const errors = err.response.data.errors;
-          const errorMessages = Object.values(errors).flat();
-          setError(errorMessages);
-        } else if (err.response.data.message) {
-          // Single message error (e.g. "This time slot is already booked")
-          setError(err.response.data.message);
+      try {
+        const payload = {
+          TripId: form.tripId,
+          UserId: form.userId,
+          // PackageId: form.packageId,
+          PackageId: form.packageId ? Number(form.packageId) : null, // ✅ int me convert karo
+
+          Persons: form.persons,
+          BookingDate: formatDate(form.bookingDate),
+          StartTime: formatDateTime(form.startTime, isEdit),
+          EndTime: formatDateTime(form.endTime, isEdit),
+          Notes: form.notes,
+          PackageQuantity: form.packageQuantity,  // 👈 added here
+
+          //   Services: selectedServices.filter(s => s.quantity > 0).map(s => ({
+          //   Id: s.id,
+          //   Quantity: s.quantity,
+          // })),
+        };
+
+        // if (isEdit) {
+        //   payload.Status = form.status;
+        // }
+        console.log('Submitting booking payload:', payload);
+
+        if (isEdit) {
+          await api.put(`/api/admin/bookings/${bookingId}`, payload);
+          setSuccessModal({ isVisible: true, message: 'تم تحديث الحجز بنجاح' });
+        } else {
+          await api.post(`/api/admin/bookings`, payload,
+
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              }
+            }
+
+
+          );
+          setSuccessModal({ isVisible: true, message: 'تم إضافة الحجز بنجاح' });
+        }
+
+        setTimeout(() => {
+          setSuccessModal({ isVisible: false, message: '' });
+          onSuccess();
+        }, 1200);
+        // } catch (err) {
+        //   setError('فشل في حفظ بيانات الحجز');
+        //   console.error('Error saving booking:', err.response.data.title || err.message);
+        // }
+      } catch (err) {
+        if (err.response && err.response.data) {
+          if (err.response.data.errors) {
+            // Laravel style validation errors
+            const errors = err.response.data.errors;
+            const errorMessages = Object.values(errors).flat();
+            setError(errorMessages);
+          } else if (err.response.data.message) {
+            // Single message error (e.g. "This time slot is already booked")
+            setError(err.response.data.message);
+          } else {
+            setError('فشل في حفظ بيانات الحجز');
+          }
+          console.error('Error saving booking:', err.response.data);
         } else {
           setError('فشل في حفظ بيانات الحجز');
+          console.error('Error saving booking:', err);
         }
-        console.error('Error saving booking:', err.response.data);
-      } else {
-        setError('فشل في حفظ بيانات الحجز');
-        console.error('Error saving booking:', err);
       }
-    }
 
-    finally {
-      setLoading(false);
-    }
-  };
+      finally {
+        setLoading(false);
+      }
+    };
 
-  return (
-    <div className="booking-form-container">
-      <div className="booking-form-card">
-        <div className="booking-form-header">
-          <button className="btn-back" onClick={onBack}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-            العودة
-          </button>
-          <h2>{isEdit ? 'تعديل الحجز' : 'إضافة حجز جديد'}</h2>
-          <p>{isEdit ? 'تعديل بيانات الحجز المحدد' : 'إضافة حجز جديد للنظام'}</p>
-        </div>
+    return (
+      <div className="booking-form-container">
+        <div className="booking-form-card">
+          <div className="booking-form-header">
+            <button className="btn-back" onClick={onBack}>
+              <FontAwesomeIcon icon={faArrowLeft} />
+              العودة
+            </button>
+            <h2>{isEdit ? 'تعديل الحجز' : 'إضافة حجز جديد'}</h2>
+            <p>{isEdit ? 'تعديل بيانات الحجز المحدد' : 'إضافة حجز جديد للنظام'}</p>
+          </div>
 
-        <div className="booking-form-content">
-          <form onSubmit={handleSubmit} className="booking-form">
-            {/* Trip Selection Section */}
-            <div className="booking-form-section">
-              <h3 className="booking-form-section-title">
-                <FontAwesomeIcon icon={faMapMarkerAlt} />
-                اختيار الرحلة
-              </h3>
+          <div className="booking-form-content">
+            <form onSubmit={handleSubmit} className="booking-form">
+              {/* Trip Selection Section */}
+              <div className="booking-form-section">
+                <h3 className="booking-form-section-title">
+                  <FontAwesomeIcon icon={faMapMarkerAlt} />
+                  اختيار الرحلة
+                </h3>
 
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="booking-form-select"
-              >
-                <option value="">اختر المدينة</option>
-                {cities && cities.length > 0 && cities.map(city => (
-                  <option key={city.id} value={city.id}>{city.name}</option>
-                ))}
-              </select>
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="booking-form-select"
+                >
+                  <option value="">اختر المدينة</option>
+                  {cities && cities.length > 0 && cities.map(city => (
+                    <option key={city.id} value={city.id}>{city.name}</option>
+                  ))}
+                </select>
 
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="booking-form-select"
-              >
-                <option value="">اختر الفئة</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="booking-form-select"
+                >
+                  <option value="">اختر الفئة</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
 
 
 
-              <div className="trip-search-container">
-                <div className="trip-search-input">
-                  <FontAwesomeIcon icon={faSearch} className="trip-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="البحث في الرحلات..."
-                    value={tripSearch}
-                    onChange={handleTripSearch}
-                    onFocus={() => setShowTripDropdown(true)}
-                    className="trip-search-field"
-                  />
-                  {tripSearch && (
-                    <button
-                      type="button"
-                      className="trip-clear-btn"
-                      onClick={clearTripSelection}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
+
+                <div className="trip-search-container">
+                  <div className="trip-search-input">
+                    <FontAwesomeIcon icon={faSearch} className="trip-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="البحث في الرحلات..."
+                      value={tripSearch}
+                      onChange={handleTripSearch}
+                      onFocus={() => setShowTripDropdown(true)}
+                      className="trip-search-field"
+                    />
+                    {tripSearch && (
+                      <button
+                        type="button"
+                        className="trip-clear-btn"
+                        onClick={clearTripSelection}
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    )}
+                  </div>
+
+                  {showTripDropdown && (
+                    <div className="trip-dropdown">
+                      {loadingTrips ? (
+                        <div className="trip-loading">جاري البحث...</div>
+                      ) : trips.length > 0 ? (
+                        trips.map(trip => (
+                          <div
+                            key={trip.id}
+                            className={`trip-option ${selectedTrip?.id === trip.id ? 'selected' : ''}`}
+
+                            onClick={() => handleTripSelect(trip)}
+                          >
+                            <div className="trip-option-image">
+                              {trip.images && trip.images.split(',')[0] && (
+                                <img
+                                  src={getTripImageUrl(trip.images.split(',')[0])}
+                                  alt={trip.title}
+                                  onError={(e) => e.target.style.display = 'none'}
+                                />
+                              )}
+                            </div>
+                            <div className="trip-option-details">
+                              <div className="trip-option-title">{trip.title}</div>
+                              <div className="trip-option-location">
+                                <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                {trip.cityName}
+                              </div>
+                              <div className="trip-option-price">
+                                <FontAwesomeIcon icon={faMoneyBillWave} />
+                                {trip.cost} ريال
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : tripSearch.length >= 1 ? (
+                        <div className="trip-no-results">لا توجد نتائج</div>
+                      ) : null}
+                    </div>
                   )}
                 </div>
 
-                {showTripDropdown && (
-                  <div className="trip-dropdown">
-                    {loadingTrips ? (
-                      <div className="trip-loading">جاري البحث...</div>
-                    ) : trips.length > 0 ? (
-                      trips.map(trip => (
-                        <div
-                          key={trip.id}
-                          className={`trip-option ${selectedTrip?.id === trip.id ? 'selected' : ''}`}
-
-                          onClick={() => handleTripSelect(trip)}
-                        >
-                          <div className="trip-option-image">
-                            {trip.images && trip.images.split(',')[0] && (
-                              <img
-                                src={getTripImageUrl(trip.images.split(',')[0])}
-                                alt={trip.title}
-                                onError={(e) => e.target.style.display = 'none'}
-                              />
-                            )}
-                          </div>
-                          <div className="trip-option-details">
-                            <div className="trip-option-title">{trip.title}</div>
-                            <div className="trip-option-location">
-                              <FontAwesomeIcon icon={faMapMarkerAlt} />
-                              {trip.cityName}
-                            </div>
-                            <div className="trip-option-price">
-                              <FontAwesomeIcon icon={faMoneyBillWave} />
-                              {trip.cost} ريال
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : tripSearch.length >= 1 ? (
-                      <div className="trip-no-results">لا توجد نتائج</div>
-                    ) : null}
+                {selectedTrip && (
+                  <div className="selected-trip-card">
+                    <div className="selected-trip-image">
+                      {selectedTrip.images && selectedTrip.images.split(',')[0] && (
+                        <img
+                          src={getTripImageUrl(selectedTrip.images.split(',')[0])}
+                          alt={selectedTrip.title}
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
+                      )}
+                    </div>
+                    <div className="selected-trip-info">
+                      <h4>{selectedTrip.title}</h4>
+                      <p>
+                        <FontAwesomeIcon icon={faMapMarkerAlt} />
+                        {selectedTrip.cityName}
+                      </p>
+                      {/* <p>
+                      <FontAwesomeIcon icon={faMoneyBillWave} />
+                      {selectedTrip.price} ريال
+                    </p> */}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {selectedTrip && (
-                <div className="selected-trip-card">
-                  <div className="selected-trip-image">
-                    {selectedTrip.images && selectedTrip.images.split(',')[0] && (
-                      <img
-                        src={getTripImageUrl(selectedTrip.images.split(',')[0])}
-                        alt={selectedTrip.title}
-                        onError={(e) => e.target.style.display = 'none'}
-                      />
-                    )}
-                  </div>
-                  <div className="selected-trip-info">
-                    <h4>{selectedTrip.title}</h4>
-                    <p>
-                      <FontAwesomeIcon icon={faMapMarkerAlt} />
-                      {selectedTrip.cityName}
-                    </p>
-                    {/* <p>
-                      <FontAwesomeIcon icon={faMoneyBillWave} />
-                      {selectedTrip.price} ريال
-                    </p> */}
+              {/* Package Selection Section */}
+              {selectedTrip && selectedTrip.packages && selectedTrip.packages.length > 0 && (
+                <div className="booking-form-section">
+                  <h3 className="booking-form-section-title">
+                    <FontAwesomeIcon icon={faBox} />
+                    اختيار الباقة
+                  </h3>
+
+                  <div className="package-selection">
+                    {selectedTrip.packages.map(pkg => (
+                      <div
+                        key={pkg.id}
+                        className={`package-option ${selectedPackage?.id === pkg.id ? 'selected' : ''}`}
+                        onClick={() => handlePackageSelect(pkg)}
+                      >
+                        <div className="package-info">
+                          <h4>{pkg.name}</h4>
+                          <p>{pkg.description}</p>
+                          <div className="package-price">
+                            <FontAwesomeIcon icon={faMoneyBillWave} />
+                            {pkg.cost} ريال
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Package Selection Section */}
-            {selectedTrip && selectedTrip.packages && selectedTrip.packages.length > 0 && (
-              <div className="booking-form-section">
-                <h3 className="booking-form-section-title">
-                  <FontAwesomeIcon icon={faBox} />
-                  اختيار الباقة
-                </h3>
+              {selectedPackage && (
+                <div className="booking-form-section">
+                  <h3 className="booking-form-section-title">
+                    <FontAwesomeIcon icon={faBox} />
+                    عدد الباقات
+                  </h3>
 
-                <div className="package-selection">
-                  {selectedTrip.packages.map(pkg => (
-                    <div
-                      key={pkg.id}
-                      className={`package-option ${selectedPackage?.id === pkg.id ? 'selected' : ''}`}
-                      onClick={() => handlePackageSelect(pkg)}
+                  <div className="package-quantity">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm(prev => ({
+                          ...prev,
+                          packageQuantity: Math.max(1, Number(prev.packageQuantity) - 1),
+                        }))
+                      }
                     >
-                      <div className="package-info">
-                        <h4>{pkg.name}</h4>
-                        <p>{pkg.description}</p>
-                        <div className="package-price">
-                          <FontAwesomeIcon icon={faMoneyBillWave} />
-                          {pkg.cost} ريال
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      -
+                    </button>
+                    <span style={{ margin: "0 10px" }}>{form.packageQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm(prev => ({
+                          ...prev,
+                          packageQuantity: Number(prev.packageQuantity) + 1,
+                        }))
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {selectedPackage && (
-              <div className="booking-form-section">
-                <h3 className="booking-form-section-title">
-                  <FontAwesomeIcon icon={faBox} />
-                  عدد الباقات
-                </h3>
-
-                <div className="package-quantity">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setForm(prev => ({
-                        ...prev,
-                        packageQuantity: Math.max(1, Number(prev.packageQuantity) - 1),
-                      }))
-                    }
-                  >
-                    -
-                  </button>
-                  <span style={{ margin: "0 10px" }}>{form.packageQuantity}</span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setForm(prev => ({
-                        ...prev,
-                        packageQuantity: Number(prev.packageQuantity) + 1,
-                      }))
-                    }
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
 
 
 
 
-            {/* {selectedTrip && selectedTrip.serviceOptions && selectedTrip.serviceOptions.length > 0 && (
+              {/* {selectedTrip && selectedTrip.serviceOptions && selectedTrip.serviceOptions.length > 0 && (
   <div className="booking-form-section">
     <h3 className="booking-form-section-title">
       <FontAwesomeIcon icon={faBox} />
@@ -727,107 +766,107 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
 )} */}
 
 
-            {/*neeche wala*/}
-            {/* Customer Selection Section */}
-            <div className="booking-form-section">
-              <h3 className="booking-form-section-title">
-                <FontAwesomeIcon icon={faUser} />
-                اختيار العميل
-              </h3>
+              {/*neeche wala*/}
+              {/* Customer Selection Section */}
+              <div className="booking-form-section">
+                <h3 className="booking-form-section-title">
+                  <FontAwesomeIcon icon={faUser} />
+                  اختيار العميل
+                </h3>
 
-              <div className="customer-search-container">
-                <div className="customer-search-input">
-                  <FontAwesomeIcon icon={faSearch} className="customer-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="البحث في العملاء..."
-                    value={customerSearch}
-                    onChange={handleCustomerSearch}
-                    onFocus={() => setShowCustomerDropdown(true)}
-                    className="customer-search-field"
-                  />
-                  {customerSearch && (
-                    <button
-                      type="button"
-                      className="customer-clear-btn"
-                      onClick={clearCustomerSelection}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
+                <div className="customer-search-container">
+                  <div className="customer-search-input">
+                    <FontAwesomeIcon icon={faSearch} className="customer-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="البحث في العملاء..."
+                      value={customerSearch}
+                      onChange={handleCustomerSearch}
+                      onFocus={() => setShowCustomerDropdown(true)}
+                      className="customer-search-field"
+                    />
+                    {customerSearch && (
+                      <button
+                        type="button"
+                        className="customer-clear-btn"
+                        onClick={clearCustomerSelection}
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    )}
+                  </div>
+
+                  {showCustomerDropdown && (
+                    <div className="customer-dropdown">
+                      {loadingCustomers ? (
+                        <div className="customer-loading">جاري البحث...</div>
+                      ) : customers.length > 0 ? (
+                        customers.map(customer => (
+                          <div
+                            key={customer.id}
+                            className={`customer-option ${selectedCustomer?.id === customer.id ? 'selected' : ''}`}
+                            onClick={() => handleCustomerSelect(customer)}
+                          >
+                            <div className="customer-option-image">
+                              {customer.profileImage ? (
+                                <img
+                                  src={getImageUrl(customer.profileImage)}
+                                  alt={customer.fullName}
+                                  onError={(e) => e.target.style.display = 'none'}
+                                />
+                              ) : (
+                                <div className="customer-avatar-placeholder">
+                                  <FontAwesomeIcon icon={faUser} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="customer-option-details">
+                              <div className="customer-option-name">{customer.fullName}</div>
+                              <div className="customer-option-phone">{customer.userName}</div>
+                              <div className="customer-option-email">{customer.email}</div>
+                            </div>
+                          </div>
+                        ))
+                      ) : customerSearch.length >= 2 ? (
+                        <div className="customer-no-results">لا توجد نتائج</div>
+                      ) : null}
+                    </div>
                   )}
                 </div>
 
-                {showCustomerDropdown && (
-                  <div className="customer-dropdown">
-                    {loadingCustomers ? (
-                      <div className="customer-loading">جاري البحث...</div>
-                    ) : customers.length > 0 ? (
-                      customers.map(customer => (
-                        <div
-                          key={customer.id}
-                          className={`customer-option ${selectedCustomer?.id === customer.id ? 'selected' : ''}`}
-                          onClick={() => handleCustomerSelect(customer)}
-                        >
-                          <div className="customer-option-image">
-                            {customer.profileImage ? (
-                              <img
-                                src={getImageUrl(customer.profileImage)}
-                                alt={customer.fullName}
-                                onError={(e) => e.target.style.display = 'none'}
-                              />
-                            ) : (
-                              <div className="customer-avatar-placeholder">
-                                <FontAwesomeIcon icon={faUser} />
-                              </div>
-                            )}
-                          </div>
-                          <div className="customer-option-details">
-                            <div className="customer-option-name">{customer.fullName}</div>
-                            <div className="customer-option-phone">{customer.userName}</div>
-                            <div className="customer-option-email">{customer.email}</div>
-                          </div>
+                {selectedCustomer && (
+                  <div className="selected-customer-card">
+                    <div className="selected-customer-image">
+                      {selectedCustomer.profileImage ? (
+                        <img
+                          src={getImageUrl(selectedCustomer.profileImage)}
+                          alt={selectedCustomer.fullName}
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
+                      ) : (
+                        <div className="customer-avatar-placeholder">
+                          <FontAwesomeIcon icon={faUser} />
                         </div>
-                      ))
-                    ) : customerSearch.length >= 2 ? (
-                      <div className="customer-no-results">لا توجد نتائج</div>
-                    ) : null}
+                      )}
+                    </div>
+                    <div className="selected-customer-info">
+                      <h4>{selectedCustomer.fullName}</h4>
+                      <p>{selectedCustomer.userName}</p>
+                      <p>{selectedCustomer.email}</p>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {selectedCustomer && (
-                <div className="selected-customer-card">
-                  <div className="selected-customer-image">
-                    {selectedCustomer.profileImage ? (
-                      <img
-                        src={getImageUrl(selectedCustomer.profileImage)}
-                        alt={selectedCustomer.fullName}
-                        onError={(e) => e.target.style.display = 'none'}
-                      />
-                    ) : (
-                      <div className="customer-avatar-placeholder">
-                        <FontAwesomeIcon icon={faUser} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="selected-customer-info">
-                    <h4>{selectedCustomer.fullName}</h4>
-                    <p>{selectedCustomer.userName}</p>
-                    <p>{selectedCustomer.email}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+              {/* Booking Details Section */}
+              <div className="booking-form-section">
+                <h3 className="booking-form-section-title">
+                  <FontAwesomeIcon icon={faCalendarAlt} />
+                  تفاصيل الحجز
+                </h3>
 
-            {/* Booking Details Section */}
-            <div className="booking-form-section">
-              <h3 className="booking-form-section-title">
-                <FontAwesomeIcon icon={faCalendarAlt} />
-                تفاصيل الحجز
-              </h3>
-
-              <div className="booking-form-grid">
-                {/* <div className="booking-form-group">
+                <div className="booking-form-grid">
+                  {/* <div className="booking-form-group">
                   <label className="booking-form-label">الحالة:</label>
                   <select
                     name="status"
@@ -841,7 +880,7 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                     ))}
                   </select>
                 </div> */}
-                {/* {isEdit && (
+                  {/* {isEdit && (
                   <div className="booking-form-group">
                     <label className="booking-form-label">الحالة:</label>
                     <select
@@ -859,23 +898,23 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                 )} */}
 
 
-                <div className="booking-form-group">
-                  <label className="booking-form-label">
-                    <FontAwesomeIcon icon={faUsers} />
-                    عدد الأشخاص:
-                  </label>
-                  <input
-                    name="persons"
-                    type="number"
-                    min="1"
-                    value={form.persons}
-                    onChange={handleChange}
-                    required
-                    className="booking-form-input"
-                  />
-                </div>
+                  <div className="booking-form-group">
+                    <label className="booking-form-label">
+                      <FontAwesomeIcon icon={faUsers} />
+                      عدد الأشخاص:
+                    </label>
+                    <input
+                      name="persons"
+                      type="number"
+                      min="1"
+                      value={form.persons}
+                      onChange={handleChange}
+                      required
+                      className="booking-form-input"
+                    />
+                  </div>
 
-                {/* <div className="booking-form-group">
+                  {/* <div className="booking-form-group">
                   <label className="booking-form-label">
                     <FontAwesomeIcon icon={faClock} />
                     عدد الساعات:
@@ -891,89 +930,89 @@ const BookingForm = ({ bookingId, onBack, onSuccess }) => {
                   />
                 </div> */}
 
-                <div className="booking-form-group">
-                  <label className="booking-form-label">تاريخ الحجز:</label>
-                  <input
-                    name="bookingDate"
-                    type="date"
-                    value={form.bookingDate}
-                    onChange={handleChange}
-                    required
-                    className="booking-form-input"
-                  />
+                  <div className="booking-form-group">
+                    <label className="booking-form-label">تاريخ الحجز:</label>
+                    <input
+                      name="bookingDate"
+                      type="date"
+                      value={form.bookingDate}
+                      onChange={handleChange}
+                      required
+                      className="booking-form-input"
+                    />
+                  </div>
+
+                  <div className="booking-form-group">
+                    <label className="booking-form-label">وقت البدء:</label>
+                    <input
+                      name="startTime"
+                      type="datetime-local"
+                      value={form.startTime}
+                      onChange={handleChange}
+                      className="booking-form-input"
+                    />
+                  </div>
+
+                  <div className="booking-form-group">
+                    <label className="booking-form-label">وقت الانتهاء:</label>
+                    <input
+                      name="endTime"
+                      type="datetime-local"
+                      value={form.endTime}
+                      onChange={handleChange}
+                      className="booking-form-input"
+                    />
+                  </div>
                 </div>
 
-                <div className="booking-form-group">
-                  <label className="booking-form-label">وقت البدء:</label>
-                  <input
-                    name="startTime"
-                    type="datetime-local"
-                    value={form.startTime}
+                <div className="booking-form-group booking-form-full-width">
+                  <label className="booking-form-label">ملاحظات:</label>
+                  <textarea
+                    name="notes"
+                    value={form.notes}
                     onChange={handleChange}
-                    className="booking-form-input"
-                  />
-                </div>
-
-                <div className="booking-form-group">
-                  <label className="booking-form-label">وقت الانتهاء:</label>
-                  <input
-                    name="endTime"
-                    type="datetime-local"
-                    value={form.endTime}
-                    onChange={handleChange}
-                    className="booking-form-input"
+                    className="booking-form-textarea"
+                    placeholder="أضف أي ملاحظات إضافية..."
+                    rows="4"
                   />
                 </div>
               </div>
 
-              <div className="booking-form-group booking-form-full-width">
-                <label className="booking-form-label">ملاحظات:</label>
-                <textarea
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  className="booking-form-textarea"
-                  placeholder="أضف أي ملاحظات إضافية..."
-                  rows="4"
-                />
+              {error && <div className="booking-error">{error}</div>}
+
+              <div className="booking-form-actions">
+                <button
+                  type="button"
+                  className="booking-btn booking-btn-secondary"
+                  onClick={onBack}
+                  disabled={loading}
+                >
+                  رجوع
+                </button>
+                <button
+                  type="submit"
+                  className="booking-btn booking-btn-primary"
+                  disabled={loading}
+                // disabled={loading || form.status === "Completed" || form.status === "Canceled"}
+
+                >
+                  {loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث الحجز' : 'إضافة الحجز')}
+                </button>
               </div>
-            </div>
-
-            {error && <div className="booking-error">{error}</div>}
-
-            <div className="booking-form-actions">
-              <button
-                type="button"
-                className="booking-btn booking-btn-secondary"
-                onClick={onBack}
-                disabled={loading}
-              >
-                رجوع
-              </button>
-              <button
-                type="submit"
-                className="booking-btn booking-btn-primary"
-                disabled={loading}
-              // disabled={loading || form.status === "Completed" || form.status === "Canceled"}
-
-              >
-                {loading ? 'جاري الحفظ...' : (isEdit ? 'تحديث الحجز' : 'إضافة الحجز')}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
+
+        <SuccessModal
+          message={successModal.message}
+          isVisible={successModal.isVisible}
+          onClose={() => setSuccessModal({ isVisible: false, message: '' })}
+        />
       </div>
+    );
+  };
 
-      <SuccessModal
-        message={successModal.message}
-        isVisible={successModal.isVisible}
-        onClose={() => setSuccessModal({ isVisible: false, message: '' })}
-      />
-    </div>
-  );
-};
-
-export default BookingForm;
+  export default BookingForm;
 
 
 
